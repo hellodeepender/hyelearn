@@ -103,6 +103,9 @@ export default function LoginPage() {
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
                 placeholder="••••••••"
               />
+              <Link href="/forgot-password" className="text-xs text-gold hover:text-gold-dark mt-1 inline-block">
+                Forgot password?
+              </Link>
             </div>
             <button
               type="submit"
