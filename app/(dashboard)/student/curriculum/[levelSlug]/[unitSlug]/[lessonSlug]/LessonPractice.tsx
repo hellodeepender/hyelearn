@@ -71,19 +71,24 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lesson_id: lessonId, score, total }),
       });
+      const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
+      const localPassed = localPct >= passingScore;
+
       if (!res.ok) {
         const errData = await res.json();
-        console.error("[LessonPractice] Save failed:", errData);
+        console.error("[LessonPractice] Save failed:", res.status, errData);
         setSaveError(true);
-        setResult({ passed: false, pct: Math.round((score / total) * 100) });
+        // Still show correct pass/fail based on local calculation
+        setResult({ passed: localPassed, pct: localPct });
         return;
       }
       const data = await res.json();
-      setResult({ passed: data.passed, pct: data.pct });
+      setResult({ passed: data.passed ?? localPassed, pct: data.pct ?? localPct });
     } catch (err) {
       console.error("[LessonPractice] Save error:", err);
       setSaveError(true);
-      setResult({ passed: false, pct: 0 });
+      const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
+      setResult({ passed: localPct >= passingScore, pct: localPct });
     }
   }, [answers, lessonId]);
 
@@ -110,7 +115,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-    const passed = result?.passed ?? pct >= passingScore;
+    // Always use local percentage for pass/fail — never trust a failed API response
+    const passed = result ? result.passed : pct >= passingScore;
 
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">

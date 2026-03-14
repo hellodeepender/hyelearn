@@ -23,7 +23,13 @@ export async function POST(request: NextRequest) {
   console.log("[curriculum/progress] Saving for user:", user.id, { lesson_id, score, total });
 
   // Use admin client to bypass RLS
-  const admin = createAdminClient();
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (err) {
+    console.error("[curriculum/progress] Admin client failed:", err);
+    return NextResponse.json({ error: "Server configuration error", details: String(err) }, { status: 500 });
+  }
 
   // Get passing score for this lesson
   const { data: lesson, error: lessonError } = await admin

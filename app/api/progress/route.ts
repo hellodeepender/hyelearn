@@ -32,7 +32,13 @@ export async function POST(request: NextRequest) {
   console.log("[progress] Saving for user:", user.id, { subject, topic, exercise_type, score, total });
 
   // Use admin client to bypass RLS
-  const admin = createAdminClient();
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (err) {
+    console.error("[progress] Admin client failed:", err);
+    return NextResponse.json({ error: "Server configuration error", details: String(err) }, { status: 500 });
+  }
 
   const { data, error } = await admin.from("exercise_sessions").insert({
     student_id: user.id,
@@ -63,7 +69,12 @@ export async function GET() {
   }
 
   // Use admin client for reliable reads
-  const admin = createAdminClient();
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+  }
 
   const { data, error } = await admin
     .from("exercise_sessions")
