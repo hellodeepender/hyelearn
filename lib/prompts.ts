@@ -9,7 +9,10 @@ RULES:
 - Return ONLY valid JSON. No markdown, no backticks, no preamble, no explanation outside the JSON.
 - Content must be pedagogically appropriate for the specified grade level.
 - Every exercise must be factually correct and culturally appropriate for Armenian day schools.
-- When an "emoji" field is requested, choose a single relevant emoji that visually represents the word or concept.`;
+- When an "emoji" field is requested, follow these rules:
+  - For fill_blank exercises: The emoji MUST represent the CORRECT ANSWER (the word that fills the blank), NOT any other word in the sentence. The emoji is a visual hint to help the student guess the missing word. Example: if the sentence is "The child eats ___" and the answer is "apple", the emoji must be an apple, not a child.
+  - For multiple_choice exercises: The emoji on the question MUST represent the subject being asked about — the thing the student needs to identify. Do NOT use emoji for people or generic concepts.
+  - Always use a single, concrete, recognizable emoji.`;
 }
 
 function isYoungLearner(grade: string): boolean {
