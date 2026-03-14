@@ -45,19 +45,21 @@ export default function SignupPage() {
 
     console.log("[HyeLearn] Signup response user metadata:", data.user?.user_metadata);
 
-    // Read role from profiles table (set by trigger), not from local state
     if (data.user) {
-      const { data: profile } = await supabase
+      // Try to read role from profiles table (set by trigger)
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", data.user.id)
         .single();
 
-      console.log("[HyeLearn] Profile role from DB:", profile?.role);
+      console.log("[HyeLearn] Profile role from DB:", { role: profile?.role, profileError });
 
+      // Use profile role if available, otherwise fall back to the role we just submitted
       const resolvedRole = profile?.role ?? role;
       router.push(resolvedRole === "teacher" || resolvedRole === "admin" ? "/teacher" : "/student");
     } else {
+      // No user returned (e.g. email confirmation required) — redirect based on selected role
       router.push(role === "teacher" ? "/teacher" : "/student");
     }
   }

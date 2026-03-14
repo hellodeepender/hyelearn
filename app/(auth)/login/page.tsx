@@ -18,7 +18,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -29,29 +29,32 @@ export default function LoginPage() {
       return;
     }
 
-    // Read role from profiles table — the source of truth
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    const user = signInData.user;
     if (!user) {
       setError("Login succeeded but could not retrieve user.");
       setLoading(false);
       return;
     }
 
+    // Read role from profiles table — the source of truth.
+    // Use the user.id from the signIn response (session is already set).
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    console.log("[HyeLearn] Login profile lookup:", { role: profile?.role, profileError });
+    console.log("[HyeLearn] Login profile lookup:", { userId: user.id, role: profile?.role, profileError });
 
     if (profile?.role === "teacher" || profile?.role === "admin") {
       router.push("/teacher");
-    } else {
+    } else if (profile?.role === "student") {
       router.push("/student");
+    } else {
+      // Profile query failed (RLS or missing row) — fall back to auth metadata
+      const metaRole = user.user_metadata?.role;
+      console.log("[HyeLearn] Profile query failed, falling back to metadata role:", metaRole);
+      router.push(metaRole === "teacher" || metaRole === "admin" ? "/teacher" : "/student");
     }
   }
 
