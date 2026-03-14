@@ -1,6 +1,8 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { canAccessCurriculum } from "@/lib/access";
 import Header from "@/components/ui/Header";
+import Paywall from "@/components/ui/Paywall";
 import LessonPractice from "./LessonPractice";
 
 export default async function LessonPage({
@@ -15,7 +17,6 @@ export default async function LessonPage({
 
   const { data: profile } = await supabase.from("profiles").select("full_name, role, grade_level").eq("id", user.id).single();
 
-  // Resolve lesson
   const { data: level } = await supabase.from("curriculum_levels").select("id, title, grade_value").eq("slug", levelSlug).single();
   if (!level) notFound();
 
@@ -30,7 +31,17 @@ export default async function LessonPage({
     .single();
   if (!lesson) notFound();
 
-  // Fetch approved exercises for this lesson
+  // Access control — free tier only gets lesson 1 of each unit
+  const access = await canAccessCurriculum(supabase, user.id, lesson.sort_order);
+  if (!access.allowed) {
+    return (
+      <div className="min-h-screen bg-cream">
+        <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
+        <Paywall type="curriculum" />
+      </div>
+    );
+  }
+
   const { data: exercises } = await supabase
     .from("curated_exercises")
     .select("exercise_type, exercise_data, sort_order")
@@ -38,7 +49,6 @@ export default async function LessonPage({
     .eq("status", "approved")
     .order("sort_order");
 
-  // Find next lesson for "Continue" link
   const { data: nextLesson } = await supabase
     .from("curriculum_lessons")
     .select("slug")

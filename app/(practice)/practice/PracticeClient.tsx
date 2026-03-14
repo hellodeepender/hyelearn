@@ -14,6 +14,7 @@ import FillBlank from "@/components/exercises/FillBlank";
 import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
+import Paywall from "@/components/ui/Paywall";
 
 // --- Config data ---
 
@@ -97,6 +98,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [hints, setHints] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   const young = isYoung(grade);
   const topics = getTopics(grade);
@@ -120,6 +122,11 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
 
       if (!res.ok) {
         const data = await res.json();
+        if (res.status === 403) {
+          setRateLimited(true);
+          setPhase("config");
+          return;
+        }
         throw new Error(data.error ?? "Generation failed");
       }
 
@@ -178,6 +185,11 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   }
 
   const dashboardUrl = userRole === "teacher" || userRole === "admin" ? "/teacher" : "/student";
+
+  // --- Rate limited — show paywall ---
+  if (rateLimited) {
+    return <Paywall type="ai" />;
+  }
 
   // --- Config phase ---
   if (phase === "config") {
