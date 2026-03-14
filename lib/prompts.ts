@@ -225,5 +225,22 @@ export function buildUserPrompt(
       return matchingPrompt(grade, subject, topic, count);
     case "true_false":
       return trueFalsePrompt(grade, subject, topic, count);
+    case "learn_card":
+      return `Generate ${count} vocabulary learn cards for ${grade === "K" ? "Kindergarten" : `Grade ${grade}`} students.
+Topic: ${topic}
+
+Return this exact JSON structure:
+{
+  "exercises": [
+    {
+      "id": "1",
+      "visual": "single emoji representing the word",
+      "primary_text": "Armenian word in Armenian script",
+      "secondary_text": "English translation"
+    }
+  ],
+  "topic_title_hy": "Topic name in Armenian",
+  "topic_title_en": "${topic}"
+}`;
   }
 }

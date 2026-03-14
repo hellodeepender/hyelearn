@@ -8,7 +8,7 @@ export interface User {
   created_at: string;
 }
 
-export type ExerciseType = "multiple_choice" | "fill_blank" | "matching" | "true_false";
+export type ExerciseType = "multiple_choice" | "fill_blank" | "matching" | "true_false" | "learn_card";
 
 // --- Exercise structures (match Claude API response shapes) ---
 
