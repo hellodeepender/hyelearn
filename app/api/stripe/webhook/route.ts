@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
 function getDb() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   return createClient(
@@ -17,6 +15,7 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
 
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!sig || !endpointSecret) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }

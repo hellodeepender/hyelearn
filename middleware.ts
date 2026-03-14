@@ -35,7 +35,8 @@ export async function middleware(request: NextRequest) {
   const isProtected =
     pathname.startsWith("/teacher") ||
     pathname.startsWith("/student") ||
-    pathname.startsWith("/practice");
+    pathname.startsWith("/practice") ||
+    pathname.startsWith("/account");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -47,5 +48,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/teacher/:path*", "/student/:path*", "/practice/:path*"],
+  matcher: ["/teacher/:path*", "/student/:path*", "/practice/:path*", "/account/:path*"],
 };

@@ -14,13 +14,6 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-// Re-export as `stripe` for convenience but lazy
-export const stripe = new Proxy({} as Stripe, {
-  get(_target, prop) {
-    return (getStripe() as unknown as Record<string | symbol, unknown>)[prop];
-  },
-});
-
 export async function createCheckoutSession(
   customerEmail: string,
   priceId: string,

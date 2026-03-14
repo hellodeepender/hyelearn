@@ -26,10 +26,16 @@ export async function callClaude(
   });
 
   if (!res.ok) {
-    const body = await res.text();
+    const body = await res.text().catch(() => "Unknown error");
     throw new Error(`Claude API error ${res.status}: ${body}`);
   }
 
   const data = await res.json();
+
+  // Validate response structure before accessing nested properties
+  if (!data?.content?.[0]?.text) {
+    throw new Error("Claude API returned unexpected response structure");
+  }
+
   return data.content[0].text;
 }

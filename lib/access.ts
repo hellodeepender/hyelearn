@@ -11,7 +11,7 @@ export async function getUserSubscription(
   db: SupabaseClient,
   userId: string
 ): Promise<Subscription | null> {
-  const { data } = await db
+  const { data, error } = await db
     .from("subscriptions")
     .select("id, status, current_period_end, plans!inner(slug, ai_sessions_limit, features)")
     .eq("user_id", userId)
@@ -20,7 +20,7 @@ export async function getUserSubscription(
     .limit(1)
     .single();
 
-  if (!data) return null;
+  if (error || !data) return null;
 
   const plan = data.plans as unknown as { slug: string; ai_sessions_limit: number; features: Record<string, unknown> };
   return {
@@ -45,7 +45,6 @@ export async function canAccessCurriculum(
 ): Promise<{ allowed: boolean; reason?: string }> {
   const sub = await getUserSubscription(db, userId);
   if (!sub || !isSubscriptionActive(sub)) {
-    // Free tier: first lesson of every unit
     if (lessonSortOrder <= 1) return { allowed: true };
     return { allowed: false, reason: "upgrade" };
   }
@@ -59,10 +58,8 @@ export async function canUseAIPractice(
   const sub = await getUserSubscription(db, userId);
   const limit = sub?.plan?.ai_sessions_limit ?? 3;
 
-  // Unlimited
   if (limit === -1) return { allowed: true, remaining: -1 };
 
-  // Check daily usage
   const today = new Date().toISOString().split("T")[0];
   const { data: usage } = await db
     .from("ai_usage")
@@ -81,13 +78,14 @@ export async function canUseAIPractice(
 export async function trackAIUsage(db: SupabaseClient, userId: string): Promise<void> {
   const today = new Date().toISOString().split("T")[0];
 
-  // Try to get current count
+  // Upsert first to ensure the row exists, then increment.
+  // This avoids the race condition of read-check-write.
   const { data: existing } = await db
     .from("ai_usage")
     .select("id, sessions_used")
     .eq("user_id", userId)
     .eq("session_date", today)
-    .single();
+    .maybeSingle();
 
   if (existing) {
     await db.from("ai_usage")
