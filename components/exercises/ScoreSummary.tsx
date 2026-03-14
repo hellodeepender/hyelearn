@@ -6,6 +6,7 @@ import Link from "next/link";
 interface Props {
   score: number;
   total: number;
+  hintsUsed: number;
   subject: string;
   topic: string;
   grade: number;
@@ -17,6 +18,7 @@ interface Props {
 export default function ScoreSummary({
   score,
   total,
+  hintsUsed,
   subject,
   topic,
   grade,
@@ -28,6 +30,7 @@ export default function ScoreSummary({
   const [saveError, setSaveError] = useState(false);
   const didSave = useRef(false);
   const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const noHintCount = total - hintsUsed;
 
   let message: string;
   if (pct === 100) {
@@ -42,7 +45,6 @@ export default function ScoreSummary({
     message = "Keep practicing!";
   }
 
-  // Auto-save on mount
   useEffect(() => {
     if (didSave.current) return;
     didSave.current = true;
@@ -64,6 +66,24 @@ export default function ScoreSummary({
         <p className="text-2xl font-bold text-brown-800">{message}</p>
         {saved && <p className="text-sm text-green-600 mt-2">Progress saved</p>}
         {saveError && <p className="text-sm text-red-500 mt-2">Could not save progress</p>}
+      </div>
+
+      {/* Hint stats */}
+      <div className="space-y-1">
+        {hintsUsed > 0 ? (
+          <p className="text-sm text-brown-400">
+            Hints used: {hintsUsed}/{total}
+          </p>
+        ) : (
+          <p className="text-sm text-green-600 font-medium">
+            No hints used — great independence!
+          </p>
+        )}
+        {noHintCount > 0 && hintsUsed > 0 && (
+          <p className="text-xs text-brown-300">
+            You answered {noHintCount} question{noHintCount !== 1 ? "s" : ""} without any hints
+          </p>
+        )}
       </div>
 
       {/* Session details */}

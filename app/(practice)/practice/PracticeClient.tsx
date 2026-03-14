@@ -60,6 +60,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [exercises, setExercises] = useState<unknown[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
+  const [hints, setHints] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
 
@@ -89,6 +90,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
       setExercises(data.exercises);
       setCurrentIndex(0);
       setAnswers([]);
+      setHints([]);
       setShowNext(false);
       setPhase("practicing");
     } catch (err) {
@@ -97,8 +99,9 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
     }
   }
 
-  function handleAnswer(correct: boolean) {
+  function handleAnswer(correct: boolean, usedHint: boolean) {
     setAnswers((prev) => [...prev, correct]);
+    setHints((prev) => [...prev, usedHint]);
     setShowNext(true);
   }
 
@@ -133,6 +136,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
     setExercises([]);
     setCurrentIndex(0);
     setAnswers([]);
+    setHints([]);
     setShowNext(false);
   }
 
@@ -286,12 +290,14 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   if (phase === "complete") {
     const score = answers.filter(Boolean).length;
     const total = answers.length;
+    const hintsUsed = hints.filter(Boolean).length;
 
     return (
       <main className="max-w-2xl mx-auto px-6 py-12">
         <ScoreSummary
           score={score}
           total={total}
+          hintsUsed={hintsUsed}
           subject={subject}
           topic={topic}
           grade={grade}

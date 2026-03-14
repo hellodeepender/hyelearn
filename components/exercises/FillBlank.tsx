@@ -5,7 +5,7 @@ import type { FillBlankExercise } from "@/lib/types";
 
 interface Props {
   exercise: FillBlankExercise;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, usedHint: boolean) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -19,9 +19,9 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function FillBlank({ exercise, onAnswer }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
 
-  // Build word bank: correct answer + 3 distractors, shuffled
   const wordBank = useMemo(() => {
     const options = [
       { hy: exercise.answer_hy, en: exercise.answer_en, isCorrect: true },
@@ -37,14 +37,14 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
   function handleSelect(index: number) {
     if (answered) return;
     setSelected(index);
-    onAnswer(wordBank[index].isCorrect);
+    onAnswer(wordBank[index].isCorrect, hintShown);
   }
 
-  // Render Armenian sentence with styled blank
   const parts = exercise.sentence_hy.split("___");
 
   return (
     <div className="space-y-6">
+      {/* Sentence — Armenian only, English revealed after answering */}
       <div>
         <p className="text-2xl font-semibold text-brown-800 leading-relaxed">
           {parts[0]}
@@ -59,15 +59,22 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
           </span>
           {parts[1] ?? ""}
         </p>
-        <p className="text-sm text-brown-400 mt-1">{exercise.sentence_en}</p>
+        {!answered && !hintShown && (
+          <button
+            onClick={() => setHintShown(true)}
+            className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
+          >
+            Need help? Show English
+          </button>
+        )}
+        {(hintShown || answered) && (
+          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
+            {exercise.sentence_en}
+          </p>
+        )}
       </div>
 
-      {exercise.hint_hy && !answered && (
-        <p className="text-sm text-brown-400 italic">
-          {exercise.hint_hy} — {exercise.hint_en}
-        </p>
-      )}
-
+      {/* Word bank — Armenian only before answer, English subtitles after */}
       <div className="grid grid-cols-2 gap-3">
         {wordBank.map((word, i) => {
           let style = "border-brown-200 hover:border-brown-300 bg-warm-white";
@@ -89,14 +96,17 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
               className={`p-4 rounded-xl border-2 text-center transition-all ${style}`}
             >
               <span className="block text-lg font-medium text-brown-800">{word.hy}</span>
-              <span className="block text-xs text-brown-400 mt-0.5">{word.en}</span>
+              {answered && (
+                <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>
+              )}
             </button>
           );
         })}
       </div>
 
+      {/* Explanation — after answering */}
       {answered && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1">
+        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

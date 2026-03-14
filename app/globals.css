@@ -19,4 +19,10 @@
   --color-earth: #8B6914;
   --color-earth-dark: #6B4F0E;
   --color-warm-white: #FFFDF7;
+  --animate-fade-in: fade-in 0.3s ease-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

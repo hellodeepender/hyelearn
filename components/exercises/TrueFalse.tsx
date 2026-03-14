@@ -5,17 +5,18 @@ import type { TrueFalseExercise } from "@/lib/types";
 
 interface Props {
   exercise: TrueFalseExercise;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, usedHint: boolean) => void;
 }
 
 export default function TrueFalse({ exercise, onAnswer }: Props) {
   const [selected, setSelected] = useState<boolean | null>(null);
+  const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
 
   function handleSelect(value: boolean) {
     if (answered) return;
     setSelected(value);
-    onAnswer(value === exercise.correct_answer);
+    onAnswer(value === exercise.correct_answer, hintShown);
   }
 
   function btnStyle(value: boolean) {
@@ -29,11 +30,24 @@ export default function TrueFalse({ exercise, onAnswer }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Statement — Armenian only, English revealed after answering */}
       <div>
         <p className="text-2xl font-semibold text-brown-800 leading-relaxed">
           {exercise.statement_hy}
         </p>
-        <p className="text-sm text-brown-400 mt-1">{exercise.statement_en}</p>
+        {!answered && !hintShown && (
+          <button
+            onClick={() => setHintShown(true)}
+            className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
+          >
+            Need help? Show English
+          </button>
+        )}
+        {(hintShown || answered) && (
+          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
+            {exercise.statement_en}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -55,8 +69,9 @@ export default function TrueFalse({ exercise, onAnswer }: Props) {
         </button>
       </div>
 
+      {/* Explanation — after answering */}
       {answered && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1">
+        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

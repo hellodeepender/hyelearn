@@ -5,7 +5,7 @@ import type { MatchingExercise } from "@/lib/types";
 
 interface Props {
   exercises: MatchingExercise[];
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, usedHint: boolean) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -37,12 +37,10 @@ export default function Matching({ exercises, onAnswer }: Props) {
     const rightOriginalIndex = rightItems[rightIndex].index;
 
     const next = new Map(matches);
-    // Remove any existing match for this left item
     next.set(leftOriginalIndex, rightOriginalIndex);
     setMatches(next);
     setSelectedLeft(null);
 
-    // Auto-check when all pairs are matched
     if (next.size === exercises.length) {
       const res = new Map<number, boolean>();
       let allCorrect = true;
@@ -52,7 +50,8 @@ export default function Matching({ exercises, onAnswer }: Props) {
         if (!isCorrect) allCorrect = false;
       });
       setResults(res);
-      onAnswer(allCorrect);
+      // Matching has no hint feature — always false
+      onAnswer(allCorrect, false);
     }
   }
 
@@ -64,13 +63,11 @@ export default function Matching({ exercises, onAnswer }: Props) {
 
   function getRightStatus(originalIndex: number) {
     if (results) {
-      // Check if any left matched to this right
       for (const [left, right] of matches) {
         if (right === originalIndex) return results.get(left) ? "correct" : "wrong";
       }
       return "unmatched";
     }
-    // Check if matched
     for (const [, right] of matches) {
       if (right === originalIndex) return "matched";
     }
@@ -93,7 +90,7 @@ export default function Matching({ exercises, onAnswer }: Props) {
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {/* Left column */}
+        {/* Left column — Armenian only, English after completion */}
         <div className="space-y-2">
           {leftItems.map((item, i) => {
             const status = selectedLeft === i ? "selected" : getLeftStatus(item.index);
@@ -105,13 +102,15 @@ export default function Matching({ exercises, onAnswer }: Props) {
                 className={`w-full p-3 rounded-xl border-2 text-left transition-all ${statusStyles[status]}`}
               >
                 <span className="block text-lg font-medium text-brown-800">{item.left_hy}</span>
-                <span className="block text-xs text-brown-400">{item.left_en}</span>
+                {done && (
+                  <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* Right column */}
+        {/* Right column — Armenian only, English after completion */}
         <div className="space-y-2">
           {rightItems.map((item, i) => {
             const status = getRightStatus(item.index);
@@ -123,7 +122,9 @@ export default function Matching({ exercises, onAnswer }: Props) {
                 className={`w-full p-3 rounded-xl border-2 text-left transition-all ${statusStyles[status]}`}
               >
                 <span className="block text-lg font-medium text-brown-800">{item.right_hy}</span>
-                <span className="block text-xs text-brown-400">{item.right_en}</span>
+                {done && (
+                  <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
+                )}
               </button>
             );
           })}
@@ -131,7 +132,7 @@ export default function Matching({ exercises, onAnswer }: Props) {
       </div>
 
       {done && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 text-center">
+        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 text-center animate-fade-in">
           <p className="text-brown-700 font-medium">
             {Array.from(results!.values()).every(Boolean)
               ? "All matched correctly!"
