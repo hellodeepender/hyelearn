@@ -1,0 +1,57 @@
+import { redirect, notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase-server";
+import Header from "@/components/ui/Header";
+import LessonPractice from "./LessonPractice";
+
+export default async function LessonPage({
+  params,
+}: {
+  params: Promise<{ levelSlug: string; unitSlug: string; lessonSlug: string }>;
+}) {
+  const { levelSlug, unitSlug, lessonSlug } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, grade_level").eq("id", user.id).single();
+
+  // Resolve lesson
+  const { data: level } = await supabase.from("curriculum_levels").select("id, title, grade_value").eq("slug", levelSlug).single();
+  if (!level) notFound();
+
+  const { data: unit } = await supabase.from("curriculum_units").select("id, title").eq("level_id", level.id).eq("slug", unitSlug).single();
+  if (!unit) notFound();
+
+  const { data: lesson } = await supabase
+    .from("curriculum_lessons")
+    .select("id, title, lesson_type, passing_score")
+    .eq("unit_id", unit.id)
+    .eq("slug", lessonSlug)
+    .single();
+  if (!lesson) notFound();
+
+  // Fetch approved exercises for this lesson
+  const { data: exercises } = await supabase
+    .from("curated_exercises")
+    .select("exercise_type, exercise_data, sort_order")
+    .eq("lesson_id", lesson.id)
+    .eq("status", "approved")
+    .order("sort_order");
+
+  const backUrl = `/student/curriculum/${levelSlug}/${unitSlug}`;
+
+  return (
+    <div className="min-h-screen bg-cream">
+      <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
+      <LessonPractice
+        lessonId={lesson.id}
+        lessonTitle={lesson.title}
+        lessonType={lesson.lesson_type}
+        passingScore={lesson.passing_score}
+        exercises={(exercises ?? []).map((e) => ({ type: e.exercise_type, data: e.exercise_data }))}
+        backUrl={backUrl}
+        gradeValue={level.grade_value}
+      />
+    </div>
+  );
+}

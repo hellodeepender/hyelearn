@@ -127,14 +127,29 @@ export default async function TeacherDashboard() {
           </div>
         </div>
 
-        {/* Preview exercises link */}
+        {/* Curriculum tools */}
         <div className="mt-10 pt-8 border-t border-brown-100">
-          <Link
-            href="/practice"
-            className="inline-block border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            Preview Exercises
-          </Link>
+          <h2 className="text-lg font-semibold text-brown-800 mb-4">Curriculum Tools</h2>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/teacher/seed"
+              className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+            >
+              Seed Exercises (AI)
+            </Link>
+            <Link
+              href="/teacher/review"
+              className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+            >
+              Review Queue
+            </Link>
+            <Link
+              href="/practice"
+              className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+            >
+              Preview AI Practice
+            </Link>
+          </div>
         </div>
       </main>
     </div>

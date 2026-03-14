@@ -2,13 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
+import { getLevelsWithProgress } from "@/lib/curriculum";
 
 export default async function StudentDashboard() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
@@ -19,114 +17,99 @@ export default async function StudentDashboard() {
 
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
-  // Fetch exercise sessions for stats and recent activity
+  // Curriculum progress
+  const levels = await getLevelsWithProgress(supabase, user.id);
+  const currentLevel = levels.find((l) => l.unlocked && l.completedLessons < l.totalLessons) ?? levels[0];
+  const totalCurriculumLessons = levels.reduce((s, l) => s + l.totalLessons, 0);
+  const completedCurriculumLessons = levels.reduce((s, l) => s + l.completedLessons, 0);
+
+  // Extra practice stats
   const { data: sessions } = await supabase
     .from("exercise_sessions")
     .select("id, subject, topic, exercise_type, score, total, completed_at")
     .eq("student_id", user.id)
     .order("completed_at", { ascending: false })
-    .limit(50);
+    .limit(5);
 
   const allSessions = sessions ?? [];
-  const sessionCount = allSessions.length;
-  const totalScore = allSessions.reduce((sum, s) => sum + (s.score ?? 0), 0);
-  const totalQuestions = allSessions.reduce((sum, s) => sum + (s.total ?? 0), 0);
-  const avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
-  const bestScore = allSessions.length > 0
-    ? Math.round(Math.max(...allSessions.map((s) => (s.total > 0 ? (s.score / s.total) * 100 : 0))))
-    : 0;
-
-  // Streak: count consecutive days with activity
-  let streak = 0;
-  if (allSessions.length > 0) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const uniqueDays = new Set(
-      allSessions.map((s) => {
-        const d = new Date(s.completed_at);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime();
-      })
-    );
-    const sortedDays = Array.from(uniqueDays).sort((a, b) => b - a);
-    const oneDay = 86400000;
-    // Check if most recent day is today or yesterday
-    if (sortedDays[0] >= today.getTime() - oneDay) {
-      streak = 1;
-      for (let i = 1; i < sortedDays.length; i++) {
-        if (sortedDays[i - 1] - sortedDays[i] <= oneDay) {
-          streak++;
-        } else {
-          break;
-        }
-      }
-    }
-  }
-
-  const recentSessions = allSessions.slice(0, 5);
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
 
   return (
     <div className="min-h-screen bg-cream">
-      <Header
-        userName={profile?.full_name ?? "Student"}
-        userRole={profile?.role ?? "student"}
-      />
+      <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-brown-800 mb-2">
-          Welcome, {firstName}!
-        </h1>
-        <p className="text-brown-500 mb-8">Continue your Armenian learning journey.</p>
+        <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
+        <p className="text-brown-500 mb-10">Continue your Armenian learning journey.</p>
 
-        {/* Stats cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Completed</h3>
-            <p className="text-3xl font-bold text-gold">{sessionCount}</p>
+        {/* My Curriculum */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-brown-800">My Curriculum</h2>
+            <Link href="/student/curriculum" className="text-sm text-gold hover:text-gold-dark font-medium">
+              View all &rarr;
+            </Link>
           </div>
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Average Score</h3>
-            <p className="text-3xl font-bold text-gold">
-              {sessionCount > 0 ? `${avgScore}%` : "--"}
-            </p>
-          </div>
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Day Streak</h3>
-            <p className="text-3xl font-bold text-gold">{streak}</p>
-          </div>
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Best Score</h3>
-            <p className="text-3xl font-bold text-gold">
-              {sessionCount > 0 ? `${bestScore}%` : "--"}
-            </p>
-          </div>
-        </div>
 
-        {/* Recent activity */}
-        <div className="mb-10">
-          <h2 className="text-lg font-semibold text-brown-800 mb-4">Recent Activity</h2>
-          {recentSessions.length > 0 ? (
-            <div className="bg-warm-white border border-brown-100 rounded-xl divide-y divide-brown-100">
-              {recentSessions.map((s) => {
+          {currentLevel && (
+            <div className="bg-warm-white border border-brown-100 rounded-2xl p-6 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-brown-800 text-lg">{currentLevel.title}</h3>
+                  <p className="text-sm text-brown-400">{currentLevel.description}</p>
+                </div>
+                <Link
+                  href="/student/curriculum"
+                  className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+                >
+                  Continue
+                </Link>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 bg-brown-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gold rounded-full"
+                    style={{ width: `${totalCurriculumLessons > 0 ? Math.round((completedCurriculumLessons / totalCurriculumLessons) * 100) : 0}%` }}
+                  />
+                </div>
+                <span className="text-xs text-brown-400 shrink-0">
+                  {completedCurriculumLessons}/{totalCurriculumLessons} lessons
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
+              <h3 className="text-sm font-medium text-brown-500 mb-1">Lessons Completed</h3>
+              <p className="text-3xl font-bold text-gold">{completedCurriculumLessons}</p>
+            </div>
+            <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
+              <h3 className="text-sm font-medium text-brown-500 mb-1">AI Practice Sessions</h3>
+              <p className="text-3xl font-bold text-gold">{allSessions.length}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Extra Practice */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-brown-800">Extra Practice (AI)</h2>
+          </div>
+
+          {allSessions.length > 0 ? (
+            <div className="bg-warm-white border border-brown-100 rounded-xl divide-y divide-brown-100 mb-4">
+              {allSessions.map((s) => {
                 const pct = s.total > 0 ? Math.round((s.score / s.total) * 100) : 0;
-                const date = new Date(s.completed_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+                const date = new Date(s.completed_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
                 return (
                   <div key={s.id} className="flex items-center justify-between px-5 py-3">
                     <div>
-                      <p className="text-sm font-medium text-brown-800 capitalize">
-                        {s.topic}
-                      </p>
-                      <p className="text-xs text-brown-400 capitalize">
-                        {s.subject} &middot; {s.exercise_type?.replace("_", " ")}
-                      </p>
+                      <p className="text-sm font-medium text-brown-800 capitalize">{s.topic}</p>
+                      <p className="text-xs text-brown-400 capitalize">{s.subject} &middot; {s.exercise_type?.replace("_", " ")}</p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-semibold ${pct >= 70 ? "text-green-600" : "text-brown-500"}`}>
-                        {s.score}/{s.total} ({pct}%)
-                      </p>
+                      <p className={`text-sm font-semibold ${pct >= 70 ? "text-green-600" : "text-brown-500"}`}>{pct}%</p>
                       <p className="text-xs text-brown-400">{date}</p>
                     </div>
                   </div>
@@ -134,20 +117,16 @@ export default async function StudentDashboard() {
               })}
             </div>
           ) : (
-            <div className="bg-warm-white border border-brown-200 border-dashed rounded-xl p-8 text-center">
-              <p className="text-brown-400">You haven&apos;t completed any exercises yet.</p>
-              <p className="text-brown-300 text-sm mt-1">Start your first practice session!</p>
-            </div>
+            <p className="text-sm text-brown-400 mb-4">No AI practice sessions yet.</p>
           )}
-        </div>
 
-        {/* CTA */}
-        <Link
-          href="/practice"
-          className="inline-block bg-gold hover:bg-gold-dark text-white px-8 py-3.5 rounded-lg text-lg font-semibold transition-colors shadow-lg shadow-gold/20"
-        >
-          Start Practicing
-        </Link>
+          <Link
+            href="/practice"
+            className="inline-block border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+          >
+            Start AI Practice
+          </Link>
+        </section>
       </main>
     </div>
   );
