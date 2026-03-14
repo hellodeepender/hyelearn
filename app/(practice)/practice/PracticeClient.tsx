@@ -64,7 +64,7 @@ const EXERCISE_TYPES: { id: ExerciseType; label: string; icon: string }[] = [
   { id: "true_false", label: "True / False", icon: "⚖️" },
 ];
 
-const LOADING_LETTERS = ["A", "B", "G", "D", "E", "Z", "E", "Y", "T", "Zh"];
+const LOADING_LETTERS = ["\u0531", "\u0532", "\u0533", "\u0534", "\u0535", "\u0536", "\u0537", "\u0538", "\u0539", "\u053A"];
 
 type Phase = "config" | "loading" | "practicing" | "complete";
 
