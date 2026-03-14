@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { MultipleChoiceExercise } from "@/lib/types";
+import { useState, useMemo } from "react";
+import type { MultipleChoiceExercise, MCOption } from "@/lib/types";
 
 interface Props {
   exercise: MultipleChoiceExercise;
@@ -9,28 +9,38 @@ interface Props {
   young?: boolean;
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
 
+  // Shuffle options once on mount — prevents correct answer always being first
+  const shuffledOptions = useMemo<MCOption[]>(() => shuffle(exercise.options), [exercise]);
+
   function handleSelect(optionId: string) {
     if (answered) return;
     setSelected(optionId);
-    const opt = exercise.options.find((o) => o.id === optionId);
+    const opt = shuffledOptions.find((o) => o.id === optionId);
     onAnswer(opt?.correct ?? false, hintShown);
   }
 
   return (
     <div className="space-y-6">
-      {/* Emoji visual (young learners) */}
       {exercise.emoji && (
         <div className="text-center">
           <span className={young ? "text-7xl" : "text-5xl"}>{exercise.emoji}</span>
         </div>
       )}
 
-      {/* Question */}
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
           {exercise.question_hy}
@@ -50,9 +60,8 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
         )}
       </div>
 
-      {/* Options */}
       <div className="space-y-3">
-        {exercise.options.map((opt) => {
+        {shuffledOptions.map((opt) => {
           let style = young
             ? "border-brown-200 hover:border-brown-300 bg-amber-50/30"
             : "border-brown-200 hover:border-brown-300 bg-warm-white";
@@ -71,7 +80,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-left p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 transition-all ${style}`}
+              className={`w-full text-left p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl min-h-[52px]"} border-2 transition-all ${style}`}
             >
               <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{opt.text_hy}</span>
               {answered && (

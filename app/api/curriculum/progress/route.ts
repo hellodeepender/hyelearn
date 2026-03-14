@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(request: NextRequest) {
+  // Auth check — verify the user is logged in
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error("[curriculum/progress] Auth failed:", authError?.message);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let body: { lesson_id: string; score: number; total: number };
   try {
@@ -14,19 +20,28 @@ export async function POST(request: NextRequest) {
   }
 
   const { lesson_id, score, total } = body;
+  console.log("[curriculum/progress] Saving for user:", user.id, { lesson_id, score, total });
+
+  // Use admin client to bypass RLS
+  const admin = createAdminClient();
 
   // Get passing score for this lesson
-  const { data: lesson } = await supabase
+  const { data: lesson, error: lessonError } = await admin
     .from("curriculum_lessons")
     .select("passing_score")
     .eq("id", lesson_id)
     .single();
 
-  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  const passed = pct >= (lesson?.passing_score ?? 70);
+  if (lessonError) {
+    console.error("[curriculum/progress] Lesson lookup failed:", lessonError.message);
+    return NextResponse.json({ error: "Lesson not found", details: lessonError.message }, { status: 404 });
+  }
 
-  // Upsert progress — keep best score
-  const { data: existing } = await supabase
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const passed = pct >= (lesson.passing_score ?? 70);
+
+  // Check for existing progress
+  const { data: existing } = await admin
     .from("student_progress")
     .select("id, score, total, passed, attempts")
     .eq("student_id", user.id)
@@ -34,8 +49,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (existing) {
-    const keepOld = existing.total > 0 && (existing.score / existing.total) > (score / total);
-    const { error } = await supabase
+    const keepOld = existing.total > 0 && (existing.score / existing.total) > (total > 0 ? score / total : 0);
+    const { error: updateError } = await admin
       .from("student_progress")
       .update({
         score: keepOld ? existing.score : score,
@@ -46,20 +61,46 @@ export async function POST(request: NextRequest) {
       })
       .eq("id", existing.id);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (updateError) {
+      console.error("[curriculum/progress] Update error:", updateError.message);
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+    console.log("[curriculum/progress] Updated existing progress:", existing.id);
   } else {
-    const { error } = await supabase.from("student_progress").insert({
-      student_id: user.id,
-      lesson_id,
-      score,
-      total,
-      passed,
-      attempts: 1,
-      completed_at: new Date().toISOString(),
-    });
+    const { data: inserted, error: insertError } = await admin
+      .from("student_progress")
+      .insert({
+        student_id: user.id,
+        lesson_id,
+        score,
+        total,
+        passed,
+        attempts: 1,
+        completed_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (insertError) {
+      console.error("[curriculum/progress] Insert error:", insertError.message, insertError.details, insertError.hint);
+      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    }
+    console.log("[curriculum/progress] Inserted new progress:", inserted.id);
   }
 
-  return NextResponse.json({ passed, pct });
+  // Verify the save actually worked
+  const { data: verify } = await admin
+    .from("student_progress")
+    .select("id, passed")
+    .eq("student_id", user.id)
+    .eq("lesson_id", lesson_id)
+    .single();
+
+  if (!verify) {
+    console.error("[curriculum/progress] Verification failed — row not found after save");
+    return NextResponse.json({ error: "Save verification failed" }, { status: 500 });
+  }
+
+  console.log("[curriculum/progress] Verified save, passed:", verify.passed);
+  return NextResponse.json({ passed: verify.passed, pct });
 }

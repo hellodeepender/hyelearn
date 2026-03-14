@@ -179,6 +179,10 @@ export default function SeedClient({ levels, units, lessons, lessonStats: initia
         </Link>
       </div>
 
+      <div className="bg-brown-50 border border-brown-100 rounded-lg p-3 mb-6 text-xs text-brown-500">
+        Tip: To update exercises with improved emoji or content, select a lesson and use &quot;Replace drafts&quot; to regenerate.
+      </div>
+
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-6">{error}</div>
       )}

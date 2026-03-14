@@ -59,6 +59,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     }
   }
 
+  const [saveError, setSaveError] = useState(false);
+
   // Auto-save on completion
   const saveProgress = useCallback(async () => {
     const score = answers.filter(Boolean).length;
@@ -69,9 +71,18 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lesson_id: lessonId, score, total }),
       });
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("[LessonPractice] Save failed:", errData);
+        setSaveError(true);
+        setResult({ passed: false, pct: Math.round((score / total) * 100) });
+        return;
+      }
       const data = await res.json();
       setResult({ passed: data.passed, pct: data.pct });
-    } catch {
+    } catch (err) {
+      console.error("[LessonPractice] Save error:", err);
+      setSaveError(true);
       setResult({ passed: false, pct: 0 });
     }
   }, [answers, lessonId]);
@@ -125,13 +136,16 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                   <span style={{ animationDelay: "0.1s" }}>&#11088;</span>
                   <span style={{ animationDelay: "0.2s" }}>&#11088;</span>
                 </div>
-                <p className="text-sm text-green-600 mt-1">Progress saved</p>
+                <p className="text-sm text-green-600 mt-1">{saveError ? "" : "Progress saved"}</p>
               </div>
             ) : (
               <div className="space-y-2">
                 <p className="text-2xl font-bold text-brown-800">Keep practicing!</p>
                 <p className="text-brown-500">You need {passingScore}% to pass. You scored {pct}%.</p>
-                <p className="text-sm text-green-600 mt-1">Progress saved</p>
+                {saveError
+                  ? <p className="text-sm text-red-500 mt-1">Could not save progress. Check your connection.</p>
+                  : <p className="text-sm text-green-600 mt-1">Progress saved</p>
+                }
               </div>
             )
           ) : (
