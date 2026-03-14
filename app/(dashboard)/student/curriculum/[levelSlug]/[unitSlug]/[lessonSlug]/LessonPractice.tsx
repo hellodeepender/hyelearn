@@ -65,32 +65,32 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   const saveProgress = useCallback(async () => {
     const score = answers.filter(Boolean).length;
     const total = answers.length;
+    const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
+    const localPassed = localPct >= passingScore;
+
     try {
       const res = await fetch("/api/curriculum/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lesson_id: lessonId, score, total }),
       });
-      const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
-      const localPassed = localPct >= passingScore;
 
       if (!res.ok) {
-        const errData = await res.json();
-        console.error("[LessonPractice] Save failed:", res.status, errData);
+        const errData = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        console.error("[LessonPractice] Save failed:", res.status, JSON.stringify(errData));
         setSaveError(true);
-        // Still show correct pass/fail based on local calculation
         setResult({ passed: localPassed, pct: localPct });
         return;
       }
+
       const data = await res.json();
       setResult({ passed: data.passed ?? localPassed, pct: data.pct ?? localPct });
     } catch (err) {
-      console.error("[LessonPractice] Save error:", err);
+      console.error("[LessonPractice] Network error:", err);
       setSaveError(true);
-      const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
-      setResult({ passed: localPct >= passingScore, pct: localPct });
+      setResult({ passed: localPassed, pct: localPct });
     }
-  }, [answers, lessonId]);
+  }, [answers, lessonId, passingScore]);
 
   useEffect(() => {
     if (phase === "complete" && !didSave.current && answers.length > 0) {

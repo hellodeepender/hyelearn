@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
-import { createAdminClient } from "@/lib/supabase-admin";
+import { createClient as createServerClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
+
+function getDb(authClient: Awaited<ReturnType<typeof createServerClient>>) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey) {
+    return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+  return authClient;
+}
 
 export async function POST(request: NextRequest) {
-  // Auth check
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const authClient = await createServerClient();
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
 
   if (authError || !user) {
-    console.error("[progress] Auth failed:", authError?.message);
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized", details: authError?.message }, { status: 401 });
   }
 
   let body: {
@@ -29,18 +37,11 @@ export async function POST(request: NextRequest) {
   }
 
   const { subject, topic, exercise_type, grade_level, score, total, exercises_data } = body;
-  console.log("[progress] Saving for user:", user.id, { subject, topic, exercise_type, score, total });
+  console.log("[progress] user:", user.id, { subject, topic, exercise_type, score, total });
 
-  // Use admin client to bypass RLS
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch (err) {
-    console.error("[progress] Admin client failed:", err);
-    return NextResponse.json({ error: "Server configuration error", details: String(err) }, { status: 500 });
-  }
+  const db = getDb(authClient);
 
-  const { data, error } = await admin.from("exercise_sessions").insert({
+  const { data, error } = await db.from("exercise_sessions").insert({
     student_id: user.id,
     subject,
     topic,
@@ -52,8 +53,13 @@ export async function POST(request: NextRequest) {
   }).select("id").single();
 
   if (error) {
-    console.error("[progress] Insert error:", error.message, error.details, error.hint);
-    return NextResponse.json({ error: "Failed to save progress", details: error.message }, { status: 500 });
+    console.error("[progress] Insert error:", error.message, error.details, error.hint, error.code);
+    return NextResponse.json({
+      error: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    }, { status: 500 });
   }
 
   console.log("[progress] Saved session:", data.id);
@@ -61,22 +67,16 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const authClient = await createServerClient();
+  const { data: { user } } = await authClient.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Use admin client for reliable reads
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch {
-    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-  }
+  const db = getDb(authClient);
 
-  const { data, error } = await admin
+  const { data, error } = await db
     .from("exercise_sessions")
     .select("*")
     .eq("student_id", user.id)
@@ -84,8 +84,8 @@ export async function GET() {
     .limit(20);
 
   if (error) {
-    console.error("[progress] Query error:", error);
-    return NextResponse.json({ error: "Failed to fetch progress" }, { status: 500 });
+    console.error("[progress] Query error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ sessions: data });
