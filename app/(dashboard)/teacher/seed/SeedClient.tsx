@@ -17,7 +17,7 @@ interface Props {
   userId: string;
 }
 
-const EXERCISE_TYPES = ["multiple_choice", "fill_blank", "matching", "true_false"];
+const EXERCISE_TYPES = ["learn_card", "multiple_choice", "fill_blank", "matching", "true_false"];
 
 export default function SeedClient({ levels, units, lessons, lessonStats: initialStats, userId }: Props) {
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -70,7 +70,7 @@ export default function SeedClient({ levels, units, lessons, lessonStats: initia
         subject: "vocabulary",
         topic: lesson.title,
         exerciseType,
-        count: exerciseType === "matching" ? 5 : 4,
+        count: exerciseType === "learn_card" ? 3 : exerciseType === "matching" ? 5 : 4,
       }),
     });
 
@@ -82,14 +82,21 @@ export default function SeedClient({ levels, units, lessons, lessonStats: initia
     const data = await res.json();
     const exercises = data.exercises as unknown[];
 
-    // Get current max sort_order for this lesson
-    const { data: existing } = await supabase
-      .from("curated_exercises")
-      .select("sort_order")
-      .eq("lesson_id", lessonId)
-      .order("sort_order", { ascending: false })
-      .limit(1);
-    const startOrder = (existing?.[0]?.sort_order ?? 0) + 1;
+    // Learn cards get sort_order 1-9, practice exercises get 10+
+    const isLearnCard = exerciseType === "learn_card";
+    let startOrder: number;
+    if (isLearnCard) {
+      startOrder = 1;
+    } else {
+      const { data: existing } = await supabase
+        .from("curated_exercises")
+        .select("sort_order")
+        .eq("lesson_id", lessonId)
+        .gte("sort_order", 10)
+        .order("sort_order", { ascending: false })
+        .limit(1);
+      startOrder = Math.max((existing?.[0]?.sort_order ?? 9) + 1, 10);
+    }
 
     const inserts = exercises.map((ex, i) => ({
       lesson_id: lessonId,
