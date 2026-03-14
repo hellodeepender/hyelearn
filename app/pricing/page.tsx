@@ -5,17 +5,57 @@ import { useState } from "react";
 
 export default function PricingPage() {
   const [yearly, setYearly] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubscribe() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interval: yearly ? "yearly" : "monthly" }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 401) {
+        // Not logged in — send to signup
+        window.location.href = "/signup";
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong");
+        setLoading(false);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Header */}
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-gold">{"\u0531"}</span>
             <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
           </Link>
-          <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">Log In</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">Log In</Link>
+            <Link href="/signup" className="text-sm bg-gold hover:bg-gold-dark text-white px-4 py-1.5 rounded-lg font-medium transition-colors">
+              Sign Up
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -24,7 +64,6 @@ export default function PricingPage() {
           <h1 className="text-4xl font-bold text-brown-800 mb-3">Simple, transparent pricing</h1>
           <p className="text-brown-500 text-lg mb-8">Start free, upgrade when you are ready</p>
 
-          {/* Toggle */}
           <div className="inline-flex bg-warm-white border border-brown-200 rounded-lg p-1">
             <button
               onClick={() => setYearly(false)}
@@ -41,6 +80,12 @@ export default function PricingPage() {
           </div>
         </div>
 
+        {error && (
+          <div className="max-w-md mx-auto mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 text-center">
+            {error}
+          </div>
+        )}
+
         <div className="grid md:grid-cols-3 gap-6">
           {/* Free */}
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
@@ -49,7 +94,7 @@ export default function PricingPage() {
             <p className="text-sm text-brown-400 mt-1">Forever free</p>
             <ul className="mt-6 space-y-3 text-sm text-brown-600">
               <li>{"\u2713"} First lesson of every level</li>
-              <li>{"\u2713"} 3 AI practice sessions</li>
+              <li>{"\u2713"} 3 AI practice sessions per day</li>
               <li>{"\u2713"} Basic progress tracking</li>
             </ul>
             <Link href="/signup" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
@@ -57,7 +102,7 @@ export default function PricingPage() {
             </Link>
           </div>
 
-          {/* Family — highlighted */}
+          {/* Family */}
           <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">
               Most Popular
@@ -77,9 +122,13 @@ export default function PricingPage() {
               <li>{"\u2713"} Up to 3 student profiles</li>
               <li>{"\u2713"} Priority support</li>
             </ul>
-            <Link href="/signup" className="block mt-8 text-center bg-gold hover:bg-gold-dark text-white py-3 rounded-lg font-medium transition-colors">
-              Start 7-day free trial
-            </Link>
+            <button
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="block w-full mt-8 text-center bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-medium transition-colors"
+            >
+              {loading ? "Loading..." : "Start 7-day free trial"}
+            </button>
           </div>
 
           {/* School */}
@@ -120,7 +169,6 @@ export default function PricingPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="py-8 px-6 border-t border-brown-100 mt-16">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brown-400">
           <p>&copy; {new Date().getFullYear()} HyeLearn</p>

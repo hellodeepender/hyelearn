@@ -175,7 +175,8 @@ export default function SignupPage() {
                   onChange={(e) => setGradeLevel(Number(e.target.value))}
                   className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-brown-700"
                 >
-                  {Array.from({ length: 11 }, (_, i) => i + 2).map((grade) => (
+                  <option value={0}>Kindergarten</option>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((grade) => (
                     <option key={grade} value={grade}>
                       Grade {grade}
                     </option>
