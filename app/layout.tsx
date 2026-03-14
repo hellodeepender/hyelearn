@@ -9,9 +9,9 @@ const notoSansArmenian = Noto_Sans_Armenian({
 });
 
 export const metadata: Metadata = {
-  title: "HyeLearn — AI-Powered Armenian Learning",
+  title: "HyeLearn — Armenian Language Learning for Kids",
   description:
-    "AI-powered bilingual Armenian practice for schools. Western Armenian + English exercises with adaptive difficulty.",
+    "HyeLearn teaches Western Armenian to children through structured, curriculum-based lessons. Built by an Armenian mom, trusted by families. Start free.",
 };
 
 export default function RootLayout({

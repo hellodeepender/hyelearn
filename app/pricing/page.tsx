@@ -94,7 +94,7 @@ export default function PricingPage() {
             <p className="text-sm text-brown-400 mt-1">Forever free</p>
             <ul className="mt-6 space-y-3 text-sm text-brown-600">
               <li>{"\u2713"} First lesson of every level</li>
-              <li>{"\u2713"} 3 AI practice sessions per day</li>
+              <li>{"\u2713"} Limited practice sessions</li>
               <li>{"\u2713"} Basic progress tracking</li>
             </ul>
             <Link href="/signup" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
@@ -117,7 +117,7 @@ export default function PricingPage() {
             </p>
             <ul className="mt-6 space-y-3 text-sm text-brown-600">
               <li>{"\u2713"} Full curriculum access</li>
-              <li>{"\u2713"} Unlimited AI practice</li>
+              <li>{"\u2713"} Unlimited practice</li>
               <li>{"\u2713"} Progress tracking & certificates</li>
               <li>{"\u2713"} Up to 3 student profiles</li>
               <li>{"\u2713"} Priority support</li>
@@ -155,10 +155,10 @@ export default function PricingPage() {
           <h2 className="text-2xl font-bold text-brown-800 text-center mb-8">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {[
-              { q: "Is this Western Armenian?", a: "Yes! HyeLearn uses Western Armenian with classical orthography, specifically designed for Armenian day school curricula in the diaspora." },
-              { q: "What ages is this for?", a: "HyeLearn covers Kindergarten through Grade 8. Our curriculum is age-appropriate with emoji-based visual learning for younger students." },
-              { q: "How does the AI work?", a: "We use Claude AI to generate exercises tailored to each grade level. All content is reviewed and approved by Armenian language teachers before students see it." },
-              { q: "Is it safe for kids?", a: "Absolutely. Students never interact with AI directly. All exercises are pre-generated and teacher-reviewed. No personal data is shared with AI services." },
+              { q: "Is this Western Armenian?", a: "Yes. All content uses Western Armenian with classical orthography \u2014 the same standard taught in Armenian day schools across the diaspora." },
+              { q: "What ages is this for?", a: "Kindergarten through Grade 5, with more levels coming soon." },
+              { q: "How is the curriculum created?", a: "Our curriculum is built and reviewed by Armenian language educators. Each lesson is carefully structured to build on the previous one." },
+              { q: "Is it safe for kids?", a: "Absolutely. No ads, no social features, no external links. Your child only sees learning content." },
             ].map((faq) => (
               <div key={faq.q} className="bg-warm-white border border-brown-100 rounded-xl p-5">
                 <h3 className="font-semibold text-brown-800">{faq.q}</h3>

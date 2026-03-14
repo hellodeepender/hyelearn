@@ -199,7 +199,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-brown-800">Practice</h1>
-            <p className="text-brown-500 text-sm mt-1">Configure your exercise set, then generate with AI.</p>
+            <p className="text-brown-500 text-sm mt-1">Choose a topic and exercise type to practice.</p>
           </div>
           <Link
             href={dashboardUrl}
@@ -308,7 +308,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           disabled={!canGenerate}
           className="w-full bg-gold hover:bg-gold-dark disabled:opacity-40 disabled:cursor-not-allowed text-white py-3.5 rounded-lg text-lg font-semibold transition-colors shadow-lg shadow-gold/20"
         >
-          Generate with AI
+          Generate Practice
         </button>
       </main>
     );
@@ -329,7 +329,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             </span>
           ))}
         </div>
-        <p className="text-lg text-brown-600 font-medium">Generating exercises with AI...</p>
+        <p className="text-lg text-brown-600 font-medium">Creating your practice exercises...</p>
         <p className="text-sm text-brown-400 mt-1">This may take a few seconds</p>
       </main>
     );
