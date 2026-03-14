@@ -10,23 +10,40 @@ interface Props {
 
 export default function Paywall({ message, type = "curriculum" }: Props) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleUpgrade() {
     setLoading(true);
+    setError("");
+
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ interval: "monthly" }),
       });
+
       const data = await res.json();
+
+      if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
       if (data.url) {
         window.location.href = data.url;
         return;
       }
-    } catch {}
-    // Fallback if checkout fails
-    window.location.href = "/pricing";
+
+      // Show the actual error from the API
+      console.error("[Paywall] Checkout failed:", data);
+      setError(data.error ?? "Payment setup failed. Please try again.");
+    } catch (err) {
+      console.error("[Paywall] Network error:", err);
+      setError("Network error. Please check your connection and try again.");
+    }
+
+    setLoading(false);
   }
 
   const defaultMessage = type === "ai"
@@ -53,13 +70,19 @@ export default function Paywall({ message, type = "curriculum" }: Props) {
         </ul>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">
+          {error}
+        </div>
+      )}
+
       <div className="flex flex-col gap-3">
         <button
           onClick={handleUpgrade}
           disabled={loading}
           className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-6 py-3.5 rounded-lg font-semibold transition-colors text-lg"
         >
-          {loading ? "Loading..." : "Upgrade to Family — $9.99/mo"}
+          {loading ? "Connecting to Stripe..." : "Upgrade to Family — $9.99/mo"}
         </button>
         <Link
           href="/pricing"
