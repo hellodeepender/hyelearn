@@ -63,20 +63,20 @@ export default async function LandingPage() {
           <div className="max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-brown-800 mb-8 text-center">Why I built HyeLearn</h2>
             <blockquote className="text-xl italic text-brown-600 border-l-4 border-gold pl-6 mb-8">
-              &ldquo;I built this because I couldn&apos;t find what I needed for my own children.&rdquo;
+              &ldquo;I built this because I couldn&apos;t find what I needed for my daughter.&rdquo;
             </blockquote>
             <div className="space-y-4 text-brown-500 leading-relaxed">
               <p>
                 Like many Armenian parents in the diaspora, I struggled to keep my daughter Victoria connected to our heritage language. Between school, homework, and activities, there was never time for Armenian lessons. I watched her slowly forget the Armenian words she once knew.
               </p>
               <p>
-                So I decided to do something about it. I spent months working with Armenian language educators to create a structured, fun curriculum that any child could follow &mdash; just 5 minutes a day. What started as lessons for my own kids became HyeLearn.
+                So I decided to do something about it. I spent months working with Armenian language educators to create a structured, fun curriculum that any child could follow &mdash; just 5 minutes a day. What started as lessons for my daughter became HyeLearn.
               </p>
               <p>
                 Every Armenian parent knows this struggle. You want your child to speak Armenian, but life gets in the way. HyeLearn makes it possible with just 5 minutes a day.
               </p>
             </div>
-            <p className="mt-6 text-brown-700 font-medium">&mdash; Nora Nazaryan, Founder &amp; Mother of Two</p>
+            <p className="mt-6 text-brown-700 font-medium">&mdash; Nora Nazerian, Founder &amp; Founder &amp; Mother</p>
           </div>
         </section>
 

@@ -26,13 +26,13 @@ export default function AboutPage() {
 
         <div className="space-y-6 text-brown-500 leading-relaxed">
           <p>
-            HyeLearn was born from a mother&apos;s worry. Nora Nazaryan, living in Northridge, California, watched her daughter Victoria slowly forget the Armenian words she once knew. Between school, homework, and activities, there was never time for Armenian lessons.
+            HyeLearn was born from a mother&apos;s worry. Nora Nazerian, living in Northridge, California, watched her daughter Victoria slowly forget the Armenian words she once knew. Between school, homework, and activities, there was never time for Armenian lessons.
           </p>
           <p>
             Like many Armenian parents in the diaspora, Nora felt the weight of a language slipping away &mdash; a connection to grandparents, to culture, to identity. She searched for resources but found nothing that fit into the reality of a busy family&apos;s life.
           </p>
           <p>
-            So she built it herself. Working with Armenian language educators, Nora created a structured curriculum that any child could follow in just 5 minutes a day. What started as lessons for her own children became HyeLearn &mdash; a platform now used by Armenian families everywhere.
+            So she built it herself. Working with Armenian language educators, Nora created a structured curriculum that any child could follow in just 5 minutes a day. What started as lessons for her daughter became HyeLearn &mdash; a platform now used by Armenian families everywhere.
           </p>
 
           <blockquote className="text-xl italic text-brown-600 border-l-4 border-gold pl-6 my-8">
