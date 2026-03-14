@@ -76,7 +76,7 @@ export default async function LandingPage() {
                 Every Armenian parent knows this struggle. You want your child to speak Armenian, but life gets in the way. HyeLearn makes it possible with just 5 minutes a day.
               </p>
             </div>
-            <p className="mt-6 text-brown-700 font-medium">&mdash; Nora Nazerian, Founder &amp; Founder &amp; Mother</p>
+            <p className="mt-6 text-brown-700 font-medium">&mdash; Nora Nazerian, Founder &amp; Mother</p>
           </div>
         </section>
 
