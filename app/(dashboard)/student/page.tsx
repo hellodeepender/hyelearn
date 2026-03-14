@@ -5,7 +5,9 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 
-export default async function StudentDashboard() {
+export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
+  const params = await searchParams;
+  const showSubscriptionSuccess = params.subscription === "success";
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -40,6 +42,13 @@ export default async function StudentDashboard() {
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-6xl mx-auto px-6 py-10">
         <StudentNav />
+        {showSubscriptionSuccess && (
+          <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6">
+            <p className="font-medium">Welcome to HyeLearn Family!</p>
+            <p className="text-sm text-green-600 mt-0.5">You now have full access to all lessons and unlimited AI practice.</p>
+          </div>
+        )}
+
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
         <p className="text-brown-500 mb-10">Continue your Armenian learning journey.</p>
 

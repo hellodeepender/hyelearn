@@ -127,7 +127,7 @@ export default function PricingPage() {
               disabled={loading}
               className="block w-full mt-8 text-center bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-medium transition-colors"
             >
-              {loading ? "Loading..." : "Start 7-day free trial"}
+              {loading ? "Loading..." : "Get Full Access"}
             </button>
           </div>
 

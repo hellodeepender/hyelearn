@@ -18,10 +18,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { data: signInData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: signInData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
       setError(authError.message);
@@ -31,30 +28,18 @@ export default function LoginPage() {
 
     const user = signInData.user;
     if (!user) {
-      setError("Login succeeded but could not retrieve user.");
+      setError("Login failed. Please try again.");
       setLoading(false);
       return;
     }
 
-    // Read role from profiles table — the source of truth.
-    // Use the user.id from the signIn response (session is already set).
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    console.log("[HyeLearn] Login profile lookup:", { userId: user.id, role: profile?.role, profileError });
+    // Check profile role for redirect
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
 
     if (profile?.role === "teacher" || profile?.role === "admin") {
       router.push("/teacher");
-    } else if (profile?.role === "student") {
-      router.push("/student");
     } else {
-      // Profile query failed (RLS or missing row) — fall back to auth metadata
-      const metaRole = user.user_metadata?.role;
-      console.log("[HyeLearn] Profile query failed, falling back to metadata role:", metaRole);
-      router.push(metaRole === "teacher" || metaRole === "admin" ? "/teacher" : "/student");
+      router.push("/student");
     }
   }
 
@@ -63,7 +48,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-3xl font-bold text-gold">Ա</span>
+            <span className="text-3xl font-bold text-gold">{"\u0531"}</span>
             <span className="text-2xl font-semibold text-brown-800">HyeLearn</span>
           </Link>
           <h1 className="text-2xl font-bold text-brown-800">Welcome back</h1>
@@ -72,55 +57,32 @@ export default function LoginPage() {
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</div>
             )}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-brown-700 mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+              <label htmlFor="email" className="block text-sm font-medium text-brown-700 mb-1">Email</label>
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
-                placeholder="you@school.edu"
-              />
+                placeholder="you@example.com" />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-brown-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+              <label htmlFor="password" className="block text-sm font-medium text-brown-700 mb-1">Password</label>
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
-                placeholder="••••••••"
-              />
-              <Link href="/forgot-password" className="text-xs text-gold hover:text-gold-dark mt-1 inline-block">
+                placeholder="Your password" />
+              <Link href="/forgot-password" className="text-xs text-gold hover:text-gold-dark mt-1.5 inline-block">
                 Forgot password?
               </Link>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-2.5 rounded-lg font-medium transition-colors"
-            >
+            <button type="submit" disabled={loading}
+              className="w-full bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition-colors">
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
         </div>
         <p className="text-center text-brown-500 text-sm mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-gold hover:text-gold-dark font-medium">
-            Sign up
-          </Link>
+          <Link href="/signup" className="text-gold hover:text-gold-dark font-medium">Sign up free</Link>
         </p>
       </div>
     </div>

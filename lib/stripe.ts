@@ -29,7 +29,7 @@ export async function createCheckoutSession(
     success_url: successUrl,
     cancel_url: cancelUrl,
     metadata: { userId },
-    subscription_data: { trial_period_days: 7, metadata: { userId } },
+    subscription_data: { metadata: { userId } },
   });
 }
 
