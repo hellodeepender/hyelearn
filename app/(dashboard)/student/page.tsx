@@ -20,6 +20,19 @@ export default async function StudentDashboard() {
   // Role guard: only students can access this page
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
+  // Fetch exercise stats
+  const { data: sessions } = await supabase
+    .from("exercise_sessions")
+    .select("score, total")
+    .eq("student_id", user.id);
+
+  const sessionCount = sessions?.length ?? 0;
+  const totalScore = sessions?.reduce((sum, s) => sum + (s.score ?? 0), 0) ?? 0;
+  const totalQuestions = sessions?.reduce((sum, s) => sum + (s.total ?? 0), 0) ?? 0;
+  const avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+
+  const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
+
   return (
     <div className="min-h-screen bg-cream">
       <Header
@@ -28,17 +41,19 @@ export default async function StudentDashboard() {
       />
       <main className="max-w-6xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-brown-800 mb-2">
-          Welcome, {profile?.full_name?.split(" ")[0] ?? "Student"}
+          Welcome, {firstName}
         </h1>
         <p className="text-brown-500 mb-8">Continue your Armenian learning journey.</p>
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="bg-warm-white border border-brown-100 rounded-xl p-6">
             <h3 className="font-semibold text-brown-800 mb-1">Exercises Completed</h3>
-            <p className="text-3xl font-bold text-gold">&mdash;</p>
+            <p className="text-3xl font-bold text-gold">{sessionCount}</p>
           </div>
           <div className="bg-warm-white border border-brown-100 rounded-xl p-6">
-            <h3 className="font-semibold text-brown-800 mb-1">Current Level</h3>
-            <p className="text-3xl font-bold text-gold">&mdash;</p>
+            <h3 className="font-semibold text-brown-800 mb-1">Average Score</h3>
+            <p className="text-3xl font-bold text-gold">
+              {sessionCount > 0 ? `${avgScore}%` : "No data yet"}
+            </p>
           </div>
         </div>
         <Link
