@@ -29,23 +29,29 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch profile to determine role-based redirect
+    // Read role from profiles table — the source of truth
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+    if (!user) {
+      setError("Login succeeded but could not retrieve user.");
+      setLoading(false);
+      return;
+    }
 
-      if (profile?.role === "teacher" || profile?.role === "admin") {
-        router.push("/teacher");
-      } else {
-        router.push("/student");
-      }
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    console.log("[HyeLearn] Login profile lookup:", { role: profile?.role, profileError });
+
+    if (profile?.role === "teacher" || profile?.role === "admin") {
+      router.push("/teacher");
+    } else {
+      router.push("/student");
     }
   }
 

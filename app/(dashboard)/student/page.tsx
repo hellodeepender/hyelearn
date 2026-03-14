@@ -17,6 +17,9 @@ export default async function StudentDashboard() {
     .eq("id", user.id)
     .single();
 
+  // Role guard: only students can access this page
+  if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
+
   return (
     <div className="min-h-screen bg-cream">
       <Header

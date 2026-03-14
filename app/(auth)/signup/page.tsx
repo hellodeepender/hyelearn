@@ -21,15 +21,15 @@ export default function SignupPage() {
     setError("");
     setLoading(true);
 
-    const metadata: Record<string, string | number> = {
+    const metadata = {
       role,
       full_name: fullName,
+      ...(role === "student" ? { grade_level: gradeLevel } : {}),
     };
-    if (role === "student") {
-      metadata.grade_level = gradeLevel;
-    }
 
-    const { error: authError } = await supabase.auth.signUp({
+    console.log("[HyeLearn] Signup metadata:", metadata);
+
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -43,7 +43,23 @@ export default function SignupPage() {
       return;
     }
 
-    router.push(role === "teacher" ? "/teacher" : "/student");
+    console.log("[HyeLearn] Signup response user metadata:", data.user?.user_metadata);
+
+    // Read role from profiles table (set by trigger), not from local state
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      console.log("[HyeLearn] Profile role from DB:", profile?.role);
+
+      const resolvedRole = profile?.role ?? role;
+      router.push(resolvedRole === "teacher" || resolvedRole === "admin" ? "/teacher" : "/student");
+    } else {
+      router.push(role === "teacher" ? "/teacher" : "/student");
+    }
   }
 
   return (
