@@ -107,10 +107,13 @@ begin
   insert into public.profiles (id, role, full_name, school_id)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'role', 'student')::user_role,
+    (coalesce(new.raw_user_meta_data->>'role', 'student'))::user_role,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
     (select id from schools where slug = 'agbu-mds' limit 1)
   );
+  return new;
+exception when others then
+  raise log 'handle_new_user error: %', sqlerrm;
   return new;
 end;
 $$ language plpgsql security definer;
