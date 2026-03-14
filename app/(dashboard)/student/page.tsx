@@ -1,28 +1,41 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase-server";
+import Header from "@/components/ui/Header";
 
-export default function StudentDashboard() {
+export default async function StudentDashboard() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("id", user.id)
+    .single();
+
   return (
     <div className="min-h-screen bg-cream">
-      <header className="bg-warm-white border-b border-brown-100">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">Ա</span>
-            <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
-          </Link>
-          <span className="text-sm text-brown-500">Student Dashboard</span>
-        </div>
-      </header>
+      <Header
+        userName={profile?.full_name ?? "Student"}
+        userRole={profile?.role ?? "student"}
+      />
       <main className="max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, Student</h1>
+        <h1 className="text-3xl font-bold text-brown-800 mb-2">
+          Welcome, {profile?.full_name?.split(" ")[0] ?? "Student"}
+        </h1>
         <p className="text-brown-500 mb-8">Continue your Armenian learning journey.</p>
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="bg-warm-white border border-brown-100 rounded-xl p-6">
             <h3 className="font-semibold text-brown-800 mb-1">Exercises Completed</h3>
-            <p className="text-3xl font-bold text-gold">—</p>
+            <p className="text-3xl font-bold text-gold">&mdash;</p>
           </div>
           <div className="bg-warm-white border border-brown-100 rounded-xl p-6">
             <h3 className="font-semibold text-brown-800 mb-1">Current Level</h3>
-            <p className="text-3xl font-bold text-gold">—</p>
+            <p className="text-3xl font-bold text-gold">&mdash;</p>
           </div>
         </div>
         <Link

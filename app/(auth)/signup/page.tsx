@@ -1,8 +1,53 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [role, setRole] = useState<"teacher" | "student">("student");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [gradeLevel, setGradeLevel] = useState(5);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const metadata: Record<string, string | number> = {
+      role,
+      full_name: fullName,
+    };
+    if (role === "student") {
+      metadata.grade_level = gradeLevel;
+    }
+
+    const { error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
+    router.push(role === "teacher" ? "/teacher" : "/student");
+  }
+
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center px-6">
+    <div className="min-h-screen bg-cream flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
@@ -13,18 +58,63 @@ export default function SignupPage() {
           <p className="text-brown-500 mt-1">Start using HyeLearn in your classroom</p>
         </div>
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 shadow-sm">
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
+                {error}
+              </div>
+            )}
+
+            {/* Role selector cards */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-brown-700 mb-1">
+              <label className="block text-sm font-medium text-brown-700 mb-2">I am a...</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole("teacher")}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${
+                    role === "teacher"
+                      ? "border-gold bg-gold/5 shadow-sm"
+                      : "border-brown-200 hover:border-brown-300"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">👩‍🏫</div>
+                  <div className={`font-semibold text-sm ${role === "teacher" ? "text-gold-dark" : "text-brown-700"}`}>
+                    Teacher
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("student")}
+                  className={`p-4 rounded-xl border-2 text-center transition-all ${
+                    role === "student"
+                      ? "border-gold bg-gold/5 shadow-sm"
+                      : "border-brown-200 hover:border-brown-300"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">📚</div>
+                  <div className={`font-semibold text-sm ${role === "student" ? "text-gold-dark" : "text-brown-700"}`}>
+                    Student
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-brown-700 mb-1">
                 Full Name
               </label>
               <input
-                id="name"
+                id="fullName"
                 type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
                 placeholder="Your name"
               />
             </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-brown-700 mb-1">
                 Email
@@ -32,10 +122,14 @@ export default function SignupPage() {
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
                 placeholder="you@school.edu"
               />
             </div>
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-brown-700 mb-1">
                 Password
@@ -43,27 +137,41 @@ export default function SignupPage() {
               <input
                 id="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
                 className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white"
                 placeholder="••••••••"
               />
             </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-brown-700 mb-1">
-                I am a...
-              </label>
-              <select
-                id="role"
-                className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-brown-700"
-              >
-                <option value="teacher">Teacher</option>
-                <option value="student">Student</option>
-              </select>
-            </div>
+
+            {role === "student" && (
+              <div>
+                <label htmlFor="gradeLevel" className="block text-sm font-medium text-brown-700 mb-1">
+                  Grade Level
+                </label>
+                <select
+                  id="gradeLevel"
+                  value={gradeLevel}
+                  onChange={(e) => setGradeLevel(Number(e.target.value))}
+                  className="w-full px-4 py-2.5 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-brown-700"
+                >
+                  {Array.from({ length: 11 }, (_, i) => i + 2).map((grade) => (
+                    <option key={grade} value={grade}>
+                      Grade {grade}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-gold hover:bg-gold-dark text-white py-2.5 rounded-lg font-medium transition-colors"
+              disabled={loading}
+              className="w-full bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-2.5 rounded-lg font-medium transition-colors"
             >
-              Create Account
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
         </div>
