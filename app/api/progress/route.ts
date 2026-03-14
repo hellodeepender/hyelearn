@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
 
   const { subject, topic, exercise_type, grade_level, score, total, exercises_data } = body;
 
+  console.log("[progress] Saving session for user:", user.id, { subject, topic, exercise_type, grade_level, score, total });
+
   const { data, error } = await supabase.from("exercise_sessions").insert({
     student_id: user.id,
     subject,
@@ -41,10 +43,11 @@ export async function POST(request: NextRequest) {
   }).select().single();
 
   if (error) {
-    console.error("[progress] Insert error:", error);
-    return NextResponse.json({ error: "Failed to save progress" }, { status: 500 });
+    console.error("[progress] Insert error:", error.message, error.details, error.hint);
+    return NextResponse.json({ error: "Failed to save progress", details: error.message }, { status: 500 });
   }
 
+  console.log("[progress] Saved session:", data.id);
   return NextResponse.json({ session: data });
 }
 

@@ -1,6 +1,25 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase-server";
+import { redirect } from "next/navigation";
 
-function Header() {
+async function checkAuth() {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
+    if (profile?.role === "student") redirect("/student");
+  } catch {
+    // Not logged in or error — show landing page
+  }
+}
+
+function LandingHeader() {
   return (
     <header className="fixed top-0 w-full bg-warm-white/80 backdrop-blur-sm border-b border-brown-100 z-50">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -238,10 +257,12 @@ function Footer() {
   );
 }
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  await checkAuth();
+
   return (
     <div className="min-h-screen bg-warm-white">
-      <Header />
+      <LandingHeader />
       <main>
         <Hero />
         <HowItWorks />

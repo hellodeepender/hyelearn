@@ -26,6 +26,7 @@ export default async function PracticePage() {
       <PracticeClient
         userId={user.id}
         gradeLevel={profile?.grade_level ?? 5}
+        userRole={profile?.role ?? "student"}
       />
     </div>
   );

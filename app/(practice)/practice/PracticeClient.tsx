@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import type {
   ExerciseType,
   MultipleChoiceExercise,
@@ -37,16 +38,17 @@ const EXERCISE_TYPES: { id: ExerciseType; label: string; icon: string }[] = [
   { id: "true_false", label: "True / False", icon: "⚖️" },
 ];
 
-const ARMENIAN_LETTERS = ["Ա", "Բ", "Գ", "Դ", "Ե", "Զ", "Է", "Ը", "Թ", "Ժ"];
+const LOADING_LETTERS = ["A", "B", "G", "D", "E", "Z", "E", "Y", "T", "Zh"];
 
 type Phase = "config" | "loading" | "practicing" | "complete";
 
 interface Props {
   userId: string;
   gradeLevel: number;
+  userRole: string;
 }
 
-export default function PracticeClient({ userId, gradeLevel }: Props) {
+export default function PracticeClient({ userId, gradeLevel, userRole }: Props) {
   // Config state
   const [grade, setGrade] = useState(gradeLevel);
   const [subject, setSubject] = useState("");
@@ -134,13 +136,25 @@ export default function PracticeClient({ userId, gradeLevel }: Props) {
     setShowNext(false);
   }
 
+  const dashboardUrl = userRole === "teacher" || userRole === "admin" ? "/teacher" : "/student";
+
   // --- Config phase ---
   if (phase === "config") {
     const canGenerate = subject && topic;
     return (
       <main className="max-w-2xl mx-auto px-6 py-10">
-        <h1 className="text-3xl font-bold text-brown-800 mb-2">Practice</h1>
-        <p className="text-brown-500 mb-8">Configure your exercise set, then generate with AI.</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-brown-800">Practice</h1>
+            <p className="text-brown-500 text-sm mt-1">Configure your exercise set, then generate with AI.</p>
+          </div>
+          <Link
+            href={dashboardUrl}
+            className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Back
+          </Link>
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-6">
@@ -251,11 +265,11 @@ export default function PracticeClient({ userId, gradeLevel }: Props) {
   if (phase === "loading") {
     return (
       <main className="max-w-2xl mx-auto px-6 py-20 text-center">
-        <div className="flex justify-center gap-2 mb-6">
-          {ARMENIAN_LETTERS.map((letter, i) => (
+        <div className="flex justify-center gap-3 mb-6">
+          {LOADING_LETTERS.map((letter, i) => (
             <span
-              key={letter}
-              className="text-3xl text-gold animate-bounce"
+              key={i}
+              className="text-2xl font-bold text-gold animate-bounce"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               {letter}
@@ -278,8 +292,12 @@ export default function PracticeClient({ userId, gradeLevel }: Props) {
         <ScoreSummary
           score={score}
           total={total}
+          subject={subject}
+          topic={topic}
+          grade={grade}
           onSave={handleSave}
           onNewSet={handleNewSet}
+          dashboardUrl={dashboardUrl}
         />
       </main>
     );

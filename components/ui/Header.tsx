@@ -59,7 +59,10 @@ export default function Header({ userName: initialName, userRole: initialRole }:
   return (
     <header className="bg-warm-white border-b border-brown-100">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link
+          href={displayRole === "teacher" || displayRole === "admin" ? "/teacher" : "/student"}
+          className="flex items-center gap-2"
+        >
           <span className="text-2xl font-bold text-gold">Ա</span>
           <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
         </Link>
