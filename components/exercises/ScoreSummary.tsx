@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   score: number;
@@ -10,29 +10,30 @@ interface Props {
 }
 
 export default function ScoreSummary({ score, total, onNewSet, onSave }: Props) {
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const didSave = useRef(false);
   const pct = Math.round((score / total) * 100);
 
   let message: string;
-  let messageEn: string;
-  if (pct >= 90) {
-    message = "Շատ լdelays!";
-    messageEn = "Excellent work!";
+  if (pct === 100) {
+    message = "Perfect score!";
+  } else if (pct >= 90) {
+    message = "Excellent work!";
   } else if (pct >= 70) {
-    message = "Լdelays!";
-    messageEn = "Good job!";
+    message = "Good job!";
   } else {
-    message = "Շdelays!";
-    messageEn = "Keep practicing!";
+    message = "Keep practicing!";
   }
 
-  async function handleSave() {
-    setSaving(true);
-    await onSave();
-    setSaving(false);
-    setSaved(true);
-  }
+  // Auto-save on mount
+  useEffect(() => {
+    if (didSave.current) return;
+    didSave.current = true;
+    onSave()
+      .then(() => setSaved(true))
+      .catch(() => setSaveError(true));
+  }, [onSave]);
 
   return (
     <div className="text-center space-y-8">
@@ -44,24 +45,14 @@ export default function ScoreSummary({ score, total, onNewSet, onSave }: Props) 
           </div>
         </div>
         <p className="text-2xl font-bold text-brown-800">{message}</p>
-        <p className="text-brown-500">{messageEn}</p>
+        {saved && <p className="text-sm text-green-600 mt-1">Progress saved</p>}
+        {saveError && <p className="text-sm text-red-500 mt-1">Could not save progress</p>}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        {!saved ? (
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            {saving ? "Saving..." : "Save Results"}
-          </button>
-        ) : (
-          <span className="text-green-600 font-medium py-3">Results saved!</span>
-        )}
         <button
           onClick={onNewSet}
-          className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-6 py-3 rounded-lg font-medium transition-colors"
+          className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
         >
           New Set
         </button>

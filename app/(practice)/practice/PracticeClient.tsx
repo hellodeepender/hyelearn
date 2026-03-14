@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type {
   ExerciseType,
   MultipleChoiceExercise,
@@ -109,7 +109,7 @@ export default function PracticeClient({ userId, gradeLevel }: Props) {
     }
   }
 
-  async function handleSave() {
+  const handleSave = useCallback(async () => {
     const score = answers.filter(Boolean).length;
     await fetch("/api/progress", {
       method: "POST",
@@ -120,11 +120,11 @@ export default function PracticeClient({ userId, gradeLevel }: Props) {
         exercise_type: exerciseType,
         grade_level: grade,
         score,
-        total: exerciseType === "matching" ? exercises.length : exercises.length,
+        total: answers.length,
         exercises_data: exercises,
       }),
     });
-  }
+  }, [answers, subject, topic, exerciseType, grade, exercises]);
 
   function handleNewSet() {
     setPhase("config");
