@@ -6,9 +6,10 @@ import type { MultipleChoiceExercise } from "@/lib/types";
 interface Props {
   exercise: MultipleChoiceExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
+  young?: boolean;
 }
 
-export default function MultipleChoice({ exercise, onAnswer }: Props) {
+export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
@@ -22,9 +23,16 @@ export default function MultipleChoice({ exercise, onAnswer }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Question — Armenian only, English revealed after answering */}
+      {/* Emoji visual (young learners) */}
+      {exercise.emoji && (
+        <div className="text-center">
+          <span className={young ? "text-7xl" : "text-5xl"}>{exercise.emoji}</span>
+        </div>
+      )}
+
+      {/* Question */}
       <div>
-        <p className="text-2xl font-semibold text-brown-800 leading-relaxed">
+        <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
           {exercise.question_hy}
         </p>
         {!answered && !hintShown && (
@@ -36,16 +44,18 @@ export default function MultipleChoice({ exercise, onAnswer }: Props) {
           </button>
         )}
         {(hintShown || answered) && (
-          <p className={`text-sm text-brown-400 mt-1 transition-opacity duration-300 ${answered && !hintShown ? "animate-fade-in" : ""}`}>
+          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
             {exercise.question_en}
           </p>
         )}
       </div>
 
-      {/* Options — Armenian only before answer, English after */}
+      {/* Options */}
       <div className="space-y-3">
         {exercise.options.map((opt) => {
-          let style = "border-brown-200 hover:border-brown-300 bg-warm-white";
+          let style = young
+            ? "border-brown-200 hover:border-brown-300 bg-amber-50/30"
+            : "border-brown-200 hover:border-brown-300 bg-warm-white";
           if (answered) {
             if (opt.correct) {
               style = "border-green-500 bg-green-50 ring-2 ring-green-200";
@@ -61,20 +71,22 @@ export default function MultipleChoice({ exercise, onAnswer }: Props) {
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-left p-4 rounded-xl border-2 transition-all ${style}`}
+              className={`w-full text-left p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 transition-all ${style}`}
             >
-              <span className="font-medium text-lg text-brown-800">{opt.text_hy}</span>
+              <span className="flex items-center gap-3">
+                {opt.emoji && <span className={young ? "text-3xl" : "text-2xl"}>{opt.emoji}</span>}
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{opt.text_hy}</span>
+              </span>
               {answered && (
-                <span className="text-sm text-brown-400 ml-2 animate-fade-in">({opt.text_en})</span>
+                <span className="text-sm text-brown-400 ml-2 animate-fade-in block mt-1">({opt.text_en})</span>
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Explanation — shown after answering */}
       {answered && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
+        <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

@@ -17,12 +17,14 @@ export interface MCOption {
   text_hy: string;
   text_en: string;
   correct: boolean;
+  emoji?: string;
 }
 
 export interface MultipleChoiceExercise {
   id: string;
   question_hy: string;
   question_en: string;
+  emoji?: string;
   options: MCOption[];
   hint_hy: string;
   hint_en: string;
@@ -34,10 +36,13 @@ export interface FillBlankExercise {
   id: string;
   sentence_hy: string;
   sentence_en: string;
+  emoji?: string;
   answer_hy: string;
   answer_en: string;
+  answer_emoji?: string;
   distractors_hy: string[];
   distractors_en: string[];
+  distractors_emoji?: string[];
   hint_hy: string;
   hint_en: string;
   explanation_hy: string;
@@ -50,12 +55,15 @@ export interface MatchingExercise {
   left_en: string;
   right_hy: string;
   right_en: string;
+  emoji_left?: string;
+  emoji_right?: string;
 }
 
 export interface TrueFalseExercise {
   id: string;
   statement_hy: string;
   statement_en: string;
+  emoji?: string;
   correct_answer: boolean;
   explanation_hy: string;
   explanation_en: string;

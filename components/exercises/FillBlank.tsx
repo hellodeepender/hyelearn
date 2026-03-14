@@ -6,6 +6,7 @@ import type { FillBlankExercise } from "@/lib/types";
 interface Props {
   exercise: FillBlankExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
+  young?: boolean;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -17,17 +18,18 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function FillBlank({ exercise, onAnswer }: Props) {
+export default function FillBlank({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
 
   const wordBank = useMemo(() => {
     const options = [
-      { hy: exercise.answer_hy, en: exercise.answer_en, isCorrect: true },
+      { hy: exercise.answer_hy, en: exercise.answer_en, emoji: exercise.answer_emoji, isCorrect: true },
       ...exercise.distractors_hy.map((hy, i) => ({
         hy,
         en: exercise.distractors_en[i] ?? "",
+        emoji: exercise.distractors_emoji?.[i],
         isCorrect: false,
       })),
     ];
@@ -44,9 +46,16 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Sentence — Armenian only, English revealed after answering */}
+      {/* Emoji visual (young learners) */}
+      {exercise.emoji && (
+        <div className="text-center">
+          <span className={young ? "text-7xl" : "text-5xl"}>{exercise.emoji}</span>
+        </div>
+      )}
+
+      {/* Sentence */}
       <div>
-        <p className="text-2xl font-semibold text-brown-800 leading-relaxed">
+        <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
           {parts[0]}
           <span className={`inline-block min-w-[80px] border-b-2 mx-1 text-center ${
             answered
@@ -74,10 +83,12 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
         )}
       </div>
 
-      {/* Word bank — Armenian only before answer, English subtitles after */}
+      {/* Word bank */}
       <div className="grid grid-cols-2 gap-3">
         {wordBank.map((word, i) => {
-          let style = "border-brown-200 hover:border-brown-300 bg-warm-white";
+          let style = young
+            ? "border-brown-200 hover:border-brown-300 bg-amber-50/30"
+            : "border-brown-200 hover:border-brown-300 bg-warm-white";
           if (answered) {
             if (word.isCorrect) {
               style = "border-green-500 bg-green-50 ring-2 ring-green-200";
@@ -93,9 +104,10 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
               key={i}
               onClick={() => handleSelect(i)}
               disabled={answered}
-              className={`p-4 rounded-xl border-2 text-center transition-all ${style}`}
+              className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
             >
-              <span className="block text-lg font-medium text-brown-800">{word.hy}</span>
+              {word.emoji && <span className={young ? "text-3xl block mb-1" : "text-xl block mb-0.5"}>{word.emoji}</span>}
+              <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.hy}</span>
               {answered && (
                 <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>
               )}
@@ -104,9 +116,8 @@ export default function FillBlank({ exercise, onAnswer }: Props) {
         })}
       </div>
 
-      {/* Explanation — after answering */}
       {answered && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
+        <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

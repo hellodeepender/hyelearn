@@ -18,17 +18,19 @@ export async function POST(request: NextRequest) {
   }
 
   // Parse and validate request
-  let body: { grade?: number; subject?: string; topic?: string; exerciseType?: string; count?: number };
+  let body: { grade?: string | number; subject?: string; topic?: string; exerciseType?: string; count?: number };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { grade, subject, topic, exerciseType, count: rawCount } = body;
+  const { grade: rawGrade, subject, topic, exerciseType, count: rawCount } = body;
+  const grade = String(rawGrade);
+  const validGrades = ["K", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
-  if (!grade || typeof grade !== "number" || grade < 2 || grade > 12) {
-    return NextResponse.json({ error: "grade must be a number between 2 and 12" }, { status: 400 });
+  if (!grade || !validGrades.includes(grade)) {
+    return NextResponse.json({ error: "grade must be K or a number between 1 and 12" }, { status: 400 });
   }
   if (!subject || typeof subject !== "string") {
     return NextResponse.json({ error: "subject is required" }, { status: 400 });

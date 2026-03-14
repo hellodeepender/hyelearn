@@ -6,6 +6,7 @@ import type { MatchingExercise } from "@/lib/types";
 interface Props {
   exercises: MatchingExercise[];
   onAnswer: (correct: boolean, usedHint: boolean) => void;
+  young?: boolean;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -17,7 +18,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function Matching({ exercises, onAnswer }: Props) {
+export default function Matching({ exercises, onAnswer, young }: Props) {
   const leftItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
   const rightItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
 
@@ -50,7 +51,6 @@ export default function Matching({ exercises, onAnswer }: Props) {
         if (!isCorrect) allCorrect = false;
       });
       setResults(res);
-      // Matching has no hint feature — always false
       onAnswer(allCorrect, false);
     }
   }
@@ -75,13 +75,15 @@ export default function Matching({ exercises, onAnswer }: Props) {
   }
 
   const statusStyles = {
-    default: "border-brown-200 bg-warm-white hover:border-brown-300",
+    default: young ? "border-brown-200 bg-amber-50/30 hover:border-brown-300" : "border-brown-200 bg-warm-white hover:border-brown-300",
     selected: "border-gold bg-gold/10 ring-2 ring-gold/30",
     matched: "border-brown-300 bg-brown-50 text-brown-500",
     correct: "border-green-500 bg-green-50 ring-2 ring-green-200",
     wrong: "border-red-500 bg-red-50 ring-2 ring-red-200",
     unmatched: "border-brown-100 bg-brown-50 opacity-50",
   };
+
+  const radius = young ? "rounded-2xl" : "rounded-xl";
 
   return (
     <div className="space-y-4">
@@ -90,7 +92,6 @@ export default function Matching({ exercises, onAnswer }: Props) {
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {/* Left column — Armenian only, English after completion */}
         <div className="space-y-2">
           {leftItems.map((item, i) => {
             const status = selectedLeft === i ? "selected" : getLeftStatus(item.index);
@@ -99,9 +100,12 @@ export default function Matching({ exercises, onAnswer }: Props) {
                 key={item.id}
                 onClick={() => handleLeftClick(i)}
                 disabled={done}
-                className={`w-full p-3 rounded-xl border-2 text-left transition-all ${statusStyles[status]}`}
+                className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className="block text-lg font-medium text-brown-800">{item.left_hy}</span>
+                <span className="flex items-center gap-2">
+                  {item.emoji_left && <span className={young ? "text-2xl" : "text-lg"}>{item.emoji_left}</span>}
+                  <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
+                </span>
                 {done && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
                 )}
@@ -110,7 +114,6 @@ export default function Matching({ exercises, onAnswer }: Props) {
           })}
         </div>
 
-        {/* Right column — Armenian only, English after completion */}
         <div className="space-y-2">
           {rightItems.map((item, i) => {
             const status = getRightStatus(item.index);
@@ -119,9 +122,12 @@ export default function Matching({ exercises, onAnswer }: Props) {
                 key={item.id}
                 onClick={() => handleRightClick(i)}
                 disabled={done || selectedLeft === null}
-                className={`w-full p-3 rounded-xl border-2 text-left transition-all ${statusStyles[status]}`}
+                className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className="block text-lg font-medium text-brown-800">{item.right_hy}</span>
+                <span className="flex items-center gap-2">
+                  {item.emoji_right && <span className={young ? "text-2xl" : "text-lg"}>{item.emoji_right}</span>}
+                  <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
+                </span>
                 {done && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
                 )}
@@ -132,7 +138,7 @@ export default function Matching({ exercises, onAnswer }: Props) {
       </div>
 
       {done && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 text-center animate-fade-in">
+        <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 text-center animate-fade-in`}>
           <p className="text-brown-700 font-medium">
             {Array.from(results!.values()).every(Boolean)
               ? "All matched correctly!"

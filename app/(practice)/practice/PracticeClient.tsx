@@ -17,6 +17,18 @@ import ScoreSummary from "@/components/exercises/ScoreSummary";
 
 // --- Config data ---
 
+const GRADES: { value: string; label: string }[] = [
+  { value: "K", label: "Kindergarten" },
+  { value: "1", label: "Grade 1" },
+  { value: "2", label: "Grade 2" },
+  { value: "3", label: "Grade 3" },
+  { value: "4", label: "Grade 4" },
+  { value: "5", label: "Grade 5" },
+  { value: "6", label: "Grade 6" },
+  { value: "7", label: "Grade 7" },
+  { value: "8", label: "Grade 8" },
+];
+
 const SUBJECTS = [
   { id: "vocabulary", label: "Vocabulary", icon: "📖" },
   { id: "reading", label: "Reading Comprehension", icon: "📕" },
@@ -24,7 +36,21 @@ const SUBJECTS = [
   { id: "culture", label: "Culture & History", icon: "🏛️" },
 ] as const;
 
-const TOPICS: Record<string, string[]> = {
+const TOPICS_YOUNG: Record<string, string[]> = {
+  vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body"],
+  reading: ["Short Story", "Dialogue"],
+  grammar: ["Simple Words", "Sentence Structure"],
+  culture: ["Armenian Holidays", "Alphabet History"],
+};
+
+const TOPICS_YOUNG_G1: Record<string, string[]> = {
+  vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body", "Family", "School & Classroom", "Greetings", "Weather"],
+  reading: ["Short Story", "Dialogue"],
+  grammar: ["Simple Words", "Noun Plurals", "Sentence Structure"],
+  culture: ["Armenian Holidays", "Famous Armenians", "Alphabet History"],
+};
+
+const TOPICS_STANDARD: Record<string, string[]> = {
   vocabulary: ["Animals", "Family", "Food & Drink", "Colors & Shapes", "School & Classroom", "Body Parts", "Greetings"],
   reading: ["Short Story", "Dialogue", "Historical Passage"],
   grammar: ["Verb Conjugation", "Noun Plurals", "Sentence Structure"],
@@ -48,14 +74,22 @@ interface Props {
   userRole: string;
 }
 
+function isYoung(grade: string): boolean {
+  return grade === "K" || grade === "1";
+}
+
+function getTopics(grade: string): Record<string, string[]> {
+  if (grade === "K") return TOPICS_YOUNG;
+  if (grade === "1") return TOPICS_YOUNG_G1;
+  return TOPICS_STANDARD;
+}
+
 export default function PracticeClient({ userId, gradeLevel, userRole }: Props) {
-  // Config state
-  const [grade, setGrade] = useState(gradeLevel);
+  const [grade, setGrade] = useState(String(gradeLevel));
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [exerciseType, setExerciseType] = useState<ExerciseType>("multiple_choice");
 
-  // Exercise state
   const [phase, setPhase] = useState<Phase>("config");
   const [exercises, setExercises] = useState<unknown[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,6 +97,9 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [hints, setHints] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
+
+  const young = isYoung(grade);
+  const topics = getTopics(grade);
 
   async function handleGenerate() {
     setError("");
@@ -77,7 +114,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           subject,
           topic,
           exerciseType,
-          count: exerciseType === "matching" ? 5 : 4,
+          count: exerciseType === "matching" ? (young ? 4 : 5) : (young ? 3 : 4),
         }),
       });
 
@@ -123,7 +160,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         subject,
         topic,
         exercise_type: exerciseType,
-        grade_level: grade,
+        grade_level: grade === "K" ? 0 : Number(grade),
         score,
         total: answers.length,
         exercises_data: exercises,
@@ -170,17 +207,17 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         <div className="mb-6">
           <label className="block text-sm font-medium text-brown-700 mb-2">Grade Level</label>
           <div className="flex flex-wrap gap-2">
-            {[2, 3, 4, 5, 6, 7, 8].map((g) => (
+            {GRADES.map((g) => (
               <button
-                key={g}
-                onClick={() => setGrade(g)}
+                key={g.value}
+                onClick={() => { setGrade(g.value); setSubject(""); setTopic(""); }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  grade === g
+                  grade === g.value
                     ? "bg-gold text-white shadow-sm"
                     : "bg-warm-white border border-brown-200 text-brown-700 hover:border-brown-300"
                 }`}
               >
-                Grade {g}
+                {g.label}
               </button>
             ))}
           </div>
@@ -210,11 +247,11 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         </div>
 
         {/* Topic */}
-        {subject && (
+        {subject && topics[subject] && (
           <div className="mb-6">
             <label className="block text-sm font-medium text-brown-700 mb-2">Topic</label>
             <div className="flex flex-wrap gap-2">
-              {TOPICS[subject]?.map((t) => (
+              {topics[subject].map((t) => (
                 <button
                   key={t}
                   onClick={() => setTopic(t)}
@@ -300,7 +337,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           hintsUsed={hintsUsed}
           subject={subject}
           topic={topic}
-          grade={grade}
+          grade={grade === "K" ? 0 : Number(grade)}
           onSave={handleSave}
           onNewSet={handleNewSet}
           dashboardUrl={dashboardUrl}
@@ -323,7 +360,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           <span>{exerciseType === "matching" ? "Match all pairs" : `Question ${currentIndex + 1} of ${exerciseCount}`}</span>
           <span>{progress}%</span>
         </div>
-        <div className="h-2 bg-brown-100 rounded-full overflow-hidden">
+        <div className={`${young ? "h-3" : "h-2"} bg-brown-100 rounded-full overflow-hidden`}>
           <div
             className="h-full bg-gold rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -332,12 +369,13 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
       </div>
 
       {/* Exercise card */}
-      <div className="bg-warm-white border border-brown-100 rounded-2xl p-6 shadow-sm">
+      <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
         {exerciseType === "multiple_choice" && (
           <MultipleChoice
             key={currentIndex}
             exercise={exercises[currentIndex] as MultipleChoiceExercise}
             onAnswer={handleAnswer}
+            young={young}
           />
         )}
         {exerciseType === "fill_blank" && (
@@ -345,12 +383,14 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             key={currentIndex}
             exercise={exercises[currentIndex] as FillBlankExercise}
             onAnswer={handleAnswer}
+            young={young}
           />
         )}
         {exerciseType === "matching" && (
           <Matching
             exercises={exercises as MatchingExercise[]}
             onAnswer={handleAnswer}
+            young={young}
           />
         )}
         {exerciseType === "true_false" && (
@@ -358,6 +398,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             key={currentIndex}
             exercise={exercises[currentIndex] as TrueFalseExercise}
             onAnswer={handleAnswer}
+            young={young}
           />
         )}
       </div>
@@ -367,7 +408,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         <div className="mt-6 text-center">
           <button
             onClick={handleNext}
-            className="bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            className={`bg-gold hover:bg-gold-dark text-white px-8 ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"} font-medium transition-colors`}
           >
             {exerciseType === "matching" || currentIndex + 1 >= exerciseCount ? "See Results" : "Next"}
           </button>

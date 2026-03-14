@@ -6,9 +6,10 @@ import type { TrueFalseExercise } from "@/lib/types";
 interface Props {
   exercise: TrueFalseExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
+  young?: boolean;
 }
 
-export default function TrueFalse({ exercise, onAnswer }: Props) {
+export default function TrueFalse({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<boolean | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
@@ -20,7 +21,8 @@ export default function TrueFalse({ exercise, onAnswer }: Props) {
   }
 
   function btnStyle(value: boolean) {
-    if (!answered) return "border-brown-200 hover:border-brown-300 bg-warm-white";
+    const base = young ? "bg-amber-50/30" : "bg-warm-white";
+    if (!answered) return `border-brown-200 hover:border-brown-300 ${base}`;
     const isCorrectAnswer = value === exercise.correct_answer;
     const wasSelected = value === selected;
     if (isCorrectAnswer) return "border-green-500 bg-green-50 ring-2 ring-green-200";
@@ -28,11 +30,18 @@ export default function TrueFalse({ exercise, onAnswer }: Props) {
     return "border-brown-100 bg-brown-50 opacity-50";
   }
 
+  const radius = young ? "rounded-2xl" : "rounded-xl";
+
   return (
     <div className="space-y-6">
-      {/* Statement — Armenian only, English revealed after answering */}
+      {exercise.emoji && (
+        <div className="text-center">
+          <span className={young ? "text-7xl" : "text-5xl"}>{exercise.emoji}</span>
+        </div>
+      )}
+
       <div>
-        <p className="text-2xl font-semibold text-brown-800 leading-relaxed">
+        <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
           {exercise.statement_hy}
         </p>
         {!answered && !hintShown && (
@@ -54,24 +63,23 @@ export default function TrueFalse({ exercise, onAnswer }: Props) {
         <button
           onClick={() => handleSelect(true)}
           disabled={answered}
-          className={`p-5 rounded-xl border-2 text-center transition-all ${btnStyle(true)}`}
+          className={`${young ? "p-6 min-h-[56px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(true)}`}
         >
-          <span className="block text-2xl mb-1">✓</span>
-          <span className="font-semibold text-brown-800">True</span>
+          <span className={`block mb-1 ${young ? "text-3xl" : "text-2xl"}`}>✓</span>
+          <span className={`font-semibold text-brown-800 ${young ? "text-lg" : ""}`}>True</span>
         </button>
         <button
           onClick={() => handleSelect(false)}
           disabled={answered}
-          className={`p-5 rounded-xl border-2 text-center transition-all ${btnStyle(false)}`}
+          className={`${young ? "p-6 min-h-[56px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(false)}`}
         >
-          <span className="block text-2xl mb-1">✗</span>
-          <span className="font-semibold text-brown-800">False</span>
+          <span className={`block mb-1 ${young ? "text-3xl" : "text-2xl"}`}>✗</span>
+          <span className={`font-semibold text-brown-800 ${young ? "text-lg" : ""}`}>False</span>
         </button>
       </div>
 
-      {/* Explanation — after answering */}
       {answered && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
+        <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 space-y-1 animate-fade-in`}>
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>
