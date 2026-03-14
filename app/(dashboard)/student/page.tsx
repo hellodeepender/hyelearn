@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
+import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 
 export default async function StudentDashboard() {
@@ -37,7 +38,8 @@ export default async function StudentDashboard() {
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
-      <main className="max-w-6xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        <StudentNav />
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
         <p className="text-brown-500 mb-10">Continue your Armenian learning journey.</p>
 

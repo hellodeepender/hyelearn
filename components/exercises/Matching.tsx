@@ -102,10 +102,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 disabled={done}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className="flex items-center gap-2">
-                  {item.emoji_left && <span className={young ? "text-2xl" : "text-lg"}>{item.emoji_left}</span>}
-                  <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
-                </span>
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
                 {done && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
                 )}
@@ -124,10 +121,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 disabled={done || selectedLeft === null}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className="flex items-center gap-2">
-                  {item.emoji_right && <span className={young ? "text-2xl" : "text-lg"}>{item.emoji_right}</span>}
-                  <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
-                </span>
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
                 {done && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
                 )}

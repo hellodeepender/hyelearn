@@ -16,7 +16,7 @@ function generateJoinCode(): string {
 export default function CreateClassForm() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [gradeLevel, setGradeLevel] = useState(5);
+  const [gradeLevel, setGradeLevel] = useState("5");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,7 +46,7 @@ export default function CreateClassForm() {
 
     const { error: insertError } = await supabase.from("classes").insert({
       name: name.trim(),
-      grade_level: gradeLevel,
+      grade_level: gradeLevel === "K" ? 0 : Number(gradeLevel),
       join_code: generateJoinCode(),
       teacher_id: user.id,
       school_id: profile?.school_id,
@@ -89,11 +89,12 @@ export default function CreateClassForm() {
         <select
           id="gradeLevel"
           value={gradeLevel}
-          onChange={(e) => setGradeLevel(Number(e.target.value))}
+          onChange={(e) => setGradeLevel(e.target.value)}
           className="w-full px-3 py-2 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-sm"
         >
-          {[2, 3, 4, 5, 6, 7, 8].map((g) => (
-            <option key={g} value={g}>Grade {g}</option>
+          <option value="K">Kindergarten</option>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
+            <option key={g} value={String(g)}>Grade {g}</option>
           ))}
         </select>
       </div>

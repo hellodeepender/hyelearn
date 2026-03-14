@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
+import StudentNav from "@/components/ui/StudentNav";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 
 export default async function CurriculumPage() {
@@ -21,15 +23,10 @@ export default async function CurriculumPage() {
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-brown-800">Curriculum</h1>
-            <p className="text-brown-500 text-sm mt-1">Your structured learning path</p>
-          </div>
-          <Link href="/student" className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors">
-            Dashboard
-          </Link>
-        </div>
+        <StudentNav />
+        <Breadcrumbs items={[{ label: "Dashboard", href: "/student" }, { label: "Curriculum" }]} />
+        <h1 className="text-3xl font-bold text-brown-800 mb-1">Curriculum</h1>
+        <p className="text-brown-500 text-sm mb-8">Your structured learning path</p>
 
         <div className="space-y-4">
           {levels.map((level) => {

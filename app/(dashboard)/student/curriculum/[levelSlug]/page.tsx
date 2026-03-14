@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
+import StudentNav from "@/components/ui/StudentNav";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getUnitsWithProgress } from "@/lib/curriculum";
 
 export default async function LevelPage({ params }: { params: Promise<{ levelSlug: string }> }) {
@@ -20,9 +22,12 @@ export default async function LevelPage({ params }: { params: Promise<{ levelSlu
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <div className="flex items-center gap-3 mb-2">
-          <Link href="/student/curriculum" className="text-brown-400 hover:text-brown-600 text-sm">&larr; All Levels</Link>
-        </div>
+        <StudentNav />
+        <Breadcrumbs items={[
+          { label: "Dashboard", href: "/student" },
+          { label: "Curriculum", href: "/student/curriculum" },
+          { label: level.title },
+        ]} />
         <h1 className="text-3xl font-bold text-brown-800 mb-1">{level.title}</h1>
         {level.description && <p className="text-brown-500 mb-8">{level.description}</p>}
 

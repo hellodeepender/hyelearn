@@ -24,7 +24,7 @@ export default async function LessonPage({
 
   const { data: lesson } = await supabase
     .from("curriculum_lessons")
-    .select("id, title, lesson_type, passing_score")
+    .select("id, slug, title, lesson_type, passing_score, sort_order")
     .eq("unit_id", unit.id)
     .eq("slug", lessonSlug)
     .single();
@@ -38,7 +38,19 @@ export default async function LessonPage({
     .eq("status", "approved")
     .order("sort_order");
 
+  // Find next lesson for "Continue" link
+  const { data: nextLesson } = await supabase
+    .from("curriculum_lessons")
+    .select("slug")
+    .eq("unit_id", unit.id)
+    .eq("is_active", true)
+    .gt("sort_order", lesson.sort_order)
+    .order("sort_order")
+    .limit(1)
+    .single();
+
   const backUrl = `/student/curriculum/${levelSlug}/${unitSlug}`;
+  const nextLessonUrl = nextLesson ? `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}` : undefined;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -50,6 +62,7 @@ export default async function LessonPage({
         passingScore={lesson.passing_score}
         exercises={(exercises ?? []).map((e) => ({ type: e.exercise_type, data: e.exercise_data }))}
         backUrl={backUrl}
+        nextLessonUrl={nextLessonUrl}
         gradeValue={level.grade_value}
       />
     </div>

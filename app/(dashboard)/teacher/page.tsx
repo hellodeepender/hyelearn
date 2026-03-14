@@ -6,151 +6,168 @@ import CreateClassForm from "./CreateClassForm";
 
 export default async function TeacherDashboard() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", user.id)
-    .single();
-
+  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
   if (profile?.role === "student") redirect("/student");
 
-  // Fetch teacher's classes with student counts
+  // Classes
   const { data: classes } = await supabase
     .from("classes")
-    .select("id, name, grade_level, join_code, created_at, class_students(count)")
+    .select("id, name, grade_level, join_code, class_students(count)")
     .eq("teacher_id", user.id)
     .order("created_at", { ascending: false });
-
   const allClasses = classes ?? [];
-
-  // Count total students across all classes
   const totalStudents = allClasses.reduce((sum, c) => {
     const countArr = c.class_students as unknown as { count: number }[];
     return sum + (countArr?.[0]?.count ?? 0);
   }, 0);
 
-  // Get student IDs in teacher's classes for session stats
-  const { data: classStudentRows } = await supabase
-    .from("class_students")
-    .select("student_id")
-    .in("class_id", allClasses.map((c) => c.id));
+  // Exercise counts
+  const { count: pendingCount } = await supabase
+    .from("curated_exercises")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "draft");
+  const { count: approvedCount } = await supabase
+    .from("curated_exercises")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "approved");
 
-  const studentIds = classStudentRows?.map((r) => r.student_id) ?? [];
+  // Curriculum levels with exercise stats
+  const { data: levels } = await supabase
+    .from("curriculum_levels")
+    .select("id, slug, title, sort_order")
+    .eq("is_active", true)
+    .order("sort_order");
 
-  // Fetch total exercise sessions for those students
-  let totalSessions = 0;
-  if (studentIds.length > 0) {
-    const { count } = await supabase
-      .from("exercise_sessions")
-      .select("id", { count: "exact", head: true })
-      .in("student_id", studentIds);
-    totalSessions = count ?? 0;
-  }
+  const { data: allUnits } = await supabase.from("curriculum_units").select("id, level_id").eq("is_active", true);
+  const { data: allLessons } = await supabase.from("curriculum_lessons").select("id, unit_id").eq("is_active", true);
+  const { data: allExercises } = await supabase.from("curated_exercises").select("lesson_id, status");
+
+  const levelStats = (levels ?? []).map((level) => {
+    const unitIds = (allUnits ?? []).filter((u) => u.level_id === level.id).map((u) => u.id);
+    const lessonIds = (allLessons ?? []).filter((l) => unitIds.includes(l.unit_id)).map((l) => l.id);
+    const exForLevel = (allExercises ?? []).filter((e) => lessonIds.includes(e.lesson_id));
+    return {
+      ...level,
+      units: unitIds.length,
+      lessons: lessonIds.length,
+      approved: exForLevel.filter((e) => e.status === "approved").length,
+      pending: exForLevel.filter((e) => e.status === "draft").length,
+      total: exForLevel.length,
+    };
+  });
 
   const firstName = profile?.full_name?.split(" ")[0] ?? "Teacher";
 
   return (
     <div className="min-h-screen bg-cream">
-      <Header
-        userName={profile?.full_name ?? "Teacher"}
-        userRole={profile?.role ?? "teacher"}
-      />
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-brown-800 mb-2">
-          Welcome, {firstName}!
-        </h1>
-        <p className="text-brown-500 mb-8">Manage your classes and track student progress.</p>
+      <Header userName={profile?.full_name ?? "Teacher"} userRole={profile?.role ?? "teacher"} />
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        <h1 className="text-3xl font-bold text-brown-800 mb-1">Welcome, {firstName}!</h1>
+        <p className="text-brown-500 mb-8">Manage your curriculum and classes</p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
             <h3 className="text-sm font-medium text-brown-500 mb-1">Classes</h3>
             <p className="text-3xl font-bold text-gold">{allClasses.length}</p>
           </div>
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Total Students</h3>
+            <h3 className="text-sm font-medium text-brown-500 mb-1">Students</h3>
             <p className="text-3xl font-bold text-gold">{totalStudents}</p>
           </div>
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Student Sessions</h3>
-            <p className="text-3xl font-bold text-gold">{totalSessions}</p>
+            <h3 className="text-sm font-medium text-brown-500 mb-1">Pending Review</h3>
+            <p className="text-3xl font-bold text-amber-600">{pendingCount ?? 0}</p>
+          </div>
+          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
+            <h3 className="text-sm font-medium text-brown-500 mb-1">Approved</h3>
+            <p className="text-3xl font-bold text-green-600">{approvedCount ?? 0}</p>
           </div>
         </div>
 
-        {/* Create class + class list */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <h2 className="text-lg font-semibold text-brown-800 mb-4">Create a Class</h2>
-            <CreateClassForm />
+        {/* Curriculum management */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
+            <div className="flex gap-2">
+              <Link href="/teacher/seed" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Seed Exercises
+              </Link>
+              {(pendingCount ?? 0) > 0 && (
+                <Link href="/teacher/review" className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  Review Queue ({pendingCount})
+                </Link>
+              )}
+            </div>
           </div>
 
-          <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold text-brown-800 mb-4">Your Classes</h2>
-            {allClasses.length > 0 ? (
-              <div className="space-y-3">
-                {allClasses.map((c) => {
-                  const countArr = c.class_students as unknown as { count: number }[];
-                  const studentCount = countArr?.[0]?.count ?? 0;
-                  return (
-                    <div
-                      key={c.id}
-                      className="bg-warm-white border border-brown-100 rounded-xl p-5 flex items-center justify-between"
-                    >
-                      <div>
-                        <p className="font-medium text-brown-800">{c.name}</p>
-                        <p className="text-sm text-brown-400">
-                          Grade {c.grade_level} &middot; {studentCount} student{studentCount !== 1 ? "s" : ""}
-                        </p>
+          <div className="bg-warm-white border border-brown-100 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-6 gap-4 px-5 py-3 bg-brown-50/50 border-b border-brown-100 text-xs font-medium text-brown-500 uppercase">
+              <span className="col-span-2">Level</span>
+              <span>Units</span>
+              <span>Lessons</span>
+              <span>Approved</span>
+              <span>Pending</span>
+            </div>
+            {levelStats.map((level) => {
+              const allApproved = level.lessons > 0 && level.approved > 0 && level.pending === 0;
+              return (
+                <div key={level.id} className="grid grid-cols-6 gap-4 px-5 py-3 border-b border-brown-50 items-center">
+                  <div className="col-span-2 flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${
+                      allApproved ? "bg-green-500" : level.pending > 0 ? "bg-amber-400" : "bg-brown-200"
+                    }`} />
+                    <span className="font-medium text-brown-800 text-sm">{level.title}</span>
+                  </div>
+                  <span className="text-sm text-brown-600">{level.units}</span>
+                  <span className="text-sm text-brown-600">{level.lessons}</span>
+                  <span className="text-sm text-green-600 font-medium">{level.approved}</span>
+                  <span className={`text-sm font-medium ${level.pending > 0 ? "text-amber-600" : "text-brown-300"}`}>{level.pending}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Class management */}
+        <section>
+          <h2 className="text-lg font-semibold text-brown-800 mb-4">Classes</h2>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <CreateClassForm />
+            </div>
+            <div className="lg:col-span-2">
+              {allClasses.length > 0 ? (
+                <div className="space-y-3">
+                  {allClasses.map((c) => {
+                    const countArr = c.class_students as unknown as { count: number }[];
+                    const studentCount = countArr?.[0]?.count ?? 0;
+                    const gradeLabel = c.grade_level === 0 ? "Kindergarten" : `Grade ${c.grade_level}`;
+                    return (
+                      <div key={c.id} className="bg-warm-white border border-brown-100 rounded-xl p-5 flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-brown-800">{c.name}</p>
+                          <p className="text-sm text-brown-400">{gradeLabel} &middot; {studentCount} student{studentCount !== 1 ? "s" : ""}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-mono bg-brown-50 border border-brown-200 px-3 py-1 rounded-lg text-brown-700">{c.join_code}</p>
+                          <p className="text-xs text-brown-400 mt-1">Join code</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono bg-brown-50 border border-brown-200 px-3 py-1 rounded-lg text-brown-700">
-                          {c.join_code}
-                        </p>
-                        <p className="text-xs text-brown-400 mt-1">Join code</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="bg-warm-white border border-brown-200 border-dashed rounded-xl p-8 text-center">
-                <p className="text-brown-400">No classes yet.</p>
-                <p className="text-brown-300 text-sm mt-1">Create your first class to get started.</p>
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-warm-white border border-brown-200 border-dashed rounded-xl p-8 text-center">
+                  <p className="text-brown-400">No classes yet. Create your first class to get started.</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-
-        {/* Curriculum tools */}
-        <div className="mt-10 pt-8 border-t border-brown-100">
-          <h2 className="text-lg font-semibold text-brown-800 mb-4">Curriculum Tools</h2>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/teacher/seed"
-              className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
-            >
-              Seed Exercises (AI)
-            </Link>
-            <Link
-              href="/teacher/review"
-              className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
-            >
-              Review Queue
-            </Link>
-            <Link
-              href="/practice"
-              className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
-            >
-              Preview AI Practice
-            </Link>
-          </div>
-        </div>
+        </section>
       </main>
     </div>
   );

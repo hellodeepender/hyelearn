@@ -73,10 +73,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               disabled={answered}
               className={`w-full text-left p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 transition-all ${style}`}
             >
-              <span className="flex items-center gap-3">
-                {opt.emoji && <span className={young ? "text-3xl" : "text-2xl"}>{opt.emoji}</span>}
-                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{opt.text_hy}</span>
-              </span>
+              <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{opt.text_hy}</span>
               {answered && (
                 <span className="text-sm text-brown-400 ml-2 animate-fade-in block mt-1">({opt.text_en})</span>
               )}

@@ -106,7 +106,6 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
               disabled={answered}
               className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
             >
-              {word.emoji && <span className={young ? "text-3xl block mb-1" : "text-xl block mb-0.5"}>{word.emoji}</span>}
               <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.hy}</span>
               {answered && (
                 <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>

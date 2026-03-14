@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import type {
   MultipleChoiceExercise,
@@ -25,45 +25,42 @@ interface Props {
   passingScore: number;
   exercises: ExerciseEntry[];
   backUrl: string;
+  nextLessonUrl?: string;
   gradeValue: string;
 }
 
-export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, gradeValue }: Props) {
+export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, gradeValue }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [showNext, setShowNext] = useState(false);
   const [phase, setPhase] = useState<"practicing" | "complete">(exercises.length > 0 ? "practicing" : "complete");
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
-  const [saving, setSaving] = useState(false);
+  const didSave = useRef(false);
 
   const young = gradeValue === "K" || gradeValue === "1";
 
-  // Handle matching exercises as a batch
   const matchingExercises = exercises.filter((e) => e.type === "matching");
   const nonMatchingExercises = exercises.filter((e) => e.type !== "matching");
-  const hasMatching = matchingExercises.length > 0;
-
-  // If all exercises are matching, treat as one "question"
-  const exerciseList = hasMatching && nonMatchingExercises.length === 0
+  const exerciseList = matchingExercises.length > 0 && nonMatchingExercises.length === 0
     ? [{ type: "matching_batch", data: matchingExercises.map((e) => e.data) }]
     : exercises;
 
-  function handleAnswer(correct: boolean, _usedHint: boolean) {
+  function handleAnswer(correct: boolean) {
     setAnswers((prev) => [...prev, correct]);
     setShowNext(true);
   }
 
-  const handleNext = useCallback(() => {
+  function handleNext() {
     setShowNext(false);
     if (currentIndex + 1 >= exerciseList.length) {
       setPhase("complete");
     } else {
       setCurrentIndex((i) => i + 1);
     }
-  }, [currentIndex, exerciseList.length]);
+  }
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
+  // Auto-save on completion
+  const saveProgress = useCallback(async () => {
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     try {
@@ -77,64 +74,81 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     } catch {
       setResult({ passed: false, pct: 0 });
     }
-    setSaving(false);
   }, [answers, lessonId]);
+
+  useEffect(() => {
+    if (phase === "complete" && !didSave.current && answers.length > 0) {
+      didSave.current = true;
+      saveProgress();
+    }
+  }, [phase, answers, saveProgress]);
 
   // Empty state
   if (exercises.length === 0) {
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center">
         <h1 className="text-2xl font-bold text-brown-800 mb-2">{lessonTitle}</h1>
-        <p className="text-brown-500 mb-6">No exercises available yet. Your teacher is preparing content for this lesson.</p>
+        <p className="text-brown-500 mb-6">No exercises available yet. Your teacher is preparing content.</p>
         <Link href={backUrl} className="text-gold hover:text-gold-dark font-medium">&larr; Back to unit</Link>
       </main>
     );
   }
 
-  // Complete phase
+  // Complete phase — auto-saved
   if (phase === "complete") {
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+    const passed = result?.passed ?? pct >= passingScore;
 
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
-        <div className="inline-flex items-center justify-center w-36 h-36 rounded-full border-4 border-gold bg-gold/10 mb-2">
-          <div>
-            <p className="text-4xl font-bold text-gold">{score}/{total}</p>
-            <p className="text-sm text-brown-400">{pct}%</p>
+        {/* Score circle */}
+        <div>
+          <div className={`inline-flex items-center justify-center w-36 h-36 rounded-full border-4 mb-4 ${
+            passed ? "border-green-500 bg-green-50" : "border-gold bg-gold/10"
+          }`}>
+            <div>
+              <p className={`text-4xl font-bold ${passed ? "text-green-600" : "text-gold"}`}>{score}/{total}</p>
+              <p className="text-sm text-brown-400">{pct}%</p>
+            </div>
           </div>
-        </div>
 
-        {result ? (
-          <div>
-            {result.passed ? (
-              <p className="text-2xl font-bold text-green-700">Lesson passed!</p>
+          {result ? (
+            passed ? (
+              <div className="space-y-2">
+                <p className="text-2xl font-bold text-green-700">Lesson complete!</p>
+                <p className="text-brown-500">You passed with {pct}%</p>
+                {/* Simple CSS celebration */}
+                <div className="flex justify-center gap-1 text-2xl animate-bounce">
+                  <span style={{ animationDelay: "0s" }}>&#11088;</span>
+                  <span style={{ animationDelay: "0.1s" }}>&#11088;</span>
+                  <span style={{ animationDelay: "0.2s" }}>&#11088;</span>
+                </div>
+                <p className="text-sm text-green-600 mt-1">Progress saved</p>
+              </div>
             ) : (
-              <p className="text-2xl font-bold text-brown-800">
-                {pct < passingScore ? `Need ${passingScore}% to pass. Try again!` : "Good effort!"}
-              </p>
-            )}
-            <p className="text-sm text-green-600 mt-1">Progress saved</p>
-          </div>
-        ) : (
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            {saving ? "Saving..." : "Save Results"}
-          </button>
-        )}
-
-        <div className="text-sm text-brown-400">
-          <span className="capitalize">{lessonType}</span> &middot; Passing: {passingScore}%
+              <div className="space-y-2">
+                <p className="text-2xl font-bold text-brown-800">Keep practicing!</p>
+                <p className="text-brown-500">You need {passingScore}% to pass. You scored {pct}%.</p>
+                <p className="text-sm text-green-600 mt-1">Progress saved</p>
+              </div>
+            )
+          ) : (
+            <p className="text-sm text-brown-400">Saving progress...</p>
+          )}
         </div>
 
+        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-          {result && !result.passed && (
+          {result && passed && nextLessonUrl && (
+            <Link href={nextLessonUrl} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-center">
+              Continue to next lesson
+            </Link>
+          )}
+          {result && !passed && (
             <button
-              onClick={() => { setCurrentIndex(0); setAnswers([]); setShowNext(false); setPhase("practicing"); setResult(null); }}
+              onClick={() => { setCurrentIndex(0); setAnswers([]); setShowNext(false); setPhase("practicing"); didSave.current = false; setResult(null); }}
               className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-medium"
             >
               Try Again
@@ -172,19 +186,19 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
 
       <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
         {entry.type === "multiple_choice" && (
-          <MultipleChoice key={currentIndex} exercise={entry.data as MultipleChoiceExercise} onAnswer={handleAnswer} young={young} />
+          <MultipleChoice key={currentIndex} exercise={entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
         )}
         {entry.type === "fill_blank" && (
-          <FillBlank key={currentIndex} exercise={entry.data as FillBlankExercise} onAnswer={handleAnswer} young={young} />
+          <FillBlank key={currentIndex} exercise={entry.data as FillBlankExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
         )}
         {entry.type === "true_false" && (
-          <TrueFalse key={currentIndex} exercise={entry.data as TrueFalseExercise} onAnswer={handleAnswer} young={young} />
+          <TrueFalse key={currentIndex} exercise={entry.data as TrueFalseExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
         )}
         {entry.type === "matching" && (
-          <Matching exercises={[entry.data as MatchingExercise]} onAnswer={handleAnswer} young={young} />
+          <Matching exercises={[entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} />
         )}
         {entry.type === "matching_batch" && (
-          <Matching exercises={entry.data as MatchingExercise[]} onAnswer={handleAnswer} young={young} />
+          <Matching exercises={entry.data as MatchingExercise[]} onAnswer={(c) => handleAnswer(c)} young={young} />
         )}
       </div>
 
