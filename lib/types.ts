@@ -1,4 +1,4 @@
-export type UserRole = "teacher" | "student";
+export type UserRole = "teacher" | "student" | "admin";
 
 export interface User {
   id: string;
@@ -8,49 +8,96 @@ export interface User {
   created_at: string;
 }
 
-export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
+export type ExerciseType = "multiple_choice" | "fill_blank" | "matching" | "true_false";
 
-export type ExerciseType =
-  | "multiple_choice"
-  | "fill_in_the_blank"
-  | "translation"
-  | "matching"
-  | "sentence_building";
+// --- Exercise structures (match Claude API response shapes) ---
 
-export interface Exercise {
-  id: string;
-  type: ExerciseType;
-  difficulty: DifficultyLevel;
-  topic: string;
-  prompt: string;
-  prompt_armenian?: string;
-  options?: string[];
-  correct_answer: string;
-  explanation?: string;
-  explanation_armenian?: string;
+export interface MCOption {
+  id: "a" | "b" | "c" | "d";
+  text_hy: string;
+  text_en: string;
+  correct: boolean;
 }
 
-export interface ExerciseSet {
+export interface MultipleChoiceExercise {
   id: string;
-  title: string;
-  topic: string;
-  difficulty: DifficultyLevel;
+  question_hy: string;
+  question_en: string;
+  options: MCOption[];
+  hint_hy: string;
+  hint_en: string;
+  explanation_hy: string;
+  explanation_en: string;
+}
+
+export interface FillBlankExercise {
+  id: string;
+  sentence_hy: string;
+  sentence_en: string;
+  answer_hy: string;
+  answer_en: string;
+  distractors_hy: string[];
+  distractors_en: string[];
+  hint_hy: string;
+  hint_en: string;
+  explanation_hy: string;
+  explanation_en: string;
+}
+
+export interface MatchingExercise {
+  id: string;
+  left_hy: string;
+  left_en: string;
+  right_hy: string;
+  right_en: string;
+}
+
+export interface TrueFalseExercise {
+  id: string;
+  statement_hy: string;
+  statement_en: string;
+  correct_answer: boolean;
+  explanation_hy: string;
+  explanation_en: string;
+}
+
+export type Exercise = MultipleChoiceExercise | FillBlankExercise | MatchingExercise | TrueFalseExercise;
+
+// --- API response wrappers ---
+
+export interface ExerciseSetResponse {
   exercises: Exercise[];
-  created_by: string;
-  created_at: string;
-}
-
-export interface StudentProgress {
-  user_id: string;
-  exercise_id: string;
-  score: number;
-  completed_at: string;
-  time_spent_seconds: number;
+  topic_title_hy: string;
+  topic_title_en: string;
 }
 
 export interface GenerateRequest {
+  grade: number;
+  subject: string;
   topic: string;
-  difficulty: DifficultyLevel;
-  exercise_type: ExerciseType;
-  count: number;
+  exerciseType: ExerciseType;
+  count?: number;
+}
+
+export interface GenerateResponse {
+  exercises: Exercise[];
+  topic_title_hy: string;
+  topic_title_en: string;
+}
+
+// --- Practice session tracking ---
+
+export interface ExerciseAnswer {
+  exerciseIndex: number;
+  correct: boolean;
+}
+
+export interface SessionResult {
+  subject: string;
+  topic: string;
+  exerciseType: ExerciseType;
+  gradeLevel: number;
+  score: number;
+  total: number;
+  exercisesData: unknown;
 }
