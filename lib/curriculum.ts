@@ -82,12 +82,11 @@ export async function getUnitsWithProgress(
     const totalLessons = unitLessons.length;
     const completedLessons = unitLessons.filter((l) => passedSet.has(l.id)).length;
 
-    // First unit always unlocked; others require previous unit's quiz passed
+    // First unit always unlocked; others require ALL lessons in previous unit passed
     let unlocked = i === 0;
     if (i > 0) {
       const prevUnitLessons = lessons?.filter((l) => l.unit_id === units[i - 1].id) ?? [];
-      const prevQuiz = prevUnitLessons.find((l) => l.lesson_type === "quiz");
-      unlocked = prevQuiz ? passedSet.has(prevQuiz.id) : prevUnitLessons.every((l) => passedSet.has(l.id));
+      unlocked = prevUnitLessons.length > 0 && prevUnitLessons.every((l) => passedSet.has(l.id));
     }
 
     return { ...unit, totalLessons, completedLessons, unlocked };

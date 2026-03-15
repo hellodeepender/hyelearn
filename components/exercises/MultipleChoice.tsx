@@ -18,12 +18,18 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+const ACCENT_COLORS = [
+  "border-l-amber-400",
+  "border-l-rose-400",
+  "border-l-sky-400",
+  "border-l-emerald-400",
+];
+
 export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
 
-  // Shuffle options once on mount — prevents correct answer always being first
   const shuffledOptions = useMemo<MCOption[]>(() => shuffle(exercise.options), [exercise]);
 
   function handleSelect(optionId: string) {
@@ -61,18 +67,20 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
       </div>
 
       <div className="space-y-3">
-        {shuffledOptions.map((opt) => {
-          let style = young
-            ? "border-brown-200 hover:border-brown-300 bg-amber-50/30"
-            : "border-brown-200 hover:border-brown-300 bg-warm-white";
+        {shuffledOptions.map((opt, idx) => {
+          const accent = ACCENT_COLORS[idx % ACCENT_COLORS.length];
+          let style: string;
+
           if (answered) {
             if (opt.correct) {
-              style = "border-green-500 bg-green-50 ring-2 ring-green-200";
+              style = "border-green-500 bg-green-50 ring-2 ring-green-200 border-l-green-500";
             } else if (opt.id === selected && !opt.correct) {
-              style = "border-red-500 bg-red-50 ring-2 ring-red-200";
+              style = "border-red-500 bg-red-50 ring-2 ring-red-200 border-l-red-500";
             } else {
-              style = "border-brown-100 bg-brown-50 opacity-50";
+              style = "border-brown-100 bg-brown-50 opacity-50 border-l-brown-200";
             }
+          } else {
+            style = `border-brown-200 bg-warm-white hover:border-brown-300 hover:scale-[1.02] ${accent}`;
           }
 
           return (
@@ -80,11 +88,15 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-left p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl min-h-[52px]"} border-2 transition-all ${style}`}
+              className={`w-full text-left py-4 px-6 rounded-xl border-2 border-l-4 min-h-[56px] transition-all duration-150 ${style}`}
             >
-              <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{opt.text_hy}</span>
+              <div className="flex items-center gap-3">
+                {answered && opt.correct && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
+                {answered && opt.id === selected && !opt.correct && <span className="text-red-500 text-lg shrink-0">{"\u2717"}</span>}
+                <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{opt.text_hy}</span>
+              </div>
               {answered && (
-                <span className="text-sm text-brown-400 ml-2 animate-fade-in block mt-1">({opt.text_en})</span>
+                <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>
               )}
             </button>
           );
@@ -92,7 +104,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
       </div>
 
       {answered && (
-        <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
+        <div className={`bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in`}>
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>
