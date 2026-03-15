@@ -24,12 +24,7 @@ export default async function TeacherDashboard() {
     return sum + (countArr?.[0]?.count ?? 0);
   }, 0);
 
-  // Exercise counts — count distinct lessons with at least 1 approved exercise
-  const { count: pendingCount } = await supabase
-    .from("curated_exercises")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "draft");
-
+  // Count distinct lessons with at least 1 approved exercise
   const { data: readyLessonRows } = await supabase
     .from("curated_exercises")
     .select("lesson_id")
@@ -57,7 +52,6 @@ export default async function TeacherDashboard() {
       units: unitIds.length,
       lessons: lessonIds.length,
       lessonsReady: approvedLessonIds.size,
-      pending: exForLevel.filter((e) => e.status === "draft").length,
       hasContent: exForLevel.length > 0,
     };
   });
@@ -74,7 +68,7 @@ export default async function TeacherDashboard() {
         <p className="text-brown-500 mb-8">Manage your curriculum and classes</p>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-3 gap-4 mb-10">
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
             <h3 className="text-sm font-medium text-brown-500 mb-1">Classes</h3>
             <p className="text-3xl font-bold text-gold">{allClasses.length}</p>
@@ -87,46 +81,33 @@ export default async function TeacherDashboard() {
             <h3 className="text-sm font-medium text-brown-500 mb-1">Lessons Ready</h3>
             <p className="text-3xl font-bold text-green-600">{readyLessons}</p>
           </div>
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Pending Review</h3>
-            <p className="text-3xl font-bold text-amber-600">{pendingCount ?? 0}</p>
-          </div>
         </div>
 
         {/* Curriculum */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
-            <div className="flex gap-2">
-              <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                Content Editor
-              </Link>
-              {(pendingCount ?? 0) > 0 && (
-                <Link href="/teacher/review" className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Review Queue ({pendingCount})
-                </Link>
-              )}
-            </div>
+            <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              Content Editor
+            </Link>
           </div>
 
           <div className="bg-warm-white border border-brown-100 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-5 gap-4 px-5 py-3 bg-brown-50/50 border-b border-brown-100 text-xs font-medium text-brown-500 uppercase">
+            <div className="grid grid-cols-4 gap-4 px-5 py-3 bg-brown-50/50 border-b border-brown-100 text-xs font-medium text-brown-500 uppercase">
               <span className="col-span-2">Level</span>
               <span>Units</span>
               <span>Lessons Ready</span>
-              <span>Pending</span>
             </div>
             {activeLevels.map((level) => (
-              <div key={level.id} className="grid grid-cols-5 gap-4 px-5 py-3 border-b border-brown-50 items-center">
+              <div key={level.id} className="grid grid-cols-4 gap-4 px-5 py-3 border-b border-brown-50 items-center">
                 <div className="col-span-2 flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${
-                    level.lessonsReady > 0 && level.pending === 0 ? "bg-green-500" : level.pending > 0 ? "bg-amber-400" : "bg-brown-200"
+                    level.lessonsReady > 0 ? "bg-green-500" : "bg-brown-200"
                   }`} />
                   <span className="font-medium text-brown-800 text-sm">{level.title}</span>
                 </div>
                 <span className="text-sm text-brown-600">{level.units}</span>
                 <span className="text-sm text-green-600 font-medium">{level.lessonsReady}/{level.lessons}</span>
-                <span className={`text-sm font-medium ${level.pending > 0 ? "text-amber-600" : "text-brown-300"}`}>{level.pending}</span>
               </div>
             ))}
             {emptyLevels.length > 0 && (
