@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getWordAudioUrl } from "@/lib/audio";
+import { transliterate } from "@/lib/transliterate";
 
 interface Props {
   visual: string;
@@ -35,24 +36,17 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentWordRef = useRef(primaryText);
 
-  // Reset when word changes
   if (currentWordRef.current !== primaryText) {
     currentWordRef.current = primaryText;
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     setPlaying(false);
     setHidden(false);
   }
 
   const handlePlay = useCallback(() => {
     if (playing || !primaryText) return;
-
-    const url = getWordAudioUrl(primaryText);
-    const audio = new Audio(url);
+    const audio = new Audio(getWordAudioUrl(primaryText));
     audioRef.current = audio;
-
     setPlaying(true);
     audio.addEventListener("ended", () => setPlaying(false));
     audio.addEventListener("error", () => { setPlaying(false); setHidden(true); });
@@ -61,13 +55,18 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
 
   if (!primaryText) return null;
 
+  const latin = transliterate(primaryText);
+  const hasArmenian = /[\u0530-\u058F]/.test(primaryText);
+
   return (
-    <div className="text-center space-y-4 py-4">
+    <div className="text-center space-y-3 py-4">
       <div className={young ? "text-8xl" : "text-6xl"}>{visual}</div>
       <p className={`font-bold text-brown-800 ${young ? "text-5xl" : "text-4xl"}`}>
         {primaryText}
       </p>
-
+      {hasArmenian && latin !== primaryText && (
+        <p className="text-sm text-gray-400 font-light tracking-wide">{latin}</p>
+      )}
       {!hidden && (
         <button
           onClick={handlePlay}
@@ -77,7 +76,6 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
           <SpeakerIcon playing={playing} />
         </button>
       )}
-
       <p className={`text-brown-500 ${young ? "text-xl" : "text-lg"}`}>
         {secondaryText}
       </p>

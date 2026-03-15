@@ -28,8 +28,8 @@ interface Props {
   gradeValue: string;
 }
 
-/** Interleave learn cards and exercises into a single stream.
- *  First 2-3 learn cards, then mix remaining learns with exercises. */
+/** Build a single stream: all learn cards first, then exercises.
+ *  Never more than 3 exercises in a row — insert a learn refresher if needed. */
 function buildSteps(exercises: ExerciseEntry[]): Step[] {
   const learns = exercises.filter((e) => e.type === "learn_card");
   const practice = exercises.filter((e) => e.type !== "learn_card");
@@ -38,23 +38,23 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
   if (practice.length === 0) return learns.map((e) => ({ kind: "learn", entry: e }));
 
   const steps: Step[] = [];
-  let li = 0;
-  let pi = 0;
 
-  // Start with 2 learn cards (or all if fewer than 2)
-  const initialLearnCount = Math.min(2, learns.length);
-  for (let i = 0; i < initialLearnCount; i++) {
-    steps.push({ kind: "learn", entry: learns[li++] });
+  // Show ALL learn cards first
+  for (const l of learns) {
+    steps.push({ kind: "learn", entry: l });
   }
 
-  // Alternate: 1 exercise, then 1 learn card (if remaining), repeat
-  while (li < learns.length || pi < practice.length) {
-    if (pi < practice.length) {
-      steps.push({ kind: "exercise", entry: practice[pi++] });
+  // Then exercises, with a learn refresher every 3 exercises max
+  let exerciseRun = 0;
+  let refresherIdx = 0;
+  for (const p of practice) {
+    if (exerciseRun >= 3 && refresherIdx < learns.length) {
+      // Insert a learn card refresher
+      steps.push({ kind: "learn", entry: learns[refresherIdx++] });
+      exerciseRun = 0;
     }
-    if (li < learns.length) {
-      steps.push({ kind: "learn", entry: learns[li++] });
-    }
+    steps.push({ kind: "exercise", entry: p });
+    exerciseRun++;
   }
 
   return steps;

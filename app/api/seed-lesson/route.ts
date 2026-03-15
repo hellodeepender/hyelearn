@@ -52,6 +52,11 @@ export async function GET(request: NextRequest) {
   // Generate with Claude
   const userPrompt = `Generate a perfect first lesson for Kindergarten Western Armenian. Teach 3 simple words: apple, cat, book.
 
+IMPORTANT EMOJI RULES:
+- The emoji MUST visually represent the CORRECT ANSWER, not any other word in the sentence.
+- For color questions, use an object of that color (sky for blue, grass for green, sun for yellow), NOT a colored circle.
+- For animal questions, use the animal emoji. For food questions, use the food emoji.
+
 Return ONLY valid JSON with no markdown:
 {
   "exercises": [
