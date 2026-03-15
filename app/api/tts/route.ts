@@ -59,7 +59,9 @@ export async function GET(request: NextRequest) {
     }
 
     const requestBody = {
-      contents: [{ parts: [{ text }] }],
+      contents: [{
+        parts: [{ text: `Say the following Armenian word clearly: ${text}` }],
+      }],
       generationConfig: {
         response_modalities: ["AUDIO"],
         speech_config: {
@@ -68,6 +70,7 @@ export async function GET(request: NextRequest) {
               voice_name: "Aoede",
             },
           },
+          language_code: "hy-AM",
         },
       },
     };
