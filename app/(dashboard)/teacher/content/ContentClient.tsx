@@ -128,6 +128,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           lessonTitle: lesson.title,
           lessonDescription: "",
           unitTitle: unit?.title ?? "",
+          levelTitle: levels.find((l) => l.id === selectedLevel)?.title ?? "",
           lessonId: selectedLesson,
           unitId: selectedUnit,
         }),

@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { callClaude } from "@/lib/claude";
 
+const GRADE_GUIDANCE: Record<string, string> = {
+  "Kindergarten": "Use only simple concrete nouns a 5-year-old would know: apple, cat, house, dog, ball. Single words only, very easy.",
+  "Grade 1": "Use common everyday words for ages 6-7: school, teacher, friend, water, bread, sun, tree, bird. Simple and concrete.",
+  "Grade 2": "Expand vocabulary with adjectives and verbs for ages 7-8: beautiful, to run, to read, happy, garden, morning, family.",
+  "Grade 3": "Include abstract concepts for ages 8-9: friendship, homework, weather, important, favorite, adventure, season.",
+  "Grade 4": "Use academic vocabulary for ages 9-10: education, culture, tradition, celebrate, discover, knowledge, history.",
+  "Grade 5": "Use literary and advanced vocabulary for ages 10-11: imagination, responsibility, achievement, literature, composition.",
+};
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -12,69 +21,58 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Teachers only" }, { status: 403 });
   }
 
-  const { templateType, lessonTitle, lessonDescription, unitTitle, lessonId, unitId } = await request.json() as {
-    templateType: string; lessonTitle: string; lessonDescription?: string; unitTitle?: string;
-    lessonId?: string; unitId?: string;
+  const { templateType, lessonTitle, lessonDescription, unitTitle, levelTitle, lessonId, unitId } = await request.json() as {
+    templateType: string; lessonTitle: string; lessonDescription?: string;
+    unitTitle?: string; levelTitle?: string; lessonId?: string; unitId?: string;
   };
 
-  // Fetch existing content from ALL units in the same level to avoid cross-unit duplicates
-  let exclusionText = "";
-  if (unitId && lessonId) {
-    // Find the level for this unit
-    const { data: currentUnit } = await supabase
-      .from("curriculum_units")
-      .select("level_id")
-      .eq("id", unitId)
-      .single();
+  // Grade-appropriate difficulty guidance
+  const gradeGuidance = GRADE_GUIDANCE[levelTitle ?? ""] ?? GRADE_GUIDANCE["Grade 1"];
 
+  // Fetch ALL existing words across ALL grades to avoid platform-wide duplicates
+  let globalExclusions = "";
+  if (templateType !== "alphabet") {
+    const { data: allItems } = await supabase
+      .from("content_items")
+      .select("item_data")
+      .eq("item_type", "word");
+
+    if (allItems && allItems.length > 0) {
+      const usedWords = allItems
+        .map((i) => {
+          const d = i.item_data as Record<string, string>;
+          return d.english;
+        })
+        .filter(Boolean);
+      if (usedWords.length > 0) {
+        globalExclusions = `\nThe following English words have ALREADY been used in other lessons across the platform. Do NOT repeat any of them:\n${[...new Set(usedWords)].join(", ")}\nGenerate 3 completely NEW words.`;
+      }
+    }
+  }
+
+  // Alphabet-specific: check letters used across the level
+  let alphabetExclusions = "";
+  if (templateType === "alphabet" && unitId && lessonId) {
+    const { data: currentUnit } = await supabase.from("curriculum_units").select("level_id").eq("id", unitId).single();
     if (currentUnit) {
-      // Get ALL units in this level
-      const { data: allUnits } = await supabase
-        .from("curriculum_units")
-        .select("id")
-        .eq("level_id", currentUnit.level_id);
-
-      if (allUnits && allUnits.length > 0) {
-        // Get ALL lessons across all units in this level, excluding current lesson
-        const allUnitIds = allUnits.map((u) => u.id);
+      const { data: allUnits } = await supabase.from("curriculum_units").select("id").eq("level_id", currentUnit.level_id);
+      if (allUnits) {
         const { data: allLessons } = await supabase
           .from("curriculum_lessons")
           .select("id")
-          .in("unit_id", allUnitIds)
+          .in("unit_id", allUnits.map((u) => u.id))
           .neq("id", lessonId);
-
         if (allLessons && allLessons.length > 0) {
-          const allLessonIds = allLessons.map((l) => l.id);
           const { data: existingItems } = await supabase
             .from("content_items")
-            .select("item_type, item_data")
-            .in("lesson_id", allLessonIds);
-
+            .select("item_data")
+            .eq("item_type", "letter")
+            .in("lesson_id", allLessons.map((l) => l.id));
           if (existingItems && existingItems.length > 0) {
-            if (templateType === "alphabet") {
-              const usedLetters = existingItems
-                .filter((i) => i.item_type === "letter")
-                .map((i) => (i.item_data as Record<string, string>).letter_upper)
-                .filter(Boolean);
-              if (usedLetters.length > 0) {
-                const nextStart = usedLetters.length + 1;
-                exclusionText = `\nThere are 36 letters in the Armenian alphabet. Letters 1 through ${usedLetters.length} have already been taught. Generate the next 3 letters in sequence (letters ${nextStart}, ${nextStart + 1}, ${nextStart + 2}).
-The following letters have ALREADY been taught. Do NOT include any of them:
-${usedLetters.join(", ")}`;
-              }
-            } else {
-              const usedWords = existingItems
-                .filter((i) => i.item_type === "word")
-                .map((i) => {
-                  const d = i.item_data as Record<string, string>;
-                  return `${d.armenian} (${d.english})`;
-                })
-                .filter(Boolean);
-              if (usedWords.length > 0) {
-                exclusionText = `\nThe following words have ALREADY been taught across all lessons in this level. Do NOT include any of them:
-${usedWords.join(", ")}
-Generate 3 NEW words that have not been taught yet.`;
-              }
+            const usedLetters = existingItems.map((i) => (i.item_data as Record<string, string>).letter_upper).filter(Boolean);
+            if (usedLetters.length > 0) {
+              const nextStart = usedLetters.length + 1;
+              alphabetExclusions = `\nThere are 36 letters in the Armenian alphabet. Letters 1 through ${usedLetters.length} have already been taught. Generate the next 3 letters in sequence (letters ${nextStart}, ${nextStart + 1}, ${nextStart + 2}).\nDo NOT include: ${usedLetters.join(", ")}`;
             }
           }
         }
@@ -83,7 +81,8 @@ Generate 3 NEW words that have not been taught yet.`;
   }
 
   const context = [
-    unitTitle && `Unit: ${unitTitle}`,
+    levelTitle && `Grade level: ${levelTitle}`,
+    unitTitle && `Unit theme: ${unitTitle}`,
     `Lesson: ${lessonTitle}`,
     lessonDescription && `Description: ${lessonDescription}`,
   ].filter(Boolean).join(". ");
@@ -92,8 +91,10 @@ Generate 3 NEW words that have not been taught yet.`;
 
   if (templateType === "alphabet") {
     prompt = `You are a Western Armenian language expert. Generate content for an Armenian alphabet lesson.
-Context: ${context}
-${exclusionText}
+${context}
+${gradeGuidance}
+${alphabetExclusions}
+
 Return EXACTLY 3 letters as a JSON array. Each object must have these exact fields:
 {
   "letter_upper": "(uppercase Armenian letter)",
@@ -108,14 +109,19 @@ Return EXACTLY 3 letters as a JSON array. Each object must have these exact fiel
 
 CRITICAL RULES:
 - Use Western Armenian pronunciation (NOT Eastern Armenian)
-- The emoji MUST visually match example_word_eng (apple emoji for apple, cat emoji for cat)
-- Pick the most iconic/common word for each letter
+- The emoji MUST visually match example_word_eng
+- The example word should be appropriate for ${levelTitle ?? "children"}
 - Use real Armenian Unicode characters
 - Return ONLY a valid JSON array, nothing else`;
   } else {
-    prompt = `You are a Western Armenian language expert. Generate vocabulary content for a children's lesson.
-Context: ${context}
-${exclusionText}
+    prompt = `You are a Western Armenian language expert. Generate vocabulary content for a ${levelTitle ?? "children's"} lesson.
+${context}
+
+DIFFICULTY LEVEL: ${gradeGuidance}
+
+UNIT THEME: Generate words that relate to "${unitTitle ?? "general vocabulary"}".
+${globalExclusions}
+
 Return EXACTLY 3 words as a JSON array. Each object must have these exact fields:
 {
   "armenian": "(word in Armenian script)",
@@ -126,8 +132,9 @@ Return EXACTLY 3 words as a JSON array. Each object must have these exact fields
 
 CRITICAL RULES:
 - Use Western Armenian with classical orthography
-- The emoji MUST visually match the english word (apple = apple emoji, cat = cat emoji)
-- Pick simple, concrete words that kindergarten/grade 1 children can identify
+- The emoji MUST visually match the english word
+- Words must be appropriate for ${levelTitle ?? "children"} (ages matching that grade level)
+- Words should relate to the unit theme "${unitTitle ?? "general"}" when possible
 - Use real Armenian Unicode characters
 - Return ONLY a valid JSON array, nothing else`;
   }
