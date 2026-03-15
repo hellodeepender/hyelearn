@@ -8,6 +8,7 @@ function getCacheKey(text: string): string {
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  console.log("[tts] DB client config:", { hasUrl: !!url, keySource: process.env.SUPABASE_SERVICE_ROLE_KEY ? "SERVICE_ROLE" : "ANON" });
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
@@ -20,31 +21,37 @@ async function ensureBucket(db: { storage: any }) {
 
 export async function GET(request: NextRequest) {
   const text = request.nextUrl.searchParams.get("text")?.trim();
+  console.log("[tts] TTS request for:", text);
 
-  if (!text || text.length > 200) {
-    return new NextResponse(null, { status: 400 });
-  }
-
-  const cacheKey = getCacheKey(text);
-  const storagePath = `words/${cacheKey}.mp3`;
-  const db = getDb();
-
-  // Check cache — if file exists, redirect to the public URL
-  const { data: existing } = await db.storage.from("audio").download(storagePath);
-
-  if (existing) {
-    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/audio/${storagePath}`;
-    return NextResponse.redirect(publicUrl);
-  }
-
-  // Generate via Google Cloud TTS
-  const apiKey = process.env.GOOGLE_TTS_API_KEY;
-  if (!apiKey) {
-    return new NextResponse(null, { status: 500 });
-  }
-
-  let audioContent: string;
   try {
+    if (!text || text.length > 200) {
+      console.log("[tts] Rejected: empty or too long");
+      return new NextResponse(null, { status: 400 });
+    }
+
+    const cacheKey = getCacheKey(text);
+    const storagePath = `words/${cacheKey}.mp3`;
+    const db = getDb();
+
+    // Check cache
+    const { data: existing, error: downloadErr } = await db.storage.from("audio").download(storagePath);
+    console.log("[tts] Cache check:", { found: !!existing, error: downloadErr?.message ?? null });
+
+    if (existing) {
+      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/audio/${storagePath}`;
+      console.log("[tts] Cache hit, redirecting to:", publicUrl);
+      return NextResponse.redirect(publicUrl);
+    }
+
+    // Generate via Google Cloud TTS
+    const apiKey = process.env.GOOGLE_TTS_API_KEY;
+    console.log("[tts] Google TTS API key present:", !!apiKey);
+    if (!apiKey) {
+      console.error("[tts] GOOGLE_TTS_API_KEY is not set");
+      return new NextResponse(null, { status: 500 });
+    }
+
+    console.log("[tts] Calling Google TTS...");
     const ttsRes = await fetch(
       `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
       {
@@ -58,37 +65,46 @@ export async function GET(request: NextRequest) {
       }
     );
 
+    console.log("[tts] Google TTS response status:", ttsRes.status);
+
     if (!ttsRes.ok) {
-      console.error("[tts] Google TTS failed:", ttsRes.status, await ttsRes.text().catch(() => ""));
+      const errorBody = await ttsRes.text().catch(() => "(could not read body)");
+      console.error("[tts] Google TTS error response:", errorBody);
       return new NextResponse(null, { status: 500 });
     }
 
     const data = await ttsRes.json();
-    audioContent = data.audioContent;
-  } catch (err) {
-    console.error("[tts] Google TTS error:", err);
-    return new NextResponse(null, { status: 500 });
-  }
+    const audioContent = data.audioContent;
 
-  if (!audioContent) {
-    return new NextResponse(null, { status: 500 });
-  }
+    if (!audioContent) {
+      console.error("[tts] Google TTS returned no audioContent");
+      return new NextResponse(null, { status: 500 });
+    }
 
-  const audioBuffer = Buffer.from(audioContent, "base64");
+    console.log("[tts] Audio generated, size:", audioContent.length, "base64 chars");
+    const audioBuffer = Buffer.from(audioContent, "base64");
 
-  // Ensure bucket exists, then upload
-  await ensureBucket(db);
-  await db.storage
-    .from("audio")
-    .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: true })
-    .catch((err) => {
-      console.error("[tts] Storage upload failed:", err);
+    // Ensure bucket exists, then upload
+    console.log("[tts] Uploading to Supabase storage...");
+    await ensureBucket(db);
+    const { error: uploadErr } = await db.storage
+      .from("audio")
+      .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: true });
+
+    if (uploadErr) {
+      console.error("[tts] Supabase upload error:", uploadErr.message);
+    } else {
+      console.log("[tts] Upload successful:", storagePath);
+    }
+
+    return new NextResponse(audioBuffer, {
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
     });
-
-  return new NextResponse(audioBuffer, {
-    headers: {
-      "Content-Type": "audio/mpeg",
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
-  });
+  } catch (err) {
+    console.error("[tts] TTS route error:", err);
+    return new NextResponse(null, { status: 500 });
+  }
 }
