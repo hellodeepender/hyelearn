@@ -51,43 +51,15 @@ function groupMatching(entries: ExerciseEntry[]): ExerciseEntry[] {
   return result;
 }
 
-/** Build a single stream: all learn cards first, then exercises.
- *  For long lessons (>8 steps), insert refresher cards every 5+ exercises. */
+/** Build a single stream: all learn cards first, then all exercises. */
 function buildSteps(exercises: ExerciseEntry[]): Step[] {
   const learns = exercises.filter((e) => e.type === "learn_card");
   const rawPractice = exercises.filter((e) => e.type !== "learn_card");
   const practice = groupMatching(rawPractice);
 
-  if (learns.length === 0) return practice.map((e) => ({ kind: "exercise", entry: e }));
-  if (practice.length === 0) return learns.map((e) => ({ kind: "learn", entry: e }));
-
   const steps: Step[] = [];
-
-  // Show ALL learn cards first
-  for (const l of learns) {
-    steps.push({ kind: "learn", entry: l });
-  }
-
-  // For short lessons (8 or fewer total), no refreshers — just append exercises
-  const totalRaw = learns.length + practice.length;
-  if (totalRaw <= 8) {
-    for (const p of practice) {
-      steps.push({ kind: "exercise", entry: p });
-    }
-  } else {
-    // Long lessons: insert refresher after every 5 consecutive exercises
-    let exerciseRun = 0;
-    let refresherIdx = 0;
-    for (const p of practice) {
-      if (exerciseRun >= 5 && refresherIdx < learns.length) {
-        steps.push({ kind: "learn", entry: learns[refresherIdx++] });
-        exerciseRun = 0;
-      }
-      steps.push({ kind: "exercise", entry: p });
-      exerciseRun++;
-    }
-  }
-
+  for (const l of learns) steps.push({ kind: "learn", entry: l });
+  for (const p of practice) steps.push({ kind: "exercise", entry: p });
   return steps;
 }
 
