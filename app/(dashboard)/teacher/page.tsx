@@ -133,16 +133,16 @@ export default async function TeacherDashboard() {
                     const studentCount = countArr?.[0]?.count ?? 0;
                     const gradeLabel = c.grade_level === 0 ? "Kindergarten" : `Grade ${c.grade_level}`;
                     return (
-                      <div key={c.id} className="bg-warm-white border border-brown-100 rounded-xl p-5 flex items-center justify-between">
+                      <Link key={c.id} href={`/teacher/class/${c.id}`} className="block bg-warm-white border border-brown-100 rounded-xl p-5 flex items-center justify-between hover:shadow-md transition-shadow">
                         <div>
                           <p className="font-medium text-brown-800">{c.name}</p>
                           <p className="text-sm text-brown-400">{gradeLabel} &middot; {studentCount} student{studentCount !== 1 ? "s" : ""}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-mono bg-brown-50 border border-brown-200 px-3 py-1 rounded-lg text-brown-700">{c.join_code}</p>
-                          <p className="text-xs text-brown-400 mt-1">Join code</p>
+                          <p className="text-xs text-brown-400 mt-1">View class &rarr;</p>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
