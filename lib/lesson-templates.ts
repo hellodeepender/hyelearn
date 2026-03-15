@@ -268,7 +268,8 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
   return results;
 }
 
-// --- REVIEW/QUIZ TEMPLATE (exactly 9 exercises: 6 MC + 1 matching + 2 fill blank) ---
+// --- REVIEW TEMPLATE: learn cards + exercises ---
+// --- QUIZ TEMPLATE: exercises only, no feedback on wrong answers ---
 
 function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercise[] {
   const letters = items.filter((i) => i.item_type === "letter");
@@ -277,17 +278,54 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
   const results: GeneratedExercise[] = [];
   let sortVal = 1;
   const h = (text: string) => isQuiz ? "" : text;
+  const showCorrect = !isQuiz;
+
+  // Review: generate learn card refreshers first
+  if (!isQuiz) {
+    for (const item of items) {
+      const d = item.item_data;
+      if (item.item_type === "letter") {
+        results.push({
+          exercise_type: "learn_card",
+          exercise_data: {
+            type: "learn_card",
+            letter: `${d.letter_upper} ${d.letter_lower}`,
+            letter_name: d.letter_name as string,
+            transliteration: d.transliteration as string,
+            sound: d.sound as string,
+            example_word: d.example_word_arm as string,
+            example_translation: d.example_word_eng as string,
+            emoji: d.emoji as string,
+            sort_order: sortVal,
+          },
+          sort_order: sortVal++,
+        });
+      } else {
+        results.push({
+          exercise_type: "learn_card",
+          exercise_data: {
+            type: "learn_card", visual: d.emoji as string,
+            primary_text: d.armenian as string, secondary_text: d.english as string,
+            sort_order: sortVal,
+          },
+          sort_order: sortVal++,
+        });
+      }
+    }
+  }
 
   // Build pools
   const letterPool = letters.map((l) => ({ hy: l.item_data.letter_name as string, en: l.item_data.transliteration as string }));
   const letterChars = letters.map((l) => ({ hy: `${l.item_data.letter_upper}`, en: l.item_data.transliteration as string }));
   const wordPool = words.map((w) => ({ hy: w.item_data.armenian as string, en: w.item_data.english as string }));
 
-  // --- 6 Multiple Choice ---
+  // Review: 4 MC + 1 fill + 1 matching = 6 exercises
+  // Quiz:   6 MC + 2 fill + 1 matching = 9 exercises
+  const mcMax = isQuiz ? 6 : 4;
   let mcCount = 0;
 
-  // Recognition (letters): 3 max
-  for (let i = 0; i < Math.min(3, letters.length) && mcCount < 6; i++) {
+  // Recognition (letters)
+  for (let i = 0; i < Math.min(3, letters.length) && mcCount < mcMax; i++) {
     const d = letters[i].item_data;
     results.push({
       exercise_type: "multiple_choice",
@@ -297,15 +335,15 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         options: make3Options(letterPool[i], pickWrong(letterPool, i)),
         hint_hy: "", hint_en: h(`Sounds like "${d.sound}"`),
         explanation_hy: `${d.letter_upper} - ${d.letter_name}`, explanation_en: `This is ${d.transliteration}`,
-        sort_order: sortVal,
+        showCorrectAnswer: showCorrect, sort_order: sortVal,
       },
       sort_order: sortVal++,
     });
     mcCount++;
   }
 
-  // Sound matching (letters): fill to 6
-  for (let i = 0; i < letters.length && mcCount < 6; i++) {
+  // Sound matching (letters)
+  for (let i = 0; i < letters.length && mcCount < mcMax; i++) {
     const d = letters[i].item_data;
     results.push({
       exercise_type: "multiple_choice",
@@ -315,15 +353,15 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         options: make3Options(letterChars[i], pickWrong(letterChars, i)),
         hint_hy: "", hint_en: h(`Think about ${d.transliteration}`),
         explanation_hy: `${d.letter_upper} - ${d.letter_name}`, explanation_en: `${d.transliteration} makes "${d.sound}"`,
-        sort_order: sortVal,
+        showCorrectAnswer: showCorrect, sort_order: sortVal,
       },
       sort_order: sortVal++,
     });
     mcCount++;
   }
 
-  // Word recognition: fill remaining MC slots
-  for (let i = 0; i < words.length && mcCount < 6; i++) {
+  // Word recognition
+  for (let i = 0; i < words.length && mcCount < mcMax; i++) {
     const d = words[i].item_data;
     results.push({
       exercise_type: "multiple_choice",
@@ -333,7 +371,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         options: make3Options(wordPool[i], pickWrong(wordPool, i)),
         hint_hy: "", hint_en: h(`This is ${d.english}`),
         explanation_hy: d.armenian as string, explanation_en: `This is ${d.english}`,
-        sort_order: sortVal,
+        showCorrectAnswer: showCorrect, sort_order: sortVal,
       },
       sort_order: sortVal++,
     });
@@ -362,8 +400,9 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
     sortVal++;
   }
 
-  // --- 2 Fill blank ---
-  const fbItems = shuffle(allItems).slice(0, 2);
+  // Fill blank: review 1, quiz 2
+  const fbCount = isQuiz ? 2 : 1;
+  const fbItems = shuffle(allItems).slice(0, fbCount);
   for (const item of fbItems) {
     const d = item.item_data;
     const isLetter = item.item_type === "letter";

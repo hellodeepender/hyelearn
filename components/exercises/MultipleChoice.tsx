@@ -22,6 +22,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
+  const showCorrect = (exercise as unknown as Record<string, unknown>).showCorrectAnswer !== false;
 
   const shuffledOptions = useMemo<MCOption[]>(() => shuffle(exercise.options), [exercise]);
 
@@ -64,7 +65,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
           let style: string;
 
           if (answered) {
-            if (opt.correct) {
+            if (opt.correct && showCorrect) {
               style = "border-green-500 bg-green-50 ring-2 ring-green-200";
             } else if (opt.id === selected && !opt.correct) {
               style = "border-red-400 bg-red-50 ring-2 ring-red-200";
@@ -83,11 +84,11 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               className={`w-full text-left py-4 px-6 rounded-xl border-2 min-h-[56px] transition-all duration-150 ${style}`}
             >
               <div className="flex items-center gap-3">
-                {answered && opt.correct && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
+                {answered && opt.correct && showCorrect && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
                 {answered && opt.id === selected && !opt.correct && <span className="text-red-500 text-lg shrink-0">{"\u2717"}</span>}
                 <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{opt.text_hy}</span>
               </div>
-              {answered && (
+              {answered && showCorrect && (
                 <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>
               )}
             </button>
@@ -95,7 +96,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
         })}
       </div>
 
-      {answered && (
+      {answered && showCorrect && (
         <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>

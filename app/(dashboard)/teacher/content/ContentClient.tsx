@@ -29,7 +29,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const [autofilling, setAutofilling] = useState(false);
   const [contentStatus, setContentStatus] = useState<ContentStatus>("empty");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ count?: number; errors?: string[]; action?: string } | null>(null);
+  const [result, setResult] = useState<{ count?: number; learnCards?: number; exercises?: number; errors?: string[]; action?: string } | null>(null);
   const [error, setError] = useState("");
 
   const filteredUnits = units.filter((u) => u.level_id === selectedLevel);
@@ -212,7 +212,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
-      setResult({ count: data.count, errors: data.validation?.errors, action: "generate" });
+      setResult({ count: data.count, learnCards: data.learnCards, exercises: data.exercises, errors: data.validation?.errors, action: "generate" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     }
@@ -240,7 +240,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       {result && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 mb-4">
           {result.action === "generate"
-            ? `Lesson generated! ${result.count} exercises created.`
+            ? `Lesson generated! ${result.count} steps (${result.learnCards ?? 0} learn cards + ${result.exercises ?? 0} exercises)`
             : `${result.count} content items saved.`}
           {result.action === "generate" && selectedLesson && (() => {
             const l = lessons.find((x) => x.id === selectedLesson);
