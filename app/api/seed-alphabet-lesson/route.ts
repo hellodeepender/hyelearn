@@ -33,45 +33,74 @@ export async function GET(request: NextRequest) {
 
   const userPrompt = `Generate a Kindergarten lesson teaching the first 3 letters of the Western Armenian alphabet.
 
-The first 3 letters are:
-- Letter 1: uppercase and lowercase forms, its traditional Armenian name, its sound
-- Letter 2: uppercase and lowercase forms, its name, its sound
-- Letter 3: uppercase and lowercase forms, its name, its sound
+For each of the first 3 letters, provide:
+- The uppercase and lowercase Armenian letter forms
+- The traditional Armenian letter name
+- A Latin transliteration of the name
+- The phonetic sound it makes (simple, like "ah")
+- A common Western Armenian word starting with that letter
+- The English translation of that word
+- A matching emoji for the example word (the emoji MUST match the word: apple emoji for apple, etc.)
 
-For each letter, also include a simple common Western Armenian word that starts with that letter, plus an appropriate emoji for that word.
+Return ONLY valid JSON (no markdown, no backticks).
 
-Return ONLY valid JSON (no markdown). The exercises array must contain exactly 11 items:
+LEARN CARDS use this EXACT format (sort_order 1-3):
+{
+  "type": "learn_card",
+  "letter": "(Uppercase) (lowercase)",
+  "letter_name": "(Armenian letter name in Armenian script)",
+  "transliteration": "(Latin transliteration of the name)",
+  "sound": "(simple phonetic sound like ah, b, k)",
+  "example_word": "(Armenian word in Armenian script)",
+  "example_translation": "(English translation)",
+  "emoji": "(real emoji matching the example word)",
+  "sort_order": 1
+}
 
-LEARN CARDS (sort_order 1-3): One per letter
-Each learn card: { "type": "learn_card", "visual": "(emoji of example word)", "primary_text": "(UPPERCASE lowercase) - example: if the letter were A, show the uppercase and lowercase Armenian forms", "secondary_text": "(letter name) - sounds like (sound). Example: (example word in Armenian) = (English meaning)", "sort_order": 1/2/3 }
-
-RECOGNITION (sort_order 4-6): Show the letter, pick correct name from 3 options
-{ "type": "multiple_choice", "id": "4", "emoji": "", "question_hy": "(Show letter and ask 'What letter is this?' in Armenian)", "question_en": "What letter is this?", "options": [
-  { "id": "a", "text_hy": "(correct letter name in Armenian)", "text_en": "(letter name)", "correct": true },
-  { "id": "b", "text_hy": "(wrong letter name)", "text_en": "(name)", "correct": false },
-  { "id": "c", "text_hy": "(wrong letter name)", "text_en": "(name)", "correct": false }
-], "hint_hy": "", "hint_en": "(hint about the sound)", "explanation_hy": "(Armenian)", "explanation_en": "(English)", "sort_order": 4/5/6 }
+RECOGNITION exercises (sort_order 4-6): Show a letter, ask its name
+{
+  "type": "multiple_choice", "id": "4", "emoji": "",
+  "question_hy": "(Show the letter and ask 'What is the name of this letter?' in Armenian)",
+  "question_en": "What is the name of this letter?",
+  "options": [
+    { "id": "a", "text_hy": "(correct letter name)", "text_en": "(name)", "correct": true },
+    { "id": "b", "text_hy": "(wrong name)", "text_en": "(name)", "correct": false },
+    { "id": "c", "text_hy": "(wrong name)", "text_en": "(name)", "correct": false }
+  ],
+  "hint_hy": "", "hint_en": "(hint about the sound)",
+  "explanation_hy": "(Armenian)", "explanation_en": "(English)",
+  "sort_order": 4
+}
 
 SOUND MATCHING (sort_order 7-8): Which letter makes this sound?
-{ "type": "multiple_choice", "id": "7", "emoji": "", "question_hy": "(Which letter makes the sound X? in Armenian)", "question_en": "Which letter makes the sound '(sound)'?", "options": [3 Armenian letters as options], "hint_hy": "", "hint_en": "(hint)", "explanation_hy": "(Armenian)", "explanation_en": "(English)", "sort_order": 7/8 }
+Same multiple_choice format. Question asks which letter makes sound X. Options are the 3 letters.
 
-WORD STARTS WITH (sort_order 9): Which word starts with this letter?
-{ "type": "multiple_choice", "id": "9", "emoji": "(letter emoji or empty)", "question_hy": "(Which word starts with letter X? in Armenian)", "question_en": "Which word starts with this letter?", "options": [3 Armenian words], "sort_order": 9 }
+WORD ASSOCIATION (sort_order 9): Which letter does this word start with?
+Show the example word's emoji. Options are the 3 letters.
 
-MATCHING (sort_order 10): Match all 3 letters to their names
-3 matching items all with sort_order 10:
-{ "type": "matching", "id": "m1", "left_hy": "(letter)", "left_en": "(letter name)", "right_hy": "(letter name in Armenian)", "right_en": "(letter name)", "sort_order": 10 }
+MATCHING (sort_order 10): Match 3 letters to their names
+3 items with sort_order 10:
+{ "type": "matching", "id": "m1", "left_hy": "(letter)", "left_en": "(letter transliteration)", "right_hy": "(letter name Armenian)", "right_en": "(letter name English)", "sort_order": 10 }
 
-FILL BLANK (sort_order 11): The letter ___ makes the sound "ah"
-{ "type": "fill_blank", "id": "11", "emoji": "", "sentence_hy": "(The letter ___ makes the sound X in Armenian)", "sentence_en": "The letter ___ makes the sound '(sound)'.", "answer_hy": "(correct letter)", "answer_en": "(letter name)", "distractors_hy": ["(wrong letter)", "(wrong letter)"], "distractors_en": ["(name)", "(name)"], "hint_hy": "", "hint_en": "(hint)", "explanation_hy": "(Armenian)", "explanation_en": "(English)", "sort_order": 11 }
+FILL BLANK (sort_order 11):
+{ "type": "fill_blank", "id": "11", "emoji": "",
+  "sentence_hy": "(The letter ___ sounds like X in Armenian)",
+  "sentence_en": "The letter ___ sounds like (sound).",
+  "answer_hy": "(correct letter)", "answer_en": "(letter name)",
+  "distractors_hy": ["(wrong letter)", "(wrong letter)"],
+  "distractors_en": ["(name)", "(name)"],
+  "hint_hy": "", "hint_en": "(hint)",
+  "explanation_hy": "(Armenian)", "explanation_en": "(English)",
+  "sort_order": 11
+}
 
-CRITICAL RULES:
-- Use REAL Armenian letters from the actual Armenian alphabet
+RULES:
+- Use REAL Armenian letters from the actual Armenian alphabet (first 3 letters)
 - Use Western Armenian letter names and pronunciation
-- Armenian script ONLY in _hy fields and primary_text
-- English ONLY in _en fields and secondary_text
-- Use real emoji characters for the example words
-- Return: { "exercises": [...] }`;
+- Armenian script ONLY in _hy, letter, letter_name, example_word fields
+- English ONLY in _en, transliteration, example_translation, sound fields
+- Emoji MUST match the example word (apple emoji for apple word, etc.)
+- Return: { "exercises": [...] } with exactly 14 items (3 learn + 3 recognition + 2 sound + 1 word + 3 matching + 1 fill + 1 extra = adjust to fit)`;
 
   let rawText: string;
   try {

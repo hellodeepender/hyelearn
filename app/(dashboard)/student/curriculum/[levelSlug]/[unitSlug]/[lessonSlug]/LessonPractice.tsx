@@ -13,6 +13,7 @@ import FillBlank from "@/components/exercises/FillBlank";
 import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import LearnCard from "@/components/exercises/LearnCard";
+import AlphabetLearnCard from "@/components/exercises/AlphabetLearnCard";
 
 interface ExerciseEntry { type: string; data: unknown }
 interface Step { kind: "learn" | "exercise"; entry: ExerciseEntry }
@@ -223,7 +224,11 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
   const step = steps[currentStep];
   const progress = Math.round(((currentStep + 1) / totalSteps) * 100);
   const isLearn = step.kind === "learn";
-  const card = isLearn ? step.entry.data as { visual?: string; primary_text?: string; secondary_text?: string } : null;
+  const card = isLearn ? step.entry.data as {
+    visual?: string; primary_text?: string; secondary_text?: string;
+    letter?: string; letter_name?: string; transliteration?: string;
+    sound?: string; example_word?: string; example_translation?: string; emoji?: string;
+  } : null;
 
   return (
     <main className="max-w-2xl mx-auto px-6 py-10">
@@ -248,12 +253,24 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
       {isLearn && card ? (
         <>
           <div className={`bg-blue-50/50 border border-blue-100 ${young ? "rounded-3xl p-10" : "rounded-2xl p-8"} shadow-sm`}>
-            <LearnCard
-              visual={card.visual ?? ""}
-              primaryText={card.primary_text ?? ""}
-              secondaryText={card.secondary_text ?? ""}
-              young={young}
-            />
+            {card.letter ? (
+              <AlphabetLearnCard
+                letter={card.letter ?? ""}
+                letterName={card.letter_name ?? ""}
+                transliterationText={card.transliteration}
+                sound={card.sound ?? ""}
+                exampleWord={card.example_word ?? ""}
+                exampleTranslation={card.example_translation ?? ""}
+                emoji={card.emoji ?? card.visual ?? ""}
+              />
+            ) : (
+              <LearnCard
+                visual={card.visual ?? ""}
+                primaryText={card.primary_text ?? ""}
+                secondaryText={card.secondary_text ?? ""}
+                young={young}
+              />
+            )}
           </div>
           <div className="mt-6 text-center">
             <button
