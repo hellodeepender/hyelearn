@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 
@@ -16,6 +16,8 @@ interface Props { levels: Level[]; units: Unit[]; lessons: Lesson[]; userId: str
 const EMPTY_LETTER: LetterRow = { letter_upper: "", letter_lower: "", letter_name: "", transliteration: "", sound: "", example_word_arm: "", example_word_eng: "", emoji: "" };
 const EMPTY_WORD: WordRow = { armenian: "", english: "", emoji: "", category: "general" };
 
+type ContentStatus = "empty" | "loaded" | "modified" | "ai";
+
 export default function ContentClient({ levels, units, lessons, userId }: Props) {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedUnit, setSelectedUnit] = useState("");
@@ -25,7 +27,8 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [autofilling, setAutofilling] = useState(false);
-  const [aiGenerated, setAiGenerated] = useState(false);
+  const [contentStatus, setContentStatus] = useState<ContentStatus>("empty");
+  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ count?: number; errors?: string[] } | null>(null);
   const [error, setError] = useState("");
 
@@ -34,12 +37,77 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const lesson = lessons.find((l) => l.id === selectedLesson);
   const isAlphabet = lesson?.template_type === "alphabet";
 
+  // Load existing content items when lesson changes
+  const loadContent = useCallback(async (lessonId: string) => {
+    setLoading(true);
+    setError("");
+    setResult(null);
+    setContentStatus("empty");
+
+    const supabase = createClient();
+    const { data: items } = await supabase
+      .from("content_items")
+      .select("item_type, item_data, sort_order")
+      .eq("lesson_id", lessonId)
+      .order("sort_order");
+
+    if (items && items.length > 0) {
+      const lessonObj = lessons.find((l) => l.id === lessonId);
+      if (lessonObj?.template_type === "alphabet") {
+        const rows = items
+          .filter((i) => i.item_type === "letter")
+          .map((i) => {
+            const d = i.item_data as Record<string, string>;
+            return {
+              letter_upper: d.letter_upper ?? "",
+              letter_lower: d.letter_lower ?? "",
+              letter_name: d.letter_name ?? "",
+              transliteration: d.transliteration ?? "",
+              sound: d.sound ?? "",
+              example_word_arm: d.example_word_arm ?? "",
+              example_word_eng: d.example_word_eng ?? "",
+              emoji: d.emoji ?? "",
+            };
+          });
+        while (rows.length < 3) rows.push({ ...EMPTY_LETTER });
+        setLetterRows(rows);
+      } else {
+        const rows = items
+          .filter((i) => i.item_type === "word")
+          .map((i) => {
+            const d = i.item_data as Record<string, string>;
+            return {
+              armenian: d.armenian ?? "",
+              english: d.english ?? "",
+              emoji: d.emoji ?? "",
+              category: d.category ?? "general",
+            };
+          });
+        while (rows.length < 3) rows.push({ ...EMPTY_WORD });
+        setWordRows(rows);
+      }
+      setContentStatus("loaded");
+    } else {
+      setLetterRows([{ ...EMPTY_LETTER }, { ...EMPTY_LETTER }, { ...EMPTY_LETTER }]);
+      setWordRows([{ ...EMPTY_WORD }, { ...EMPTY_WORD }, { ...EMPTY_WORD }]);
+      setContentStatus("empty");
+    }
+    setLoading(false);
+  }, [lessons]);
+
+  function selectLesson(lessonId: string) {
+    setSelectedLesson(lessonId);
+    if (lessonId) loadContent(lessonId);
+  }
+
   function updateLetter(idx: number, field: keyof LetterRow, value: string) {
     setLetterRows((prev) => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
+    if (contentStatus === "loaded") setContentStatus("modified");
   }
 
   function updateWord(idx: number, field: keyof WordRow, value: string) {
     setWordRows((prev) => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
+    if (contentStatus === "loaded") setContentStatus("modified");
   }
 
   async function handleAutofill() {
@@ -47,7 +115,6 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
     setAutofilling(true);
     setError("");
     setResult(null);
-    setAiGenerated(false);
 
     const unit = units.find((u) => u.id === selectedUnit);
 
@@ -84,7 +151,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           category: item.category ?? "general",
         })));
       }
-      setAiGenerated(true);
+      setContentStatus("ai");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Auto-fill failed");
     }
@@ -98,9 +165,8 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
     setResult(null);
 
     const supabase = createClient();
-    const unitId = lesson ? lessons.find((l) => l.id === selectedLesson)?.unit_id : null;
+    const unitId = lessons.find((l) => l.id === selectedLesson)?.unit_id;
 
-    // Delete existing content items for this lesson
     await supabase.from("content_items").delete().eq("lesson_id", selectedLesson);
 
     const items = isAlphabet
@@ -124,6 +190,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       setError(insertErr.message);
     } else {
       setResult({ count: items.length });
+      setContentStatus("loaded");
     }
     setSaving(false);
   }
@@ -149,6 +216,13 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
     setGenerating(false);
   }
 
+  const statusLabel = {
+    empty: { text: "New — no content yet", color: "text-brown-400" },
+    loaded: { text: "Saved content loaded", color: "text-green-600" },
+    modified: { text: "Unsaved changes", color: "text-amber-600" },
+    ai: { text: "AI-generated — review before saving", color: "text-amber-600" },
+  };
+
   return (
     <main className="max-w-3xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-8">
@@ -173,17 +247,17 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
 
       {/* Selectors */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <select value={selectedLevel} onChange={(e) => { setSelectedLevel(e.target.value); setSelectedUnit(""); setSelectedLesson(""); }}
+        <select value={selectedLevel} onChange={(e) => { setSelectedLevel(e.target.value); setSelectedUnit(""); setSelectedLesson(""); setContentStatus("empty"); }}
           className="px-3 py-2 border border-brown-200 rounded-lg bg-warm-white text-sm">
           <option value="">Level...</option>
           {levels.map((l) => <option key={l.id} value={l.id}>{l.title}</option>)}
         </select>
-        <select value={selectedUnit} onChange={(e) => { setSelectedUnit(e.target.value); setSelectedLesson(""); }}
+        <select value={selectedUnit} onChange={(e) => { setSelectedUnit(e.target.value); setSelectedLesson(""); setContentStatus("empty"); }}
           className="px-3 py-2 border border-brown-200 rounded-lg bg-warm-white text-sm" disabled={!selectedLevel}>
           <option value="">Unit...</option>
           {filteredUnits.map((u) => <option key={u.id} value={u.id}>{u.title}</option>)}
         </select>
-        <select value={selectedLesson} onChange={(e) => setSelectedLesson(e.target.value)}
+        <select value={selectedLesson} onChange={(e) => selectLesson(e.target.value)}
           className="px-3 py-2 border border-brown-200 rounded-lg bg-warm-white text-sm" disabled={!selectedUnit}>
           <option value="">Lesson...</option>
           {filteredLessons.map((l) => <option key={l.id} value={l.id}>{l.title} ({l.template_type})</option>)}
@@ -191,22 +265,18 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       </div>
 
       {/* Content form */}
-      {selectedLesson && (
+      {selectedLesson && !loading && (
         <div className="space-y-6">
-          {/* Auto-fill button */}
+          {/* Status + Auto-fill */}
           <div className="flex items-center justify-between">
-            <div />
+            <p className={`text-xs font-medium ${statusLabel[contentStatus].color}`}>
+              {statusLabel[contentStatus].text}
+            </p>
             <button onClick={handleAutofill} disabled={autofilling}
               className="flex items-center gap-1.5 border-2 border-gold/50 hover:border-gold text-gold-dark px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
               {autofilling ? "Generating..." : "\u2728 Auto-fill with AI"}
             </button>
           </div>
-
-          {aiGenerated && (
-            <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3">
-              AI-generated content. Please review before saving.
-            </div>
-          )}
 
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
             <h2 className="font-semibold text-brown-800 mb-1">
@@ -218,7 +288,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
               <div className="space-y-4">
                 {letterRows.map((row, i) => (
                   <div key={i} className="grid grid-cols-4 gap-2">
-                    <input placeholder="Upper (e.g. A)" value={row.letter_upper} onChange={(e) => updateLetter(i, "letter_upper", e.target.value)}
+                    <input placeholder="Upper" value={row.letter_upper} onChange={(e) => updateLetter(i, "letter_upper", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                     <input placeholder="Lower" value={row.letter_lower} onChange={(e) => updateLetter(i, "letter_lower", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
@@ -249,7 +319,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                   </div>
                 ))}
-                <button onClick={() => setWordRows((prev) => [...prev, { ...EMPTY_WORD }])}
+                <button onClick={() => { setWordRows((prev) => [...prev, { ...EMPTY_WORD }]); if (contentStatus === "loaded") setContentStatus("modified"); }}
                   className="text-xs text-gold hover:text-gold-dark font-medium">+ Add word</button>
               </div>
             )}
@@ -266,6 +336,10 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
             </button>
           </div>
         </div>
+      )}
+
+      {loading && (
+        <p className="text-sm text-brown-400 text-center py-8">Loading saved content...</p>
       )}
     </main>
   );
