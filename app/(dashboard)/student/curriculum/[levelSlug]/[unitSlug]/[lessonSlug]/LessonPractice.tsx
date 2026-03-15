@@ -105,15 +105,9 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const didSave = useRef(false);
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => { if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current); };
-  }, []);
 
   function advance() {
     setShowNext(false);
-    if (autoAdvanceTimer.current) { clearTimeout(autoAdvanceTimer.current); autoAdvanceTimer.current = null; }
     if (currentStep + 1 >= totalSteps) {
       setDone(true);
     } else {
@@ -123,11 +117,7 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
 
   function handleAnswer(correct: boolean) {
     setAnswers((prev) => [...prev, correct]);
-    if (correct) {
-      autoAdvanceTimer.current = setTimeout(advance, 1500);
-    } else {
-      setShowNext(true);
-    }
+    setShowNext(true);
   }
 
   // --- Save progress ---
