@@ -160,8 +160,10 @@ export async function GET(request: NextRequest) {
       return new NextResponse(null, { status: 500 });
     }
 
-    const ttsInput = transliterateArmenian(text);
-    console.log("[tts] Transliterated:", text, "->", ttsInput);
+    const isArmenian = /[\u0530-\u058F]/.test(text);
+    const ttsInput = isArmenian ? transliterateArmenian(text) : text;
+    const ttsPrompt = isArmenian ? `[Speaking Armenian] ${ttsInput}` : ttsInput;
+    console.log("[tts] isArmenian:", isArmenian, "Transliterated:", text, "->", ttsPrompt);
 
     console.log("[tts] Calling OpenAI TTS...");
     const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
@@ -171,9 +173,9 @@ export async function GET(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "tts-1",
-        input: ttsInput,
-        voice: "nova",
+        model: "tts-1-hd",
+        input: ttsPrompt,
+        voice: "alloy",
         response_format: "mp3",
       }),
     });
