@@ -37,6 +37,17 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const lesson = lessons.find((l) => l.id === selectedLesson);
   const isAlphabet = lesson?.template_type === "alphabet";
   const isReviewOrQuiz = lesson?.template_type === "review" || lesson?.template_type === "quiz";
+  const unitObj = units.find((u) => u.id === selectedUnit);
+  const unitName = unitObj?.title ?? "";
+  const contentLabel = isAlphabet ? "Letter Content"
+    : unitName.includes("Grammar") ? "Grammar Content"
+    : unitName.includes("Reading") ? "Reading Content"
+    : unitName.includes("Writing") ? "Writing Content"
+    : unitName.includes("Literature") ? "Literature Content"
+    : "Vocabulary Content";
+  const isSpecialized = unitName.includes("Grammar") || unitName.includes("Reading") || unitName.includes("Writing") || unitName.includes("Literature");
+  const wordLabel = isSpecialized ? "Armenian term" : "Armenian word";
+  const engLabel = isSpecialized ? "English meaning" : "English";
 
   // Load existing content items when lesson changes
   const loadContent = useCallback(async (lessonId: string) => {
@@ -276,7 +287,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
         <select value={selectedLesson} onChange={(e) => selectLesson(e.target.value)}
           className="px-3 py-2 border border-brown-200 rounded-lg bg-warm-white text-sm" disabled={!selectedUnit}>
           <option value="">Lesson...</option>
-          {filteredLessons.map((l) => <option key={l.id} value={l.id}>{l.title} ({l.template_type})</option>)}
+          {filteredLessons.map((l) => <option key={l.id} value={l.id}>{l.title}</option>)}
         </select>
       </div>
 
@@ -313,10 +324,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           </div>
 
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h2 className="font-semibold text-brown-800 mb-1">
-              {isAlphabet ? "Letter Content" : "Vocabulary Content"}
-            </h2>
-            <p className="text-xs text-brown-400 mb-4">Template: {lesson?.template_type}</p>
+            <h2 className="font-semibold text-brown-800 mb-4">{contentLabel}</h2>
 
             {isAlphabet ? (
               <div className="space-y-4">
@@ -345,9 +353,9 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
               <div className="space-y-3">
                 {wordRows.map((row, i) => (
                   <div key={i} className="grid grid-cols-3 gap-2">
-                    <input placeholder="Armenian word" value={row.armenian} onChange={(e) => updateWord(i, "armenian", e.target.value)}
+                    <input placeholder={wordLabel} value={row.armenian} onChange={(e) => updateWord(i, "armenian", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
-                    <input placeholder="English" value={row.english} onChange={(e) => updateWord(i, "english", e.target.value)}
+                    <input placeholder={engLabel} value={row.english} onChange={(e) => updateWord(i, "english", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                     <input placeholder="Emoji" value={row.emoji} onChange={(e) => updateWord(i, "emoji", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
