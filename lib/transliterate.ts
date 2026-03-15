@@ -31,7 +31,7 @@ const MAP: Record<string, string> = {
   "\u0575": "y",    // յ
   "\u0576": "n",    // ն
   "\u0577": "sh",   // շ
-  "\u0578": "vo",   // delays (word-initial vo, medial o)
+  "\u0578": "o",    // ո (vo word-initially, o medially — using o as default)
   "\u0579": "ch",   // չ
   "\u057A": "b",    // պ (Western: b, not p)
   "\u057B": "ch",   // ջ (Western: ch)
@@ -72,7 +72,7 @@ const MAP: Record<string, string> = {
   "\u0545": "Y",    // Յ
   "\u0546": "N",    // Ն
   "\u0547": "Sh",   // Շ
-  "\u0548": "Vo",   // Ո
+  "\u0548": "O",    // Ո
   "\u0549": "Ch",   // Չ
   "\u054A": "B",    // Պ
   "\u054B": "Ch",   // Ջ

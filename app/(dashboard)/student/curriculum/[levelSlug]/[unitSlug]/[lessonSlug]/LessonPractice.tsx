@@ -29,7 +29,7 @@ interface Props {
 }
 
 /** Build a single stream: all learn cards first, then exercises.
- *  Never more than 3 exercises in a row — insert a learn refresher if needed. */
+ *  For long lessons (>8 steps), insert refresher cards every 5+ exercises. */
 function buildSteps(exercises: ExerciseEntry[]): Step[] {
   const learns = exercises.filter((e) => e.type === "learn_card");
   const practice = exercises.filter((e) => e.type !== "learn_card");
@@ -44,17 +44,24 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
     steps.push({ kind: "learn", entry: l });
   }
 
-  // Then exercises, with a learn refresher every 3 exercises max
-  let exerciseRun = 0;
-  let refresherIdx = 0;
-  for (const p of practice) {
-    if (exerciseRun >= 3 && refresherIdx < learns.length) {
-      // Insert a learn card refresher
-      steps.push({ kind: "learn", entry: learns[refresherIdx++] });
-      exerciseRun = 0;
+  // For short lessons (8 or fewer total), no refreshers — just append exercises
+  const totalRaw = learns.length + practice.length;
+  if (totalRaw <= 8) {
+    for (const p of practice) {
+      steps.push({ kind: "exercise", entry: p });
     }
-    steps.push({ kind: "exercise", entry: p });
-    exerciseRun++;
+  } else {
+    // Long lessons: insert refresher after every 5 consecutive exercises
+    let exerciseRun = 0;
+    let refresherIdx = 0;
+    for (const p of practice) {
+      if (exerciseRun >= 5 && refresherIdx < learns.length) {
+        steps.push({ kind: "learn", entry: learns[refresherIdx++] });
+        exerciseRun = 0;
+      }
+      steps.push({ kind: "exercise", entry: p });
+      exerciseRun++;
+    }
   }
 
   return steps;
