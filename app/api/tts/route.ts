@@ -8,7 +8,6 @@ function getCacheKey(text: string): string {
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  console.log("[tts] DB client config:", { hasUrl: !!url, keySource: process.env.SUPABASE_SERVICE_ROLE_KEY ? "SERVICE_ROLE" : "ANON" });
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
@@ -19,17 +18,16 @@ async function ensureBucket(db: { storage: any }) {
     allowedMimeTypes: ["audio/mpeg"],
   });
   if (error && !error.message?.includes("already exists")) {
-    console.error("[tts] Bucket creation error:", error.message);
+    console.error("[tts] error:", error.message);
   }
 }
 
 export async function GET(request: NextRequest) {
   const text = request.nextUrl.searchParams.get("text")?.trim();
-  console.log("[tts] TTS request for:", text);
+  console.log("[tts]", text);
 
   try {
     if (!text || text.length > 200) {
-      console.log("[tts] Rejected: empty or too long");
       return new NextResponse(null, { status: 400 });
     }
 
@@ -37,28 +35,22 @@ export async function GET(request: NextRequest) {
     const storagePath = `words/${cacheKey}.mp3`;
     const db = getDb();
 
-    // Ensure bucket exists before any storage operations
     await ensureBucket(db);
 
-    // Check cache
-    const { data: existing, error: downloadErr } = await db.storage.from("audio").download(storagePath);
-    console.log("[tts] Cache check:", { found: !!existing, error: downloadErr?.message ?? null });
+    const { data: existing } = await db.storage.from("audio").download(storagePath);
 
     if (existing) {
+      console.log("[tts] cache hit");
       const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/audio/${storagePath}`;
-      console.log("[tts] Cache hit, redirecting to:", publicUrl);
       return NextResponse.redirect(publicUrl);
     }
 
-    // Generate via Narakeet TTS
     const apiKey = process.env.NARAKEET_API_KEY;
-    console.log("[tts] Narakeet API key present:", !!apiKey);
     if (!apiKey) {
-      console.error("[tts] NARAKEET_API_KEY is not set");
+      console.error("[tts] error: NARAKEET_API_KEY is not set");
       return new NextResponse(null, { status: 500 });
     }
 
-    console.log("[tts] Calling Narakeet TTS...");
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
@@ -77,31 +69,26 @@ export async function GET(request: NextRequest) {
     );
 
     clearTimeout(timeout);
-    console.log("[tts] Narakeet TTS response status:", ttsRes.status);
 
     if (!ttsRes.ok) {
-      const errorBody = await ttsRes.text().catch(() => "(could not read body)");
-      console.error("[tts] Narakeet TTS error response:", errorBody);
+      const errorBody = await ttsRes.text().catch(() => "");
+      console.error("[tts] error:", ttsRes.status, errorBody);
       return new NextResponse(null, { status: 500 });
     }
 
     const audioBuffer = Buffer.from(await ttsRes.arrayBuffer());
-    console.log("[tts] Audio buffer size:", audioBuffer.length, "bytes for text:", text);
 
     if (audioBuffer.length < 1000) {
-      console.error("[tts] Audio too small, likely truncated:", audioBuffer.length);
+      console.error("[tts] error: audio truncated,", audioBuffer.length, "bytes");
       return new NextResponse(null, { status: 500 });
     }
 
-    console.log("[tts] Uploading to Supabase storage...");
     const { error: uploadErr } = await db.storage
       .from("audio")
       .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: true });
 
     if (uploadErr) {
-      console.error("[tts] Supabase upload error:", uploadErr.message);
-    } else {
-      console.log("[tts] Upload successful:", storagePath);
+      console.error("[tts] error:", uploadErr.message);
     }
 
     return new NextResponse(audioBuffer, {
@@ -111,7 +98,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("[tts] TTS route error:", err);
+    console.error("[tts] error:", err);
     return new NextResponse(null, { status: 500 });
   }
 }
