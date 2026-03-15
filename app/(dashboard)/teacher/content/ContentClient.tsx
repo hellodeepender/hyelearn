@@ -4,9 +4,9 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 
-interface Level { id: string; title: string; sort_order: number }
-interface Unit { id: string; title: string; level_id: string; sort_order: number }
-interface Lesson { id: string; title: string; unit_id: string; template_type: string; sort_order: number }
+interface Level { id: string; slug: string; title: string; sort_order: number }
+interface Unit { id: string; slug: string; title: string; level_id: string; sort_order: number }
+interface Lesson { id: string; slug: string; title: string; unit_id: string; template_type: string; sort_order: number }
 
 interface LetterRow { letter_upper: string; letter_lower: string; letter_name: string; transliteration: string; sound: string; example_word_arm: string; example_word_eng: string; emoji: string }
 interface WordRow { armenian: string; english: string; emoji: string; category: string }
@@ -29,7 +29,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const [autofilling, setAutofilling] = useState(false);
   const [contentStatus, setContentStatus] = useState<ContentStatus>("empty");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ count?: number; errors?: string[] } | null>(null);
+  const [result, setResult] = useState<{ count?: number; errors?: string[]; action?: string } | null>(null);
   const [error, setError] = useState("");
 
   const filteredUnits = units.filter((u) => u.level_id === selectedLevel);
@@ -191,7 +191,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
     if (insertErr) {
       setError(insertErr.message);
     } else {
-      setResult({ count: items.length });
+      setResult({ count: items.length, action: "save" });
       setContentStatus("loaded");
     }
     setSaving(false);
@@ -211,7 +211,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
-      setResult({ count: data.count, errors: data.validation?.errors });
+      setResult({ count: data.count, errors: data.validation?.errors, action: "generate" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     }
@@ -238,9 +238,21 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">{error}</div>}
       {result && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 mb-4">
-          {result.count ? `${result.count} items processed.` : ""}
+          {result.action === "generate"
+            ? `Lesson generated! ${result.count} exercises created.`
+            : `${result.count} content items saved.`}
+          {result.action === "generate" && selectedLesson && (() => {
+            const l = lessons.find((x) => x.id === selectedLesson);
+            const u = l ? units.find((x) => x.id === l.unit_id) : null;
+            const lv = u ? levels.find((x) => x.id === u.level_id) : null;
+            if (l && u && lv) {
+              const url = `/student/curriculum/${lv.slug}/${u.slug}/${l.slug}`;
+              return <> <a href={url} target="_blank" rel="noopener noreferrer" className="font-medium underline ml-1">Preview as student &rarr;</a></>;
+            }
+            return null;
+          })()}
           {result.errors && result.errors.length > 0 && (
-            <ul className="mt-2 list-disc ml-4">
+            <ul className="mt-2 list-disc ml-4 text-amber-700">
               {result.errors.map((e, i) => <li key={i}>{e}</li>)}
             </ul>
           )}
