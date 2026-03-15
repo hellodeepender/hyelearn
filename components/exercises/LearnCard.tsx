@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { getWordAudioUrl } from "@/lib/audio";
 
 interface Props {
@@ -31,43 +31,35 @@ function SpeakerIcon({ playing }: { playing: boolean }) {
 
 export default function LearnCard({ visual, primaryText, secondaryText, young }: Props) {
   const [playing, setPlaying] = useState(false);
-  const [hasAudio, setHasAudio] = useState(true);
+  const [hidden, setHidden] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentWordRef = useRef(primaryText);
 
-  const audioUrl = getWordAudioUrl(primaryText);
-
-  // Probe whether the audio file exists
-  useEffect(() => {
-    if (!primaryText) { setHasAudio(false); return; }
-
-    const audio = new Audio(audioUrl);
-    audio.preload = "none";
-
-    const handleCanPlay = () => { setHasAudio(true); audioRef.current = audio; };
-    const handleError = () => { setHasAudio(false); };
-
-    audio.addEventListener("canplaythrough", handleCanPlay);
-    audio.addEventListener("error", handleError);
-    audio.load();
-
-    return () => {
-      audio.removeEventListener("canplaythrough", handleCanPlay);
-      audio.removeEventListener("error", handleError);
-      audio.pause();
-    };
-  }, [audioUrl, primaryText]);
+  // Reset when word changes
+  if (currentWordRef.current !== primaryText) {
+    currentWordRef.current = primaryText;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlaying(false);
+    setHidden(false);
+  }
 
   const handlePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || playing) return;
+    if (playing || !primaryText) return;
+
+    const url = getWordAudioUrl(primaryText);
+    const audio = new Audio(url);
+    audioRef.current = audio;
 
     setPlaying(true);
-    audio.currentTime = 0;
-    audio.play().catch(() => setPlaying(false));
+    audio.addEventListener("ended", () => setPlaying(false));
+    audio.addEventListener("error", () => { setPlaying(false); setHidden(true); });
+    audio.play().catch(() => { setPlaying(false); setHidden(true); });
+  }, [playing, primaryText]);
 
-    const onEnded = () => { setPlaying(false); audio.removeEventListener("ended", onEnded); };
-    audio.addEventListener("ended", onEnded);
-  }, [playing]);
+  if (!primaryText) return null;
 
   return (
     <div className="text-center space-y-4 py-4">
@@ -76,7 +68,7 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
         {primaryText}
       </p>
 
-      {hasAudio && (
+      {!hidden && (
         <button
           onClick={handlePlay}
           aria-label="Listen to pronunciation"
