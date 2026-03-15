@@ -24,6 +24,8 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const [wordRows, setWordRows] = useState<WordRow[]>([{ ...EMPTY_WORD }, { ...EMPTY_WORD }, { ...EMPTY_WORD }]);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
   const [result, setResult] = useState<{ count?: number; errors?: string[] } | null>(null);
   const [error, setError] = useState("");
 
@@ -38,6 +40,55 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
 
   function updateWord(idx: number, field: keyof WordRow, value: string) {
     setWordRows((prev) => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
+  }
+
+  async function handleAutofill() {
+    if (!selectedLesson || !lesson) return;
+    setAutofilling(true);
+    setError("");
+    setResult(null);
+    setAiGenerated(false);
+
+    const unit = units.find((u) => u.id === selectedUnit);
+
+    try {
+      const res = await fetch("/api/autofill-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateType: lesson.template_type,
+          lessonTitle: lesson.title,
+          lessonDescription: "",
+          unitTitle: unit?.title ?? "",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Auto-fill failed");
+
+      if (isAlphabet && Array.isArray(data.items)) {
+        setLetterRows(data.items.map((item: Record<string, string>) => ({
+          letter_upper: item.letter_upper ?? "",
+          letter_lower: item.letter_lower ?? "",
+          letter_name: item.letter_name ?? "",
+          transliteration: item.transliteration ?? "",
+          sound: item.sound ?? "",
+          example_word_arm: item.example_word_arm ?? "",
+          example_word_eng: item.example_word_eng ?? "",
+          emoji: item.emoji ?? "",
+        })));
+      } else if (Array.isArray(data.items)) {
+        setWordRows(data.items.map((item: Record<string, string>) => ({
+          armenian: item.armenian ?? "",
+          english: item.english ?? "",
+          emoji: item.emoji ?? "",
+          category: item.category ?? "general",
+        })));
+      }
+      setAiGenerated(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Auto-fill failed");
+    }
+    setAutofilling(false);
   }
 
   async function handleSave() {
@@ -142,6 +193,21 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       {/* Content form */}
       {selectedLesson && (
         <div className="space-y-6">
+          {/* Auto-fill button */}
+          <div className="flex items-center justify-between">
+            <div />
+            <button onClick={handleAutofill} disabled={autofilling}
+              className="flex items-center gap-1.5 border-2 border-gold/50 hover:border-gold text-gold-dark px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+              {autofilling ? "Generating..." : "\u2728 Auto-fill with AI"}
+            </button>
+          </div>
+
+          {aiGenerated && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3">
+              AI-generated content. Please review before saving.
+            </div>
+          )}
+
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
             <h2 className="font-semibold text-brown-800 mb-1">
               {isAlphabet ? "Letter Content" : "Vocabulary Content"}
