@@ -29,25 +29,35 @@ interface Props {
   gradeValue: string;
 }
 
-/** Group consecutive matching exercises into a single entry with array data. */
+/** Group matching exercises by sort_order into separate matching_group entries (max 3 pairs each). */
 function groupMatching(entries: ExerciseEntry[]): ExerciseEntry[] {
   const result: ExerciseEntry[] = [];
   let matchBatch: ExerciseEntry[] = [];
+  let batchSortOrder: number | null = null;
+
+  function flushBatch() {
+    if (matchBatch.length > 0) {
+      result.push({ type: "matching_group", data: matchBatch.map((m) => m.data) });
+      matchBatch = [];
+      batchSortOrder = null;
+    }
+  }
 
   for (const e of entries) {
     if (e.type === "matching") {
-      matchBatch.push(e);
-    } else {
-      if (matchBatch.length > 0) {
-        result.push({ type: "matching_group", data: matchBatch.map((m) => m.data) });
-        matchBatch = [];
+      const sortOrder = (e.data as Record<string, unknown>).sort_order as number | undefined;
+      // New sort_order means new group
+      if (batchSortOrder !== null && sortOrder !== batchSortOrder) {
+        flushBatch();
       }
+      matchBatch.push(e);
+      batchSortOrder = sortOrder ?? null;
+    } else {
+      flushBatch();
       result.push(e);
     }
   }
-  if (matchBatch.length > 0) {
-    result.push({ type: "matching_group", data: matchBatch.map((m) => m.data) });
-  }
+  flushBatch();
   return result;
 }
 
