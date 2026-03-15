@@ -19,12 +19,18 @@ export async function GET(request: NextRequest) {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // Find Kindergarten > Alphabet Part 1 > Lesson 1
+  // Find Kindergarten > Vocabulary Part 1 > Lesson 1
+  // (was alphabet-1 before migration 005 renamed it to vocabulary-1)
   const { data: level } = await db.from("curriculum_levels").select("id").eq("slug", "kindergarten").single();
   if (!level) return NextResponse.json({ error: "Kindergarten level not found" }, { status: 404 });
 
-  const { data: unit } = await db.from("curriculum_units").select("id").eq("level_id", level.id).eq("slug", "alphabet-1").single();
-  if (!unit) return NextResponse.json({ error: "Alphabet Part 1 unit not found" }, { status: 404 });
+  // Try vocabulary-1 first (post-migration), fall back to alphabet-1 (pre-migration)
+  let { data: unit } = await db.from("curriculum_units").select("id").eq("level_id", level.id).eq("slug", "vocabulary-1").single();
+  if (!unit) {
+    const fallback = await db.from("curriculum_units").select("id").eq("level_id", level.id).eq("slug", "alphabet-1").single();
+    unit = fallback.data;
+  }
+  if (!unit) return NextResponse.json({ error: "Vocabulary unit not found (tried vocabulary-1 and alphabet-1)" }, { status: 404 });
 
   const { data: lesson } = await db.from("curriculum_lessons").select("id").eq("unit_id", unit.id).eq("slug", "lesson-1").single();
   if (!lesson) return NextResponse.json({ error: "Lesson 1 not found" }, { status: 404 });
