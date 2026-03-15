@@ -58,6 +58,60 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .select("id")
     .eq("student_id", user.id);
 
+  // Find next lesson for the CTA
+  const { data: allProgress } = await supabase
+    .from("student_progress")
+    .select("lesson_id, passed")
+    .eq("student_id", user.id);
+  const passedLessonIds = new Set((allProgress ?? []).filter((p) => p.passed).map((p) => p.lesson_id));
+
+  // Find the first unpassed lesson across all levels/units
+  let nextLessonUrl: string | null = null;
+  let nextLessonTitle: string | null = null;
+  const { data: allUnits } = await supabase
+    .from("curriculum_units")
+    .select("id, slug, level_id, sort_order, curriculum_levels!inner(slug)")
+    .eq("is_active", true)
+    .order("sort_order");
+  const { data: allLessons } = await supabase
+    .from("curriculum_lessons")
+    .select("id, slug, title, unit_id, sort_order")
+    .eq("is_active", true)
+    .order("sort_order");
+
+  if (allUnits && allLessons) {
+    for (const unit of allUnits) {
+      const levelSlug = (unit.curriculum_levels as unknown as { slug: string }).slug;
+      const unitLessons = allLessons.filter((l) => l.unit_id === unit.id);
+      for (const lesson of unitLessons) {
+        if (!passedLessonIds.has(lesson.id)) {
+          nextLessonUrl = `/student/curriculum/${levelSlug}/${unit.slug}/${lesson.slug}`;
+          nextLessonTitle = lesson.title;
+          break;
+        }
+      }
+      if (nextLessonUrl) break;
+    }
+  }
+
+  // Find what was completed today
+  let todayLessonTitle: string | null = null;
+  if (didLessonToday) {
+    const { data: todayDetail } = await supabase
+      .from("student_progress")
+      .select("lesson_id, curriculum_lessons!inner(title)")
+      .eq("student_id", user.id)
+      .gte("completed_at", today)
+      .order("completed_at", { ascending: false })
+      .limit(1)
+      .single();
+    if (todayDetail) {
+      todayLessonTitle = (todayDetail.curriculum_lessons as unknown as { title: string }).title;
+    }
+  }
+
+  const allComplete = totalCurriculumLessons > 0 && completedCurriculumLessons >= totalCurriculumLessons;
+  const neverStarted = completedCurriculumLessons === 0 && !didLessonToday;
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
 
   return (
@@ -76,25 +130,51 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
         <p className="text-brown-500 mb-8">Continue your Armenian learning journey.</p>
 
-        {/* Daily 5 */}
+        {/* Contextual message */}
         <section className="mb-8">
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-6">
-            {didLessonToday ? (
+            {allComplete ? (
               <div className="text-center">
-                <div className="text-4xl mb-2">{"\u2705"}</div>
-                <p className="font-semibold text-brown-800">Great job today!</p>
-                <p className="text-sm text-brown-500 mt-1">Come back tomorrow for your next lesson.</p>
+                <div className="text-4xl mb-2">{"\u2B50"}</div>
+                <p className="font-semibold text-brown-800">You&apos;re a star!</p>
+                <p className="text-sm text-brown-500 mt-1">You&apos;ve completed all available lessons. Check back for new content!</p>
                 {streak > 1 && <p className="text-sm text-gold font-medium mt-2">{streak}-day streak!</p>}
+              </div>
+            ) : didLessonToday ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl mb-1">{"\u2705"}</div>
+                  <p className="font-semibold text-brown-800">Great job today!</p>
+                  {todayLessonTitle && <p className="text-sm text-brown-500 mt-0.5">You completed {todayLessonTitle}!</p>}
+                  {streak > 1 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak!</p>}
+                </div>
+                {nextLessonUrl && (
+                  <Link href={nextLessonUrl} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
+                    Keep Going
+                  </Link>
+                )}
+              </div>
+            ) : neverStarted ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-brown-400 uppercase mb-1">Your daily 5 minutes</p>
+                  <p className="font-semibold text-brown-800">Let&apos;s get started!</p>
+                  <p className="text-sm text-brown-500 mt-0.5">Begin your Armenian learning journey</p>
+                </div>
+                <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
+                  Start Learning
+                </Link>
               </div>
             ) : (
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-brown-400 uppercase mb-1">Your daily 5 minutes</p>
-                  <p className="font-semibold text-brown-800">{currentLevel?.title ?? "Start learning"}</p>
+                  <p className="font-semibold text-brown-800">Ready to learn?</p>
+                  <p className="text-sm text-brown-500 mt-0.5">Continue where you left off</p>
                   {streak > 0 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak! Keep it going!</p>}
                 </div>
-                <Link href="/student/curriculum" className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                  Start Today&apos;s Lesson
+                <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
+                  Continue Lesson
                 </Link>
               </div>
             )}
