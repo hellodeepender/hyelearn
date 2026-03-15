@@ -17,41 +17,65 @@ export async function POST(request: NextRequest) {
     lessonId?: string; unitId?: string;
   };
 
-  // Fetch existing content from OTHER lessons in the same unit to avoid repeats
+  // Fetch existing content from ALL units in the same level to avoid cross-unit duplicates
   let exclusionText = "";
   if (unitId && lessonId) {
-    const { data: otherLessons } = await supabase
-      .from("curriculum_lessons")
-      .select("id")
-      .eq("unit_id", unitId)
-      .neq("id", lessonId);
+    // Find the level for this unit
+    const { data: currentUnit } = await supabase
+      .from("curriculum_units")
+      .select("level_id")
+      .eq("id", unitId)
+      .single();
 
-    if (otherLessons && otherLessons.length > 0) {
-      const otherLessonIds = otherLessons.map((l) => l.id);
-      const { data: existingItems } = await supabase
-        .from("content_items")
-        .select("item_type, item_data")
-        .in("lesson_id", otherLessonIds);
+    if (currentUnit) {
+      // Get ALL units in this level
+      const { data: allUnits } = await supabase
+        .from("curriculum_units")
+        .select("id")
+        .eq("level_id", currentUnit.level_id);
 
-      if (existingItems && existingItems.length > 0) {
-        if (templateType === "alphabet") {
-          const usedLetters = existingItems
-            .filter((i) => i.item_type === "letter")
-            .map((i) => (i.item_data as Record<string, string>).letter_upper)
-            .filter(Boolean);
-          if (usedLetters.length > 0) {
-            exclusionText = `\nThe following letters have ALREADY been taught in previous lessons of this unit. Do NOT include any of them:\n${usedLetters.join(", ")}\nGenerate the NEXT 3 letters in alphabetical order after these.`;
-          }
-        } else {
-          const usedWords = existingItems
-            .filter((i) => i.item_type === "word")
-            .map((i) => {
-              const d = i.item_data as Record<string, string>;
-              return `${d.armenian} (${d.english})`;
-            })
-            .filter(Boolean);
-          if (usedWords.length > 0) {
-            exclusionText = `\nThe following words have ALREADY been taught in previous lessons of this unit. Do NOT include any of them:\n${usedWords.join(", ")}\nGenerate 3 NEW words that have not been taught yet.`;
+      if (allUnits && allUnits.length > 0) {
+        // Get ALL lessons across all units in this level, excluding current lesson
+        const allUnitIds = allUnits.map((u) => u.id);
+        const { data: allLessons } = await supabase
+          .from("curriculum_lessons")
+          .select("id")
+          .in("unit_id", allUnitIds)
+          .neq("id", lessonId);
+
+        if (allLessons && allLessons.length > 0) {
+          const allLessonIds = allLessons.map((l) => l.id);
+          const { data: existingItems } = await supabase
+            .from("content_items")
+            .select("item_type, item_data")
+            .in("lesson_id", allLessonIds);
+
+          if (existingItems && existingItems.length > 0) {
+            if (templateType === "alphabet") {
+              const usedLetters = existingItems
+                .filter((i) => i.item_type === "letter")
+                .map((i) => (i.item_data as Record<string, string>).letter_upper)
+                .filter(Boolean);
+              if (usedLetters.length > 0) {
+                const nextStart = usedLetters.length + 1;
+                exclusionText = `\nThere are 36 letters in the Armenian alphabet. Letters 1 through ${usedLetters.length} have already been taught. Generate the next 3 letters in sequence (letters ${nextStart}, ${nextStart + 1}, ${nextStart + 2}).
+The following letters have ALREADY been taught. Do NOT include any of them:
+${usedLetters.join(", ")}`;
+              }
+            } else {
+              const usedWords = existingItems
+                .filter((i) => i.item_type === "word")
+                .map((i) => {
+                  const d = i.item_data as Record<string, string>;
+                  return `${d.armenian} (${d.english})`;
+                })
+                .filter(Boolean);
+              if (usedWords.length > 0) {
+                exclusionText = `\nThe following words have ALREADY been taught across all lessons in this level. Do NOT include any of them:
+${usedWords.join(", ")}
+Generate 3 NEW words that have not been taught yet.`;
+              }
+            }
           }
         }
       }
