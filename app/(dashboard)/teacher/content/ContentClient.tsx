@@ -127,6 +127,8 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           lessonTitle: lesson.title,
           lessonDescription: "",
           unitTitle: unit?.title ?? "",
+          lessonId: selectedLesson,
+          unitId: selectedUnit,
         }),
       });
       const data = await res.json();

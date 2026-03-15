@@ -12,9 +12,51 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Teachers only" }, { status: 403 });
   }
 
-  const { templateType, lessonTitle, lessonDescription, unitTitle } = await request.json() as {
+  const { templateType, lessonTitle, lessonDescription, unitTitle, lessonId, unitId } = await request.json() as {
     templateType: string; lessonTitle: string; lessonDescription?: string; unitTitle?: string;
+    lessonId?: string; unitId?: string;
   };
+
+  // Fetch existing content from OTHER lessons in the same unit to avoid repeats
+  let exclusionText = "";
+  if (unitId && lessonId) {
+    const { data: otherLessons } = await supabase
+      .from("curriculum_lessons")
+      .select("id")
+      .eq("unit_id", unitId)
+      .neq("id", lessonId);
+
+    if (otherLessons && otherLessons.length > 0) {
+      const otherLessonIds = otherLessons.map((l) => l.id);
+      const { data: existingItems } = await supabase
+        .from("content_items")
+        .select("item_type, item_data")
+        .in("lesson_id", otherLessonIds);
+
+      if (existingItems && existingItems.length > 0) {
+        if (templateType === "alphabet") {
+          const usedLetters = existingItems
+            .filter((i) => i.item_type === "letter")
+            .map((i) => (i.item_data as Record<string, string>).letter_upper)
+            .filter(Boolean);
+          if (usedLetters.length > 0) {
+            exclusionText = `\nThe following letters have ALREADY been taught in previous lessons of this unit. Do NOT include any of them:\n${usedLetters.join(", ")}\nGenerate the NEXT 3 letters in alphabetical order after these.`;
+          }
+        } else {
+          const usedWords = existingItems
+            .filter((i) => i.item_type === "word")
+            .map((i) => {
+              const d = i.item_data as Record<string, string>;
+              return `${d.armenian} (${d.english})`;
+            })
+            .filter(Boolean);
+          if (usedWords.length > 0) {
+            exclusionText = `\nThe following words have ALREADY been taught in previous lessons of this unit. Do NOT include any of them:\n${usedWords.join(", ")}\nGenerate 3 NEW words that have not been taught yet.`;
+          }
+        }
+      }
+    }
+  }
 
   const context = [
     unitTitle && `Unit: ${unitTitle}`,
@@ -27,7 +69,7 @@ export async function POST(request: NextRequest) {
   if (templateType === "alphabet") {
     prompt = `You are a Western Armenian language expert. Generate content for an Armenian alphabet lesson.
 Context: ${context}
-
+${exclusionText}
 Return EXACTLY 3 letters as a JSON array. Each object must have these exact fields:
 {
   "letter_upper": "(uppercase Armenian letter)",
@@ -49,7 +91,7 @@ CRITICAL RULES:
   } else {
     prompt = `You are a Western Armenian language expert. Generate vocabulary content for a children's lesson.
 Context: ${context}
-
+${exclusionText}
 Return EXACTLY 3 words as a JSON array. Each object must have these exact fields:
 {
   "armenian": "(word in Armenian script)",
