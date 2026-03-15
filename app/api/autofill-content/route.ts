@@ -11,6 +11,18 @@ const GRADE_GUIDANCE: Record<string, string> = {
   "Grade 5": "Use literary and advanced vocabulary for ages 10-11: imagination, responsibility, achievement, literature, composition.",
 };
 
+const UNIT_THEME_GUIDANCE: Record<string, string> = {
+  "Reading Basics": "Generate common nouns and simple verbs a child would encounter in reading: story, to read, page, friend, morning, school, picture, to learn.",
+  "Everyday Words": "Generate household and daily life vocabulary: breakfast, to sleep, kitchen, clothes, to wash, door, window, to help, table, chair.",
+  "Simple Sentences": "Generate action verbs and common adjectives for building sentences: to run, to eat, big, small, happy, sad, to play, fast, slow, new.",
+  "Grammar Foundations": "Generate a mix of verbs, adjectives, and prepositions useful for grammar examples: to write, beautiful, under, quickly, to think, difficult, above, slowly.",
+  "Reading Comprehension": "Generate slightly abstract nouns and descriptive words for understanding texts: meaning, character, beginning, to explain, important, to understand, question, answer.",
+  "Writing Practice": "Generate expressive vocabulary useful for writing: opinion, because, example, to describe, interesting, to feel, reason, to remember, favorite.",
+  "Armenian Literature": "Generate literary and cultural vocabulary: poet, story, homeland, tradition, ancient, to sing, hero, village, mountain, dream.",
+  "Advanced Grammar": "Generate complex verbs and conjunctions for advanced grammar: although, therefore, to accomplish, nevertheless, to compare, to require, whenever, to improve.",
+  "Composition": "Generate academic and essay vocabulary: argument, evidence, conclusion, to persuade, perspective, to analyze, furthermore, to support, to summarize.",
+};
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -114,12 +126,15 @@ CRITICAL RULES:
 - Use real Armenian Unicode characters
 - Return ONLY a valid JSON array, nothing else`;
   } else {
-    prompt = `You are a Western Armenian language expert. Generate vocabulary content for a ${levelTitle ?? "children's"} lesson.
-${context}
+    const themeGuidance = UNIT_THEME_GUIDANCE[unitTitle ?? ""] ?? `Generate words thematically related to "${unitTitle ?? "general vocabulary"}".`;
+
+    prompt = `You are generating Armenian vocabulary for a ${levelTitle ?? "children's"} "${unitTitle ?? "vocabulary"}" lesson.
 
 DIFFICULTY LEVEL: ${gradeGuidance}
 
-UNIT THEME: Generate words that relate to "${unitTitle ?? "general vocabulary"}".
+THEMATIC GUIDANCE: ${themeGuidance}
+
+IMPORTANT: Do NOT generate meta-vocabulary (words ABOUT the subject like "letter", "sentence", "word", "grammar", "lesson"). Generate vocabulary that BELONGS to the subject — real Armenian words students would learn and use.
 ${globalExclusions}
 
 Return EXACTLY 3 words as a JSON array. Each object must have these exact fields:
@@ -134,7 +149,6 @@ CRITICAL RULES:
 - Use Western Armenian with classical orthography
 - The emoji MUST visually match the english word
 - Words must be appropriate for ${levelTitle ?? "children"} (ages matching that grade level)
-- Words should relate to the unit theme "${unitTitle ?? "general"}" when possible
 - Use real Armenian Unicode characters
 - Return ONLY a valid JSON array, nothing else`;
   }
