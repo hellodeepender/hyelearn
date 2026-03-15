@@ -22,6 +22,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
+  const showCorrect = (exercise as unknown as Record<string, unknown>).showCorrectAnswer !== false;
 
   const wordBank = useMemo(() => {
     const options = [
@@ -90,9 +91,9 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
             ? "border-brown-200 hover:border-brown-300 bg-amber-50/30"
             : "border-brown-200 hover:border-brown-300 bg-warm-white";
           if (answered) {
-            if (word.isCorrect) {
+            if (word.isCorrect && showCorrect) {
               style = "border-green-500 bg-green-50 ring-2 ring-green-200";
-            } else if (i === selected) {
+            } else if (i === selected && !word.isCorrect) {
               style = "border-red-500 bg-red-50 ring-2 ring-red-200";
             } else {
               style = "border-brown-100 bg-brown-50 opacity-50";
@@ -107,7 +108,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
               className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
             >
               <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.hy}</span>
-              {answered && (
+              {answered && showCorrect && (
                 <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>
               )}
             </button>
@@ -115,7 +116,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
         })}
       </div>
 
-      {answered && (
+      {answered && showCorrect && (
         <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
           <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>

@@ -428,6 +428,15 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
     });
   }
 
+  // For quiz: ensure EVERY exercise has showCorrectAnswer: false
+  if (isQuiz) {
+    for (const ex of results) {
+      if (ex.exercise_type !== "learn_card") {
+        ex.exercise_data = { ...ex.exercise_data, showCorrectAnswer: false };
+      }
+    }
+  }
+
   return results;
 }
 
