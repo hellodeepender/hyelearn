@@ -24,17 +24,19 @@ export default async function TeacherDashboard() {
     return sum + (countArr?.[0]?.count ?? 0);
   }, 0);
 
-  // Exercise counts
+  // Exercise counts — count distinct lessons with at least 1 approved exercise
   const { count: pendingCount } = await supabase
     .from("curated_exercises")
     .select("id", { count: "exact", head: true })
     .eq("status", "draft");
-  const { count: approvedCount } = await supabase
-    .from("curated_exercises")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "approved");
 
-  // Curriculum levels with exercise stats
+  const { data: readyLessonRows } = await supabase
+    .from("curated_exercises")
+    .select("lesson_id")
+    .eq("status", "approved");
+  const readyLessons = new Set((readyLessonRows ?? []).map((r) => r.lesson_id)).size;
+
+  // Curriculum levels with stats
   const { data: levels } = await supabase
     .from("curriculum_levels")
     .select("id, slug, title, sort_order")
@@ -49,16 +51,19 @@ export default async function TeacherDashboard() {
     const unitIds = (allUnits ?? []).filter((u) => u.level_id === level.id).map((u) => u.id);
     const lessonIds = (allLessons ?? []).filter((l) => unitIds.includes(l.unit_id)).map((l) => l.id);
     const exForLevel = (allExercises ?? []).filter((e) => lessonIds.includes(e.lesson_id));
+    const approvedLessonIds = new Set(exForLevel.filter((e) => e.status === "approved").map((e) => e.lesson_id));
     return {
       ...level,
       units: unitIds.length,
       lessons: lessonIds.length,
-      approved: exForLevel.filter((e) => e.status === "approved").length,
+      lessonsReady: approvedLessonIds.size,
       pending: exForLevel.filter((e) => e.status === "draft").length,
-      total: exForLevel.length,
+      hasContent: exForLevel.length > 0,
     };
   });
 
+  const activeLevels = levelStats.filter((l) => l.hasContent || l.units > 0);
+  const emptyLevels = levelStats.filter((l) => !l.hasContent && l.units === 0);
   const firstName = profile?.full_name?.split(" ")[0] ?? "Teacher";
 
   return (
@@ -79,25 +84,22 @@ export default async function TeacherDashboard() {
             <p className="text-3xl font-bold text-gold">{totalStudents}</p>
           </div>
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
+            <h3 className="text-sm font-medium text-brown-500 mb-1">Lessons Ready</h3>
+            <p className="text-3xl font-bold text-green-600">{readyLessons}</p>
+          </div>
+          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
             <h3 className="text-sm font-medium text-brown-500 mb-1">Pending Review</h3>
             <p className="text-3xl font-bold text-amber-600">{pendingCount ?? 0}</p>
           </div>
-          <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-            <h3 className="text-sm font-medium text-brown-500 mb-1">Approved</h3>
-            <p className="text-3xl font-bold text-green-600">{approvedCount ?? 0}</p>
-          </div>
         </div>
 
-        {/* Curriculum management */}
+        {/* Curriculum */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
             <div className="flex gap-2">
               <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 Content Editor
-              </Link>
-              <Link href="/teacher/seed" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                AI Seed
               </Link>
               {(pendingCount ?? 0) > 0 && (
                 <Link href="/teacher/review" className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -108,30 +110,30 @@ export default async function TeacherDashboard() {
           </div>
 
           <div className="bg-warm-white border border-brown-100 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-6 gap-4 px-5 py-3 bg-brown-50/50 border-b border-brown-100 text-xs font-medium text-brown-500 uppercase">
+            <div className="grid grid-cols-5 gap-4 px-5 py-3 bg-brown-50/50 border-b border-brown-100 text-xs font-medium text-brown-500 uppercase">
               <span className="col-span-2">Level</span>
               <span>Units</span>
-              <span>Lessons</span>
-              <span>Approved</span>
+              <span>Lessons Ready</span>
               <span>Pending</span>
             </div>
-            {levelStats.map((level) => {
-              const allApproved = level.lessons > 0 && level.approved > 0 && level.pending === 0;
-              return (
-                <div key={level.id} className="grid grid-cols-6 gap-4 px-5 py-3 border-b border-brown-50 items-center">
-                  <div className="col-span-2 flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${
-                      allApproved ? "bg-green-500" : level.pending > 0 ? "bg-amber-400" : "bg-brown-200"
-                    }`} />
-                    <span className="font-medium text-brown-800 text-sm">{level.title}</span>
-                  </div>
-                  <span className="text-sm text-brown-600">{level.units}</span>
-                  <span className="text-sm text-brown-600">{level.lessons}</span>
-                  <span className="text-sm text-green-600 font-medium">{level.approved}</span>
-                  <span className={`text-sm font-medium ${level.pending > 0 ? "text-amber-600" : "text-brown-300"}`}>{level.pending}</span>
+            {activeLevels.map((level) => (
+              <div key={level.id} className="grid grid-cols-5 gap-4 px-5 py-3 border-b border-brown-50 items-center">
+                <div className="col-span-2 flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${
+                    level.lessonsReady > 0 && level.pending === 0 ? "bg-green-500" : level.pending > 0 ? "bg-amber-400" : "bg-brown-200"
+                  }`} />
+                  <span className="font-medium text-brown-800 text-sm">{level.title}</span>
                 </div>
-              );
-            })}
+                <span className="text-sm text-brown-600">{level.units}</span>
+                <span className="text-sm text-green-600 font-medium">{level.lessonsReady}/{level.lessons}</span>
+                <span className={`text-sm font-medium ${level.pending > 0 ? "text-amber-600" : "text-brown-300"}`}>{level.pending}</span>
+              </div>
+            ))}
+            {emptyLevels.length > 0 && (
+              <div className="px-5 py-3 text-xs text-brown-400">
+                {emptyLevels.map((l) => l.title).join(", ")}: Coming Soon
+              </div>
+            )}
           </div>
         </section>
 
