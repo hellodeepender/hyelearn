@@ -15,6 +15,17 @@ export async function POST(request: NextRequest) {
     ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
     : authClient;
 
+  // Ensure profile exists (fallback if trigger didn't fire)
+  const { data: existingProfile } = await db.from("profiles").select("id").eq("id", profileId).single();
+  if (!existingProfile) {
+    const meta = user.user_metadata ?? {};
+    await db.from("profiles").insert({
+      id: profileId,
+      full_name: (meta.full_name as string) ?? (meta.name as string) ?? "",
+      role: (meta.role as string) ?? "student",
+    }).select().single();
+  }
+
   // Validate class
   const { data: cls } = await db.from("classes").select("id, name, grade_level, max_students, teacher_id").eq("id", classId).eq("is_active", true).single();
   if (!cls) return NextResponse.json({ error: "Class not found" }, { status: 404 });
