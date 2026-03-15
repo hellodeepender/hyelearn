@@ -93,8 +93,11 @@ export default async function TeacherDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
             <div className="flex gap-2">
-              <Link href="/teacher/seed" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                Seed Exercises
+              <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Content Editor
+              </Link>
+              <Link href="/teacher/seed" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                AI Seed
               </Link>
               {(pendingCount ?? 0) > 0 && (
                 <Link href="/teacher/review" className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
