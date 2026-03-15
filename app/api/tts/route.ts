@@ -14,9 +14,13 @@ function getDb() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function ensureBucket(db: { storage: any }) {
-  await db.storage.createBucket("audio", { public: true }).catch(() => {
-    // Bucket already exists — ignore
+  const { error } = await db.storage.createBucket("audio", {
+    public: true,
+    allowedMimeTypes: ["audio/mpeg"],
   });
+  if (error && !error.message?.includes("already exists")) {
+    console.error("[tts] Bucket creation error:", error.message);
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -32,6 +36,9 @@ export async function GET(request: NextRequest) {
     const cacheKey = getCacheKey(text);
     const storagePath = `words/${cacheKey}.mp3`;
     const db = getDb();
+
+    // Ensure bucket exists before any storage operations
+    await ensureBucket(db);
 
     // Check cache
     const { data: existing, error: downloadErr } = await db.storage.from("audio").download(storagePath);
@@ -59,7 +66,7 @@ export async function GET(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           input: { text },
-          voice: { languageCode: "hy-AM", ssmlGender: "FEMALE" },
+          voice: { languageCode: "hy-AM", name: "hy-AM-Standard-A", ssmlGender: "FEMALE" },
           audioConfig: { audioEncoding: "MP3" },
         }),
       }
@@ -84,9 +91,7 @@ export async function GET(request: NextRequest) {
     console.log("[tts] Audio generated, size:", audioContent.length, "base64 chars");
     const audioBuffer = Buffer.from(audioContent, "base64");
 
-    // Ensure bucket exists, then upload
     console.log("[tts] Uploading to Supabase storage...");
-    await ensureBucket(db);
     const { error: uploadErr } = await db.storage
       .from("audio")
       .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: true });
