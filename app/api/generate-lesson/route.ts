@@ -110,11 +110,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Insert failed", details: insertErr.message }, { status: 500 });
   }
 
+  // Count student-visible exercises (matching pairs with same sort_order = 1 exercise)
+  const learnCardCount = generated.filter((e) => e.exercise_type === "learn_card").length;
+  const nonLearn = generated.filter((e) => e.exercise_type !== "learn_card");
+  const uniqueSortOrders = new Set(nonLearn.map((e) => e.sort_order));
+  const exerciseCount = uniqueSortOrders.size;
+
   return NextResponse.json({
     success: true,
-    count: generated.length,
-    learnCards: generated.filter((e) => e.exercise_type === "learn_card").length,
-    exercises: generated.filter((e) => e.exercise_type !== "learn_card").length,
+    count: learnCardCount + exerciseCount,
+    learnCards: learnCardCount,
+    exercises: exerciseCount,
+    dbRows: generated.length,
     validation,
   });
 }
