@@ -275,31 +275,42 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
   return results;
 }
 
-// --- REVIEW/QUIZ TEMPLATE (no learn cards, mixed exercises from all unit content) ---
+// --- REVIEW/QUIZ TEMPLATE (no learn cards, mixed exercises, max 3 options) ---
+
+/** Pick 2 random wrong options from a pool, excluding the correct index */
+function pickWrong<T>(pool: T[], correctIdx: number, count: number = 2): T[] {
+  const wrong = pool.filter((_, i) => i !== correctIdx);
+  return shuffle(wrong).slice(0, count);
+}
+
+function make3Options(correct: { hy: string; en: string }, wrongs: { hy: string; en: string }[]) {
+  const all = [{ ...correct, correct: true }, ...wrongs.map((w) => ({ ...w, correct: false }))];
+  return shuffle(all).map((o, j) => ({ id: ["a", "b", "c"][j], text_hy: o.hy, text_en: o.en, correct: o.correct }));
+}
 
 function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercise[] {
   const letters = items.filter((i) => i.item_type === "letter").sort((a, b) => a.sort_order - b.sort_order);
   const words = items.filter((i) => i.item_type === "word").sort((a, b) => a.sort_order - b.sort_order);
   const results: GeneratedExercise[] = [];
   let sort = 1;
-  const hint = isQuiz ? "" : undefined; // quiz: no hints
+  const hintFn = (text: string) => isQuiz ? "" : text;
 
   if (letters.length >= 2) {
     const names = letters.map((l) => ({ hy: l.item_data.letter_name as string, en: l.item_data.transliteration as string }));
     const letts = letters.map((l) => ({ hy: `${l.item_data.letter_upper}`, en: l.item_data.transliteration as string }));
 
-    // Recognition for each letter
-    for (let i = 0; i < letters.length; i++) {
+    // Recognition: 3 questions, 3 options each
+    for (let i = 0; i < Math.min(3, letters.length); i++) {
       const d = letters[i].item_data;
-      const opts = shuffle(names.map((n, j) => ({ ...n, correct: j === i })));
+      const wrongs = pickWrong(names, i);
       results.push({
         exercise_type: "multiple_choice",
         exercise_data: {
           type: "multiple_choice", id: String(sort), emoji: "",
           question_hy: `${d.letter_upper} ${d.letter_lower}`,
           question_en: "What is the name of this letter?",
-          options: opts.map((o, j) => ({ id: ["a", "b", "c", "d"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
-          hint_hy: "", hint_en: hint ?? `Sounds like "${d.sound}"`,
+          options: make3Options(names[i], wrongs),
+          hint_hy: "", hint_en: hintFn(`Sounds like "${d.sound}"`),
           explanation_hy: `${d.letter_upper} - ${d.letter_name}`,
           explanation_en: `This is ${d.transliteration}`,
           sort_order: sort,
@@ -308,18 +319,18 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
       });
     }
 
-    // Sound matching
-    for (let i = 0; i < Math.min(2, letters.length); i++) {
+    // Sound matching: 3 questions, 3 options each
+    for (let i = 0; i < Math.min(3, letters.length); i++) {
       const d = letters[i].item_data;
-      const opts = shuffle(letts.map((l, j) => ({ ...l, correct: j === i })));
+      const wrongs = pickWrong(letts, i);
       results.push({
         exercise_type: "multiple_choice",
         exercise_data: {
           type: "multiple_choice", id: String(sort), emoji: "",
           question_hy: `"${d.sound}"`,
           question_en: `Which letter makes the sound "${d.sound}"?`,
-          options: opts.map((o, j) => ({ id: ["a", "b", "c"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
-          hint_hy: "", hint_en: hint ?? `Think about ${d.transliteration}`,
+          options: make3Options(letts[i], wrongs),
+          hint_hy: "", hint_en: hintFn(`Think about ${d.transliteration}`),
           explanation_hy: `${d.letter_upper} - ${d.letter_name}`,
           explanation_en: `${d.transliteration} makes the sound "${d.sound}"`,
           sort_order: sort,
@@ -328,30 +339,35 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
       });
     }
 
-    // Matching all letters
-    for (const l of letters) {
-      const d = l.item_data;
-      results.push({
-        exercise_type: "matching",
-        exercise_data: {
-          type: "matching", id: `m${sort}`,
-          left_hy: `${d.letter_upper} ${d.letter_lower}`, left_en: d.transliteration as string,
-          right_hy: d.letter_name as string, right_en: d.transliteration as string,
+    // Matching: groups of 3
+    const shuffledLetters = shuffle([...letters]);
+    for (let g = 0; g < shuffledLetters.length; g += 3) {
+      const group = shuffledLetters.slice(g, g + 3);
+      if (group.length < 2) break;
+      for (const l of group) {
+        const d = l.item_data;
+        results.push({
+          exercise_type: "matching",
+          exercise_data: {
+            type: "matching", id: `m${sort}`,
+            left_hy: `${d.letter_upper} ${d.letter_lower}`, left_en: d.transliteration as string,
+            right_hy: d.letter_name as string, right_en: d.transliteration as string,
+            sort_order: sort,
+          },
           sort_order: sort,
-        },
-        sort_order: sort,
-      });
+        });
+      }
+      sort++;
     }
-    sort++;
   }
 
   if (words.length >= 2) {
     const armWords = words.map((w) => ({ hy: w.item_data.armenian as string, en: w.item_data.english as string }));
 
-    // Recognition
-    for (let i = 0; i < words.length; i++) {
+    // Recognition: 3 questions, 3 options each
+    for (let i = 0; i < Math.min(3, words.length); i++) {
       const d = words[i].item_data;
-      const opts = shuffle(armWords.map((w, j) => ({ ...w, correct: j === i })));
+      const wrongs = pickWrong(armWords, i);
       results.push({
         exercise_type: "multiple_choice",
         exercise_data: {
@@ -359,8 +375,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           emoji: d.emoji as string,
           question_hy: d.armenian as string,
           question_en: "What is this?",
-          options: opts.map((o, j) => ({ id: ["a", "b", "c", "d"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
-          hint_hy: "", hint_en: hint ?? `This is ${d.english}`,
+          options: make3Options(armWords[i], wrongs),
+          hint_hy: "", hint_en: hintFn(`This is ${d.english}`),
           explanation_hy: d.armenian as string,
           explanation_en: `This is ${d.english}`,
           sort_order: sort,
@@ -369,41 +385,49 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
       });
     }
 
-    // Matching all words
-    for (const w of words) {
-      const d = w.item_data;
+    // Matching: groups of 3
+    const shuffledWords = shuffle([...words]);
+    for (let g = 0; g < shuffledWords.length; g += 3) {
+      const group = shuffledWords.slice(g, g + 3);
+      if (group.length < 2) break;
+      for (const w of group) {
+        const d = w.item_data;
+        results.push({
+          exercise_type: "matching",
+          exercise_data: {
+            type: "matching", id: `m${sort}`,
+            left_hy: d.armenian as string, left_en: d.english as string,
+            right_hy: d.english as string, right_en: d.english as string,
+            sort_order: sort,
+          },
+          sort_order: sort,
+        });
+      }
+      sort++;
+    }
+
+    // Fill blank: 2 questions
+    for (let i = 0; i < Math.min(2, words.length); i++) {
+      const fb = words[i].item_data;
+      const others = words.filter((_, j) => j !== i);
       results.push({
-        exercise_type: "matching",
+        exercise_type: "fill_blank",
         exercise_data: {
-          type: "matching", id: `m${sort}`,
-          left_hy: d.armenian as string, left_en: d.english as string,
-          right_hy: d.english as string, right_en: d.english as string,
+          type: "fill_blank", id: String(sort),
+          emoji: fb.emoji as string,
+          sentence_hy: `___ ${fb.emoji}`,
+          sentence_en: `The word for ${fb.english} is ___`,
+          answer_hy: fb.armenian as string, answer_en: fb.english as string,
+          distractors_hy: others.slice(0, 2).map((w) => w.item_data.armenian as string),
+          distractors_en: others.slice(0, 2).map((w) => w.item_data.english as string),
+          hint_hy: "", hint_en: hintFn(`This is ${fb.english}`),
+          explanation_hy: `${fb.armenian} = ${fb.english}`,
+          explanation_en: `The answer is ${fb.english}`,
           sort_order: sort,
         },
-        sort_order: sort,
+        sort_order: sort++,
       });
     }
-    sort++;
-
-    // Fill blank
-    const fb = words[0].item_data;
-    results.push({
-      exercise_type: "fill_blank",
-      exercise_data: {
-        type: "fill_blank", id: String(sort),
-        emoji: fb.emoji as string,
-        sentence_hy: `___ ${fb.emoji}`,
-        sentence_en: `The word for ${fb.english} is ___`,
-        answer_hy: fb.armenian as string, answer_en: fb.english as string,
-        distractors_hy: words.slice(1, 3).map((w) => w.item_data.armenian as string),
-        distractors_en: words.slice(1, 3).map((w) => w.item_data.english as string),
-        hint_hy: "", hint_en: hint ?? `This is ${fb.english}`,
-        explanation_hy: `${fb.armenian} = ${fb.english}`,
-        explanation_en: `The answer is ${fb.english}`,
-        sort_order: sort,
-      },
-      sort_order: sort,
-    });
   }
 
   return results;
