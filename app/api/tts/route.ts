@@ -16,7 +16,7 @@ function getDb() {
 async function ensureBucket(db: { storage: any }) {
   const { error } = await db.storage.createBucket("audio", {
     public: true,
-    allowedMimeTypes: ["audio/mpeg", "audio/wav", "audio/L16"],
+    allowedMimeTypes: ["audio/mpeg"],
   });
   if (error && !error.message?.includes("already exists")) {
     console.error("[tts] Bucket creation error:", error.message);
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const cacheKey = getCacheKey(text);
-    const storagePath = `words/${cacheKey}.wav`;
+    const storagePath = `words/${cacheKey}.mp3`;
     const db = getDb();
 
     // Ensure bucket exists before any storage operations
@@ -50,64 +50,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(publicUrl);
     }
 
-    // Generate via Gemini TTS
-    const apiKey = process.env.GEMINI_API_KEY;
-    console.log("[tts] Gemini API key present:", !!apiKey);
+    // Generate via OpenAI TTS
+    const apiKey = process.env.OPENAI_API_KEY;
+    console.log("[tts] OpenAI API key present:", !!apiKey);
     if (!apiKey) {
-      console.error("[tts] GEMINI_API_KEY is not set");
+      console.error("[tts] OPENAI_API_KEY is not set");
       return new NextResponse(null, { status: 500 });
     }
 
-    const requestBody = {
-      contents: [{
-        parts: [{ text }],
-      }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: {
-              voiceName: "Aoede",
-            },
-          },
-        },
+    console.log("[tts] Calling OpenAI TTS...");
+    const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
-    };
-    console.log("[tts] Gemini TTS request body:", JSON.stringify(requestBody));
+      body: JSON.stringify({
+        model: "tts-1",
+        input: text,
+        voice: "nova",
+        response_format: "mp3",
+      }),
+    });
 
-    const ttsRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-preview-tts:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      }
-    );
-
-    console.log("[tts] Gemini TTS response status:", ttsRes.status);
+    console.log("[tts] OpenAI TTS response status:", ttsRes.status);
 
     if (!ttsRes.ok) {
       const errorBody = await ttsRes.text().catch(() => "(could not read body)");
-      console.error("[tts] Gemini TTS error response:", errorBody);
+      console.error("[tts] OpenAI TTS error response:", errorBody);
       return new NextResponse(null, { status: 500 });
     }
 
-    const data = await ttsRes.json();
-    const audioPart = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
-
-    if (!audioPart) {
-      console.error("[tts] Gemini TTS returned no audio data. Response:", JSON.stringify(data).slice(0, 500));
-      return new NextResponse(null, { status: 500 });
-    }
-
-    const mimeType = audioPart.mimeType || "audio/wav";
-    console.log("[tts] Audio generated, mimeType:", mimeType, "size:", audioPart.data.length, "base64 chars");
-    const audioBuffer = Buffer.from(audioPart.data, "base64");
+    const audioBuffer = Buffer.from(await ttsRes.arrayBuffer());
+    console.log("[tts] Audio generated, size:", audioBuffer.length, "bytes");
 
     console.log("[tts] Uploading to Supabase storage...");
     const { error: uploadErr } = await db.storage
       .from("audio")
-      .upload(storagePath, audioBuffer, { contentType: mimeType, upsert: true });
+      .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: true });
 
     if (uploadErr) {
       console.error("[tts] Supabase upload error:", uploadErr.message);
@@ -117,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     return new NextResponse(audioBuffer, {
       headers: {
-        "Content-Type": mimeType,
+        "Content-Type": "audio/mpeg",
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
