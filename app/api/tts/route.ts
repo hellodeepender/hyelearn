@@ -22,13 +22,32 @@ async function ensureBucket(db: { storage: any }) {
   }
 }
 
+// In-memory rate limiter: 30 requests per minute per IP
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT = 30;
+const RATE_WINDOW = 60_000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = rateLimitMap.get(ip) ?? [];
+  const recent = timestamps.filter((t) => now - t < RATE_WINDOW);
+  if (recent.length >= RATE_LIMIT) return false;
+  recent.push(now);
+  rateLimitMap.set(ip, recent);
+  return true;
+}
+
 export async function GET(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return new NextResponse(null, { status: 429 });
+  }
+
   const text = request.nextUrl.searchParams.get("text")?.trim();
   console.log("[tts] TTS request for:", text);
 
   try {
     if (!text || text.length > 200) {
-      console.log("[tts] Rejected: empty or too long");
       return new NextResponse(null, { status: 400 });
     }
 

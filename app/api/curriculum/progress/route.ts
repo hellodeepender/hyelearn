@@ -74,6 +74,6 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 
-  console.log("[curriculum/progress] Saved:", data.id, "passed:", data.passed);
+  console.log("[progress] Save result:", { id: data.id, passed: data.passed, attempts: data.attempts, error: null });
   return NextResponse.json({ passed: data.passed, pct });
 }

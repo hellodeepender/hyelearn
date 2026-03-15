@@ -5,7 +5,7 @@ import { getSystemPrompt } from "@/lib/prompts";
 
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key");
-  if (key !== "hyelearn2026") {
+  if (!process.env.SEED_API_KEY || key !== process.env.SEED_API_KEY) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
