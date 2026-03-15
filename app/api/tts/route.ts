@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     console.log("[tts] Calling Narakeet TTS...");
     const ttsRes = await fetch(
-      "https://api.narakeet.com/text-to-speech/mp3?voice=hayk",
+      "https://api.narakeet.com/text-to-speech/mp3?voice=nune",
       {
         method: "POST",
         headers: {
