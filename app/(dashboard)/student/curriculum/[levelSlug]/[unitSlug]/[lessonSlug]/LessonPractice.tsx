@@ -235,8 +235,8 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
       </div>
 
       {/* Step content */}
-      {isLearn && card ? (
-        <>
+      <div className="pb-24">
+        {isLearn && card ? (
           <div className={`bg-blue-50/50 border border-blue-100 ${young ? "rounded-3xl p-10" : "rounded-2xl p-8"} shadow-sm`}>
             {card.letter ? (
               <AlphabetLearnCard
@@ -257,17 +257,7 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
               />
             )}
           </div>
-          <div className="mt-6 text-center">
-            <button
-              onClick={advance}
-              className={`bg-gold hover:bg-gold-dark text-white font-medium ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"} transition-colors`}
-            >
-              Next
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
+        ) : (
           <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
             {step.entry.type === "multiple_choice" && (
               <MultipleChoice key={currentStep} exercise={step.entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
@@ -285,14 +275,21 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
               <Matching exercises={step.entry.data as MatchingExercise[]} onAnswer={(c) => handleAnswer(c)} young={young} />
             )}
           </div>
-          {showNext && (
-            <div className="mt-6 text-center">
-              <button onClick={advance} className={`bg-gold hover:bg-gold-dark text-white font-medium ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"}`}>
-                {currentStep + 1 >= totalSteps ? "See Results" : "Next"}
-              </button>
-            </div>
-          )}
-        </>
+        )}
+      </div>
+
+      {/* Sticky Next button */}
+      {(isLearn || showNext) && (
+        <div className="sticky bottom-0 left-0 right-0 bg-cream/95 backdrop-blur-sm border-t border-brown-100 py-4 px-6 z-30">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={advance}
+              className="w-full bg-gold hover:bg-gold-dark text-white font-semibold min-h-[56px] rounded-xl text-lg transition-colors"
+            >
+              {!isLearn && currentStep + 1 >= totalSteps ? "See Results" : "Next"}
+            </button>
+          </div>
+        </div>
       )}
     </main>
   );
