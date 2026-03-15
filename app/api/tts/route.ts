@@ -58,17 +58,19 @@ export async function GET(request: NextRequest) {
       return new NextResponse(null, { status: 500 });
     }
 
-    console.log("[tts] Calling Google TTS...");
+    const requestBody = {
+      input: { text },
+      voice: { languageCode: "hy-AM", name: "hy-AM-Standard-A" },
+      audioConfig: { audioEncoding: "MP3" },
+    };
+    console.log("[tts] Request body:", JSON.stringify(requestBody));
+
     const ttsRes = await fetch(
       `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: { text },
-          voice: { languageCode: "hy-AM", name: "hy-AM-Standard-A", ssmlGender: "FEMALE" },
-          audioConfig: { audioEncoding: "MP3" },
-        }),
+        body: JSON.stringify(requestBody),
       }
     );
 
