@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import type {
   MultipleChoiceExercise,
@@ -15,6 +15,7 @@ import TrueFalse from "@/components/exercises/TrueFalse";
 import LearnCard from "@/components/exercises/LearnCard";
 
 interface ExerciseEntry { type: string; data: unknown }
+interface Step { kind: "learn" | "exercise"; entry: ExerciseEntry }
 
 interface Props {
   lessonId: string;
@@ -27,69 +28,74 @@ interface Props {
   gradeValue: string;
 }
 
-type Phase = "learn" | "transition" | "practice" | "complete";
+/** Interleave learn cards and exercises into a single stream.
+ *  First 2-3 learn cards, then mix remaining learns with exercises. */
+function buildSteps(exercises: ExerciseEntry[]): Step[] {
+  const learns = exercises.filter((e) => e.type === "learn_card");
+  const practice = exercises.filter((e) => e.type !== "learn_card");
+
+  if (learns.length === 0) return practice.map((e) => ({ kind: "exercise", entry: e }));
+  if (practice.length === 0) return learns.map((e) => ({ kind: "learn", entry: e }));
+
+  const steps: Step[] = [];
+  let li = 0;
+  let pi = 0;
+
+  // Start with 2 learn cards (or all if fewer than 2)
+  const initialLearnCount = Math.min(2, learns.length);
+  for (let i = 0; i < initialLearnCount; i++) {
+    steps.push({ kind: "learn", entry: learns[li++] });
+  }
+
+  // Alternate: 1 exercise, then 1 learn card (if remaining), repeat
+  while (li < learns.length || pi < practice.length) {
+    if (pi < practice.length) {
+      steps.push({ kind: "exercise", entry: practice[pi++] });
+    }
+    if (li < learns.length) {
+      steps.push({ kind: "learn", entry: learns[li++] });
+    }
+  }
+
+  return steps;
+}
 
 export default function LessonPractice({ lessonId, lessonTitle, passingScore, exercises, backUrl, nextLessonUrl, gradeValue }: Props) {
   const young = gradeValue === "K" || gradeValue === "1";
+  const learnCount = exercises.filter((e) => e.type === "learn_card").length;
 
-  // Split exercises into learn cards and practice questions
-  const learnCards = exercises.filter((e) => e.type === "learn_card");
-  const practiceExercises = exercises.filter((e) => e.type !== "learn_card");
+  const steps = useMemo(() => buildSteps(exercises), [exercises]);
+  const totalSteps = steps.length;
 
-  const [phase, setPhase] = useState<Phase>(learnCards.length > 0 ? "learn" : practiceExercises.length > 0 ? "practice" : "complete");
-  const [learnIndex, setLearnIndex] = useState(0);
-  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [showNext, setShowNext] = useState(false);
+  const [done, setDone] = useState(totalSteps === 0);
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const didSave = useRef(false);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => { if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current); };
   }, []);
 
-  // --- Learn phase handlers ---
-  function handleLearnNext() {
-    if (learnIndex + 1 >= learnCards.length) {
-      if (practiceExercises.length > 0) {
-        setPhase("transition");
-      } else {
-        setPhase("complete");
-      }
-    } else {
-      setLearnIndex((i) => i + 1);
-    }
-  }
-
-  function handleStartPractice() {
-    setPhase("practice");
-  }
-
-  // --- Practice phase handlers ---
-  function handleAnswer(correct: boolean) {
-    setAnswers((prev) => [...prev, correct]);
-
-    if (correct) {
-      // Auto-advance after 1.5s on correct answer
-      autoAdvanceTimer.current = setTimeout(() => {
-        advancePractice();
-      }, 1500);
-    } else {
-      setShowNext(true);
-    }
-  }
-
-  function advancePractice() {
+  function advance() {
     setShowNext(false);
     if (autoAdvanceTimer.current) { clearTimeout(autoAdvanceTimer.current); autoAdvanceTimer.current = null; }
-
-    if (practiceIndex + 1 >= practiceExercises.length) {
-      setPhase("complete");
+    if (currentStep + 1 >= totalSteps) {
+      setDone(true);
     } else {
-      setPracticeIndex((i) => i + 1);
+      setCurrentStep((s) => s + 1);
+    }
+  }
+
+  function handleAnswer(correct: boolean) {
+    setAnswers((prev) => [...prev, correct]);
+    if (correct) {
+      autoAdvanceTimer.current = setTimeout(advance, 1500);
+    } else {
+      setShowNext(true);
     }
   }
 
@@ -120,21 +126,20 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
   }, [answers, lessonId, passingScore]);
 
   useEffect(() => {
-    if (phase === "complete" && !didSave.current && answers.length > 0) {
+    if (done && !didSave.current && answers.length > 0) {
       didSave.current = true;
       saveProgress();
     }
-  }, [phase, answers, saveProgress]);
+  }, [done, answers, saveProgress]);
 
   function handleRetry() {
-    setPracticeIndex(0);
+    setCurrentStep(0);
     setAnswers([]);
     setShowNext(false);
+    setDone(false);
     didSave.current = false;
     setResult(null);
     setSaveError(false);
-    setPhase(learnCards.length > 0 ? "learn" : "practice");
-    setLearnIndex(0);
   }
 
   // --- Empty state ---
@@ -148,74 +153,8 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
     );
   }
 
-  // --- Learn phase ---
-  if (phase === "learn") {
-    const card = learnCards[learnIndex]?.data as { visual?: string; primary_text?: string; secondary_text?: string } | undefined;
-    if (!card) { setPhase("practice"); return null; }
-
-    return (
-      <main className="max-w-2xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700">Learn</span>
-            <span className="text-sm text-brown-400">{lessonTitle}</span>
-          </div>
-          <Link href={backUrl} className="text-xs text-brown-400 hover:text-brown-600">Exit</Link>
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex items-center gap-1.5 mb-8">
-          {learnCards.map((_, i) => (
-            <div key={i} className={`h-2 flex-1 rounded-full transition-all ${
-              i < learnIndex ? "bg-blue-400" : i === learnIndex ? "bg-blue-500" : "bg-brown-100"
-            }`} />
-          ))}
-        </div>
-
-        <div className={`bg-blue-50/50 border border-blue-100 ${young ? "rounded-3xl p-10" : "rounded-2xl p-8"} shadow-sm`}>
-          <LearnCard
-            visual={card.visual ?? ""}
-            primaryText={card.primary_text ?? ""}
-            secondaryText={card.secondary_text ?? ""}
-            young={young}
-          />
-        </div>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleLearnNext}
-            className={`bg-blue-500 hover:bg-blue-600 text-white ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"} font-medium transition-colors`}
-          >
-            {learnIndex + 1 >= learnCards.length ? "Start Practice" : "Next"}
-          </button>
-        </div>
-      </main>
-    );
-  }
-
-  // --- Transition ---
-  if (phase === "transition") {
-    return (
-      <main className="max-w-2xl mx-auto px-6 py-20 text-center">
-        <div className={young ? "text-6xl mb-6" : "text-5xl mb-4"}>{"\u{1F4AA}"}</div>
-        <h2 className={`font-bold text-brown-800 mb-3 ${young ? "text-3xl" : "text-2xl"}`}>
-          Now let&apos;s practice!
-        </h2>
-        <p className="text-brown-500 mb-8">
-          Let&apos;s see what you remember from the lesson.
-        </p>
-        <button
-          onClick={handleStartPractice}
-          className={`bg-gold hover:bg-gold-dark text-white ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"} font-semibold transition-colors`}
-        >
-          Let&apos;s Go!
-        </button>
-      </main>
-    );
-  }
-
-  // --- Complete phase ---
-  if (phase === "complete") {
+  // --- Complete ---
+  if (done) {
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
@@ -226,27 +165,21 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
       <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
         {passed ? (
           <>
-            {/* Stars */}
             <div className="flex justify-center gap-2 text-4xl">
               {[1, 2, 3].map((s) => (
-                <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}
-                  style={{ animationDelay: `${s * 0.2}s` }}>
+                <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}>
                   {"\u2B50"}
                 </span>
               ))}
             </div>
-
             <div>
               <p className={`font-bold text-green-700 ${young ? "text-3xl" : "text-2xl"}`}>Lesson Complete!</p>
               <p className="text-brown-500 mt-1">You scored {pct}%</p>
-              {learnCards.length > 0 && (
-                <p className="text-sm text-brown-400 mt-2">
-                  You learned {learnCards.length} new item{learnCards.length !== 1 ? "s" : ""}!
-                </p>
+              {learnCount > 0 && (
+                <p className="text-sm text-brown-400 mt-2">You learned {learnCount} new item{learnCount !== 1 ? "s" : ""}!</p>
               )}
               {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
             </div>
-
             <div className="flex flex-col gap-3 pt-4">
               {nextLessonUrl && (
                 <Link href={nextLessonUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
@@ -279,53 +212,75 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
     );
   }
 
-  // --- Practice phase ---
-  const entry = practiceExercises[practiceIndex];
-  const totalQ = practiceExercises.length;
-  const progress = Math.round(((practiceIndex + 1) / totalQ) * 100);
+  // --- Single continuous flow ---
+  const step = steps[currentStep];
+  const progress = Math.round(((currentStep + 1) / totalSteps) * 100);
+  const isLearn = step.kind === "learn";
+  const card = isLearn ? step.entry.data as { visual?: string; primary_text?: string; secondary_text?: string } : null;
 
   return (
     <main className="max-w-2xl mx-auto px-6 py-10">
+      {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase px-2 py-0.5 rounded bg-gold/10 text-gold-dark">Practice</span>
-          <span className="text-sm text-brown-400">{lessonTitle}</span>
-        </div>
+        <span className="text-sm font-medium text-brown-700">{lessonTitle}</span>
         <Link href={backUrl} className="text-xs text-brown-400 hover:text-brown-600">Exit</Link>
       </div>
 
-      {/* Progress dots */}
-      <div className="flex items-center gap-1.5 mb-8">
-        {practiceExercises.map((_, i) => (
-          <div key={i} className={`h-2 flex-1 rounded-full transition-all ${
-            i < practiceIndex ? (answers[i] ? "bg-green-400" : "bg-red-300")
-            : i === practiceIndex ? "bg-gold"
-            : "bg-brown-100"
-          }`} />
-        ))}
-      </div>
-
-      <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
-        {entry.type === "multiple_choice" && (
-          <MultipleChoice key={practiceIndex} exercise={entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
-        )}
-        {entry.type === "fill_blank" && (
-          <FillBlank key={practiceIndex} exercise={entry.data as FillBlankExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
-        )}
-        {entry.type === "true_false" && (
-          <TrueFalse key={practiceIndex} exercise={entry.data as TrueFalseExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
-        )}
-        {entry.type === "matching" && (
-          <Matching exercises={[entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} />
-        )}
-      </div>
-
-      {showNext && (
-        <div className="mt-6 text-center">
-          <button onClick={advancePractice} className={`bg-gold hover:bg-gold-dark text-white font-medium ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"}`}>
-            {practiceIndex + 1 >= totalQ ? "See Results" : "Next"}
-          </button>
+      {/* Progress bar */}
+      <div className="mb-8">
+        <div className="flex justify-between text-xs text-brown-400 mb-1">
+          <span>{currentStep + 1} of {totalSteps}</span>
+          <span>{progress}%</span>
         </div>
+        <div className={`${young ? "h-3" : "h-2"} bg-brown-100 rounded-full overflow-hidden`}>
+          <div className="h-full bg-gold rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      {/* Step content */}
+      {isLearn && card ? (
+        <>
+          <div className={`bg-blue-50/50 border border-blue-100 ${young ? "rounded-3xl p-10" : "rounded-2xl p-8"} shadow-sm`}>
+            <LearnCard
+              visual={card.visual ?? ""}
+              primaryText={card.primary_text ?? ""}
+              secondaryText={card.secondary_text ?? ""}
+              young={young}
+            />
+          </div>
+          <div className="mt-6 text-center">
+            <button
+              onClick={advance}
+              className={`bg-gold hover:bg-gold-dark text-white font-medium ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"} transition-colors`}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
+            {step.entry.type === "multiple_choice" && (
+              <MultipleChoice key={currentStep} exercise={step.entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+            )}
+            {step.entry.type === "fill_blank" && (
+              <FillBlank key={currentStep} exercise={step.entry.data as FillBlankExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+            )}
+            {step.entry.type === "true_false" && (
+              <TrueFalse key={currentStep} exercise={step.entry.data as TrueFalseExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+            )}
+            {step.entry.type === "matching" && (
+              <Matching exercises={[step.entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} />
+            )}
+          </div>
+          {showNext && (
+            <div className="mt-6 text-center">
+              <button onClick={advance} className={`bg-gold hover:bg-gold-dark text-white font-medium ${young ? "px-10 py-4 text-lg rounded-2xl" : "px-8 py-3 rounded-lg"}`}>
+                {currentStep + 1 >= totalSteps ? "See Results" : "Next"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </main>
   );
