@@ -59,6 +59,9 @@ export async function GET(request: NextRequest) {
     }
 
     console.log("[tts] Calling Narakeet TTS...");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const ttsRes = await fetch(
       "https://api.narakeet.com/text-to-speech/mp3?voice=nune",
       {
@@ -69,9 +72,11 @@ export async function GET(request: NextRequest) {
           "accept": "application/octet-stream",
         },
         body: text,
+        signal: controller.signal,
       }
     );
 
+    clearTimeout(timeout);
     console.log("[tts] Narakeet TTS response status:", ttsRes.status);
 
     if (!ttsRes.ok) {
@@ -81,7 +86,12 @@ export async function GET(request: NextRequest) {
     }
 
     const audioBuffer = Buffer.from(await ttsRes.arrayBuffer());
-    console.log("[tts] Audio generated, size:", audioBuffer.length, "bytes");
+    console.log("[tts] Audio buffer size:", audioBuffer.length, "bytes for text:", text);
+
+    if (audioBuffer.length < 1000) {
+      console.error("[tts] Audio too small, likely truncated:", audioBuffer.length);
+      return new NextResponse(null, { status: 500 });
+    }
 
     console.log("[tts] Uploading to Supabase storage...");
     const { error: uploadErr } = await db.storage
