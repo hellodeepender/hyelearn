@@ -275,6 +275,140 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
   return results;
 }
 
+// --- REVIEW/QUIZ TEMPLATE (no learn cards, mixed exercises from all unit content) ---
+
+function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercise[] {
+  const letters = items.filter((i) => i.item_type === "letter").sort((a, b) => a.sort_order - b.sort_order);
+  const words = items.filter((i) => i.item_type === "word").sort((a, b) => a.sort_order - b.sort_order);
+  const results: GeneratedExercise[] = [];
+  let sort = 1;
+  const hint = isQuiz ? "" : undefined; // quiz: no hints
+
+  if (letters.length >= 2) {
+    const names = letters.map((l) => ({ hy: l.item_data.letter_name as string, en: l.item_data.transliteration as string }));
+    const letts = letters.map((l) => ({ hy: `${l.item_data.letter_upper}`, en: l.item_data.transliteration as string }));
+
+    // Recognition for each letter
+    for (let i = 0; i < letters.length; i++) {
+      const d = letters[i].item_data;
+      const opts = shuffle(names.map((n, j) => ({ ...n, correct: j === i })));
+      results.push({
+        exercise_type: "multiple_choice",
+        exercise_data: {
+          type: "multiple_choice", id: String(sort), emoji: "",
+          question_hy: `${d.letter_upper} ${d.letter_lower}`,
+          question_en: "What is the name of this letter?",
+          options: opts.map((o, j) => ({ id: ["a", "b", "c", "d"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
+          hint_hy: "", hint_en: hint ?? `Sounds like "${d.sound}"`,
+          explanation_hy: `${d.letter_upper} - ${d.letter_name}`,
+          explanation_en: `This is ${d.transliteration}`,
+          sort_order: sort,
+        },
+        sort_order: sort++,
+      });
+    }
+
+    // Sound matching
+    for (let i = 0; i < Math.min(2, letters.length); i++) {
+      const d = letters[i].item_data;
+      const opts = shuffle(letts.map((l, j) => ({ ...l, correct: j === i })));
+      results.push({
+        exercise_type: "multiple_choice",
+        exercise_data: {
+          type: "multiple_choice", id: String(sort), emoji: "",
+          question_hy: `"${d.sound}"`,
+          question_en: `Which letter makes the sound "${d.sound}"?`,
+          options: opts.map((o, j) => ({ id: ["a", "b", "c"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
+          hint_hy: "", hint_en: hint ?? `Think about ${d.transliteration}`,
+          explanation_hy: `${d.letter_upper} - ${d.letter_name}`,
+          explanation_en: `${d.transliteration} makes the sound "${d.sound}"`,
+          sort_order: sort,
+        },
+        sort_order: sort++,
+      });
+    }
+
+    // Matching all letters
+    for (const l of letters) {
+      const d = l.item_data;
+      results.push({
+        exercise_type: "matching",
+        exercise_data: {
+          type: "matching", id: `m${sort}`,
+          left_hy: `${d.letter_upper} ${d.letter_lower}`, left_en: d.transliteration as string,
+          right_hy: d.letter_name as string, right_en: d.transliteration as string,
+          sort_order: sort,
+        },
+        sort_order: sort,
+      });
+    }
+    sort++;
+  }
+
+  if (words.length >= 2) {
+    const armWords = words.map((w) => ({ hy: w.item_data.armenian as string, en: w.item_data.english as string }));
+
+    // Recognition
+    for (let i = 0; i < words.length; i++) {
+      const d = words[i].item_data;
+      const opts = shuffle(armWords.map((w, j) => ({ ...w, correct: j === i })));
+      results.push({
+        exercise_type: "multiple_choice",
+        exercise_data: {
+          type: "multiple_choice", id: String(sort),
+          emoji: d.emoji as string,
+          question_hy: d.armenian as string,
+          question_en: "What is this?",
+          options: opts.map((o, j) => ({ id: ["a", "b", "c", "d"][j], text_hy: o.hy, text_en: o.en, correct: o.correct })),
+          hint_hy: "", hint_en: hint ?? `This is ${d.english}`,
+          explanation_hy: d.armenian as string,
+          explanation_en: `This is ${d.english}`,
+          sort_order: sort,
+        },
+        sort_order: sort++,
+      });
+    }
+
+    // Matching all words
+    for (const w of words) {
+      const d = w.item_data;
+      results.push({
+        exercise_type: "matching",
+        exercise_data: {
+          type: "matching", id: `m${sort}`,
+          left_hy: d.armenian as string, left_en: d.english as string,
+          right_hy: d.english as string, right_en: d.english as string,
+          sort_order: sort,
+        },
+        sort_order: sort,
+      });
+    }
+    sort++;
+
+    // Fill blank
+    const fb = words[0].item_data;
+    results.push({
+      exercise_type: "fill_blank",
+      exercise_data: {
+        type: "fill_blank", id: String(sort),
+        emoji: fb.emoji as string,
+        sentence_hy: `___ ${fb.emoji}`,
+        sentence_en: `The word for ${fb.english} is ___`,
+        answer_hy: fb.armenian as string, answer_en: fb.english as string,
+        distractors_hy: words.slice(1, 3).map((w) => w.item_data.armenian as string),
+        distractors_en: words.slice(1, 3).map((w) => w.item_data.english as string),
+        hint_hy: "", hint_en: hint ?? `This is ${fb.english}`,
+        explanation_hy: `${fb.armenian} = ${fb.english}`,
+        explanation_en: `The answer is ${fb.english}`,
+        sort_order: sort,
+      },
+      sort_order: sort,
+    });
+  }
+
+  return results;
+}
+
 // --- MAIN EXPORT ---
 
 export function generateLessonContent(
@@ -287,9 +421,9 @@ export function generateLessonContent(
     case "vocabulary":
       return generateVocabulary(contentItems);
     case "review":
+      return generateReview(contentItems, false);
     case "quiz":
-      // Review/quiz use vocabulary template with all unit content
-      return generateVocabulary(contentItems);
+      return generateReview(contentItems, true);
     default:
       return generateVocabulary(contentItems);
   }

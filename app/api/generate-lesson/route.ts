@@ -47,15 +47,40 @@ export async function POST(request: NextRequest) {
 
   const templateType = lesson.template_type ?? "vocabulary";
 
-  // Fetch content items
-  const { data: items } = await db
-    .from("content_items")
-    .select("id, item_type, sort_order, item_data")
-    .eq("lesson_id", lesson_id)
-    .order("sort_order");
+  // For review/quiz: aggregate content from ALL practice lessons in the unit
+  let items;
+  if (templateType === "review" || templateType === "quiz") {
+    const { data: practiceLessons } = await db
+      .from("curriculum_lessons")
+      .select("id")
+      .eq("unit_id", lesson.unit_id)
+      .not("template_type", "in", '("review","quiz")')
+      .order("sort_order");
+
+    const practiceIds = practiceLessons?.map((l) => l.id) ?? [];
+    if (practiceIds.length === 0) {
+      return NextResponse.json({ error: "No practice lessons found in this unit to review" }, { status: 400 });
+    }
+
+    const { data: unitItems } = await db
+      .from("content_items")
+      .select("id, item_type, sort_order, item_data")
+      .in("lesson_id", practiceIds)
+      .order("sort_order");
+
+    items = unitItems;
+  } else {
+    const { data: lessonItems } = await db
+      .from("content_items")
+      .select("id, item_type, sort_order, item_data")
+      .eq("lesson_id", lesson_id)
+      .order("sort_order");
+
+    items = lessonItems;
+  }
 
   if (!items || items.length === 0) {
-    return NextResponse.json({ error: "No content items found for this lesson" }, { status: 400 });
+    return NextResponse.json({ error: "No content items found" }, { status: 400 });
   }
 
   // Generate exercises from template

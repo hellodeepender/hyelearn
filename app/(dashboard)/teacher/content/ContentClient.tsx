@@ -36,6 +36,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
   const filteredLessons = lessons.filter((l) => l.unit_id === selectedUnit);
   const lesson = lessons.find((l) => l.id === selectedLesson);
   const isAlphabet = lesson?.template_type === "alphabet";
+  const isReviewOrQuiz = lesson?.template_type === "review" || lesson?.template_type === "quiz";
 
   // Load existing content items when lesson changes
   const loadContent = useCallback(async (lessonId: string) => {
@@ -278,8 +279,26 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
         </select>
       </div>
 
-      {/* Content form */}
-      {selectedLesson && !loading && (
+      {/* Review/Quiz — no content entry, just generate */}
+      {selectedLesson && !loading && isReviewOrQuiz && (
+        <div className="space-y-6">
+          <div className="bg-warm-white border border-brown-100 rounded-xl p-6 text-center">
+            <p className="font-semibold text-brown-800 mb-1">
+              {lesson?.template_type === "quiz" ? "Unit Quiz" : "Review Lesson"}
+            </p>
+            <p className="text-sm text-brown-500 mb-4">
+              This {lesson?.template_type} automatically uses content from all practice lessons in this unit. Click Generate to create exercises.
+            </p>
+            <button onClick={handleGenerate} disabled={generating}
+              className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium">
+              {generating ? "Generating..." : "Generate Exercises"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Content form (non-review/quiz) */}
+      {selectedLesson && !loading && !isReviewOrQuiz && (
         <div className="space-y-6">
           {/* Status + Auto-fill */}
           <div className="flex items-center justify-between">
