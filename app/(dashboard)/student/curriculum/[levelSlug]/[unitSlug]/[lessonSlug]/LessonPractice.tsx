@@ -29,11 +29,34 @@ interface Props {
   gradeValue: string;
 }
 
+/** Group consecutive matching exercises into a single entry with array data. */
+function groupMatching(entries: ExerciseEntry[]): ExerciseEntry[] {
+  const result: ExerciseEntry[] = [];
+  let matchBatch: ExerciseEntry[] = [];
+
+  for (const e of entries) {
+    if (e.type === "matching") {
+      matchBatch.push(e);
+    } else {
+      if (matchBatch.length > 0) {
+        result.push({ type: "matching_group", data: matchBatch.map((m) => m.data) });
+        matchBatch = [];
+      }
+      result.push(e);
+    }
+  }
+  if (matchBatch.length > 0) {
+    result.push({ type: "matching_group", data: matchBatch.map((m) => m.data) });
+  }
+  return result;
+}
+
 /** Build a single stream: all learn cards first, then exercises.
  *  For long lessons (>8 steps), insert refresher cards every 5+ exercises. */
 function buildSteps(exercises: ExerciseEntry[]): Step[] {
   const learns = exercises.filter((e) => e.type === "learn_card");
-  const practice = exercises.filter((e) => e.type !== "learn_card");
+  const rawPractice = exercises.filter((e) => e.type !== "learn_card");
+  const practice = groupMatching(rawPractice);
 
   if (learns.length === 0) return practice.map((e) => ({ kind: "exercise", entry: e }));
   if (practice.length === 0) return learns.map((e) => ({ kind: "learn", entry: e }));
@@ -295,6 +318,9 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
             )}
             {step.entry.type === "matching" && (
               <Matching exercises={[step.entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} />
+            )}
+            {step.entry.type === "matching_group" && (
+              <Matching exercises={step.entry.data as MatchingExercise[]} onAnswer={(c) => handleAnswer(c)} young={young} />
             )}
           </div>
           {showNext && (
