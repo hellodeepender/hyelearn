@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     const requestBody = {
       input: { text },
-      voice: { languageCode: "hy-AM", name: "hy-AM-Standard-A" },
+      voice: { languageCode: "hy-AM", name: "Aoede", modelName: "gemini-2.5-flash-tts" },
       audioConfig: { audioEncoding: "MP3" },
     };
     console.log("[tts] Request body:", JSON.stringify(requestBody));
