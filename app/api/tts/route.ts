@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     const requestBody = {
       contents: [{
-        parts: [{ text: `Say the following word clearly: ${text}` }],
+        parts: [{ text }],
       }],
       generationConfig: {
         responseModalities: ["AUDIO"],
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     console.log("[tts] Gemini TTS request body:", JSON.stringify(requestBody));
 
     const ttsRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-tts:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
