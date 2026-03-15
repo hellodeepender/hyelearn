@@ -12,16 +12,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resending, setResending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setNeedsConfirmation(false);
     setLoading(true);
 
     const { data: signInData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
-      setError(authError.message);
+      if (authError.message.toLowerCase().includes("email not confirmed")) {
+        setNeedsConfirmation(true);
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }
@@ -33,7 +40,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Check profile role for redirect
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
 
     if (profile?.role === "teacher" || profile?.role === "admin") {
@@ -41,6 +47,12 @@ export default function LoginPage() {
     } else {
       router.push("/student");
     }
+  }
+
+  async function handleResend() {
+    setResending(true);
+    await supabase.auth.resend({ type: "signup", email });
+    setResending(false);
   }
 
   return (
@@ -58,6 +70,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</div>
+            )}
+            {needsConfirmation && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 space-y-2">
+                <p>Please confirm your email first. We sent a link to <span className="font-medium">{email}</span>. Check your inbox and spam folder.</p>
+                <button type="button" onClick={handleResend} disabled={resending}
+                  className="text-xs text-amber-700 underline hover:text-amber-900 disabled:opacity-50">
+                  {resending ? "Sending..." : "Resend confirmation email"}
+                </button>
+              </div>
             )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-brown-700 mb-1">Email</label>
