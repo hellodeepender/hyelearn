@@ -321,6 +321,7 @@ export default async function LandingPage() {
                 { q: "How is the curriculum created?", a: "Our curriculum is designed for Western Armenian learners and structured to build progressively from the alphabet through reading comprehension. Content is reviewed by Armenian language educators for accuracy." },
                 { q: "Can schools use this?", a: "Yes! We offer school plans with teacher dashboards and class management. Contact us at schools@hyelearn.com." },
                 { q: "How long does each lesson take?", a: "About 5 minutes. Short enough to fit into any daily routine, long enough to make real progress." },
+                { q: "How do I keep my child focused on HyeLearn?", a: "Use your device\u2019s built-in focus mode! On iPad or iPhone, turn on Guided Access (Settings \u2192 Accessibility \u2192 Guided Access). Once enabled, triple-click the side button while HyeLearn is open \u2014 your child won\u2019t be able to leave the app until you unlock it. On Android, use Screen Pinning (Settings \u2192 Security). These features are designed exactly for this and work better than anything we could build into a website." },
               ].map((f) => (
                 <div key={f.q} className="bg-cream/30 border border-brown-100 rounded-xl p-5">
                   <h3 className="font-semibold text-brown-800 text-sm">{f.q}</h3>
