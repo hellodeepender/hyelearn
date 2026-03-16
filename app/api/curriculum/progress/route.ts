@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   // Look up lesson
   const { data: lesson, error: lessonErr } = await db
     .from("curriculum_lessons")
-    .select("passing_score, lesson_type")
+    .select("passing_score, lesson_type, template_type")
     .eq("id", lesson_id)
     .single();
 
@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
   }
 
   const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  const passed = lesson.lesson_type === "review" ? true : pct >= (lesson.passing_score ?? 70);
+  // template_type is reliable: 'review', 'quiz', 'vocabulary', 'alphabet'
+  const templateType = lesson.template_type ?? lesson.lesson_type;
+  const passed = templateType === "review" ? true : pct >= (lesson.passing_score ?? 70);
 
   // Upsert progress
   const { data, error: upsertErr } = await db
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
   let rewards = { xpEarned: 0, newBadges: [] as string[], newTotal: 0, leveledUp: false };
   try {
     rewards = await processLessonRewards(
-      db, user.id, lesson_id, lesson.lesson_type ?? "lesson", data.passed, pct, clientStreak ?? 0,
+      db, user.id, lesson_id, templateType, data.passed, pct, clientStreak ?? 0,
     );
   } catch (err) {
     console.error("[progress] Rewards error:", err);

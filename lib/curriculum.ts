@@ -100,7 +100,7 @@ export async function getLessonsWithProgress(
 ) {
   const { data: lessons } = await supabase
     .from("curriculum_lessons")
-    .select("id, slug, title, description, lesson_type, sort_order, passing_score")
+    .select("id, slug, title, description, lesson_type, template_type, sort_order, passing_score")
     .eq("unit_id", unitId)
     .eq("is_active", true)
     .order("sort_order");
@@ -116,19 +116,25 @@ export async function getLessonsWithProgress(
 
   return lessons.map((lesson, i) => {
     const prog = progressMap.get(lesson.id);
+    // Use template_type for reliable review/quiz detection
+    // lesson_type is 'practice' for both regular and review lessons
+    const tt = lesson.template_type ?? lesson.lesson_type;
     let unlocked = i === 0;
 
     if (i > 0) {
       const prevLesson = lessons[i - 1];
       const prevProg = progressMap.get(prevLesson.id);
 
-      if (lesson.lesson_type === "review") {
+      if (tt === "review") {
         // Review unlocks when ALL prior regular lessons are passed
-        const regularLessons = lessons.slice(0, i).filter((l) => l.lesson_type !== "review" && l.lesson_type !== "quiz");
+        const regularLessons = lessons.slice(0, i).filter((l) => {
+          const ltt = l.template_type ?? l.lesson_type;
+          return ltt !== "review" && ltt !== "quiz";
+        });
         unlocked = regularLessons.length > 0 && regularLessons.every((l) => progressMap.get(l.id)?.passed);
-      } else if (lesson.lesson_type === "quiz") {
+      } else if (tt === "quiz") {
         // Quiz unlocks when the Review before it has been completed (any score)
-        const reviewLesson = lessons.slice(0, i).reverse().find((l) => l.lesson_type === "review");
+        const reviewLesson = lessons.slice(0, i).reverse().find((l) => (l.template_type ?? l.lesson_type) === "review");
         unlocked = reviewLesson ? (progressMap.get(reviewLesson.id)?.attempts ?? 0) > 0 : (prevProg?.passed ?? false);
       } else {
         // Regular lessons: must pass the previous lesson

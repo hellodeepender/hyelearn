@@ -25,7 +25,7 @@ export default async function LessonPage({
 
   const { data: lesson } = await supabase
     .from("curriculum_lessons")
-    .select("id, slug, title, lesson_type, passing_score, sort_order")
+    .select("id, slug, title, lesson_type, template_type, passing_score, sort_order")
     .eq("unit_id", unit.id)
     .eq("slug", lessonSlug)
     .single();
@@ -75,7 +75,7 @@ export default async function LessonPage({
       <LessonPractice
         lessonId={lesson.id}
         lessonTitle={lesson.title}
-        lessonType={lesson.lesson_type}
+        lessonType={lesson.template_type ?? lesson.lesson_type}
         passingScore={lesson.passing_score}
         exercises={(exercises ?? []).map((e) => ({ type: e.exercise_type, data: e.exercise_data }))}
         backUrl={backUrl}
