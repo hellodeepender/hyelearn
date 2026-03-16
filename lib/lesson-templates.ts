@@ -1,4 +1,5 @@
 // Template engine: generates learn cards + exercises from raw content items
+import { transliterate } from "@/lib/transliterate";
 
 interface ContentItem {
   id: string;
@@ -132,11 +133,11 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
       type: "multiple_choice", id: String(sort.val),
       emoji: wl.emoji as string,
       question_hy: wl.example_word_arm as string,
-      question_en: `Which letter does "${wl.example_word_eng}" start with?`,
+      question_en: `Which letter does ${wl.example_word_arm} (${transliterate(wl.example_word_arm as string)}) start with?`,
       options: make3Options(letts[0], pickWrong(letts, 0)),
-      hint_hy: "", hint_en: `${wl.example_word_eng} starts with ${wl.transliteration}`,
+      hint_hy: "", hint_en: `${wl.example_word_arm} (${transliterate(wl.example_word_arm as string)}) starts with ${wl.transliteration}`,
       explanation_hy: `${wl.example_word_arm} - ${wl.letter_upper}`,
-      explanation_en: `"${wl.example_word_eng}" starts with ${wl.transliteration} (${wl.letter_upper})`,
+      explanation_en: `${wl.example_word_arm} (${transliterate(wl.example_word_arm as string)}) starts with ${wl.transliteration} (${wl.letter_upper})`,
       sort_order: sort.val,
     },
     sort_order: sort.val++,
