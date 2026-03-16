@@ -230,20 +230,26 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ============ SOCIAL PROOF ============ */}
+        {/* ============ WHY HYELEARN ============ */}
         <section className="py-20 px-6 bg-warm-white">
+          <div className="max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold text-brown-800 text-center mb-6">Why HyeLearn?</h2>
+            <p className="text-brown-500 leading-relaxed text-center max-w-2xl mx-auto">
+              Armenian families in the diaspora face a common challenge &mdash; keeping their children connected to their heritage language. Between school, homework, and activities, there&apos;s never enough time for Armenian. HyeLearn was built to solve this. A structured, interactive Western Armenian curriculum that works in just 5 minutes a day. Designed with Armenian language educators, every lesson builds on the last &mdash; from the alphabet through reading comprehension. No textbooks, no scheduling conflicts. Just open it up, learn together, and watch your child&apos;s Armenian grow.
+            </p>
+          </div>
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-brown-800 text-center mb-10">What Armenian families are saying</h2>
+            <h2 className="text-2xl font-bold text-brown-800 text-center mb-10">What makes HyeLearn different?</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                { quote: "My daughter asks to do her Armenian lesson every day now. It's become our special 5-minute routine.", name: "Anahit M.", loc: "Glendale, CA" },
-                { quote: "Finally, a Western Armenian program that actually works. The curriculum is well-structured and my son loves the stars and badges.", name: "Sarkis T.", loc: "Pasadena, CA" },
-                { quote: "As a teacher, I recommend HyeLearn to every Armenian parent. It fills a gap that nothing else does.", name: "Taline K.", loc: "Armenian Educator" },
-              ].map((t) => (
-                <div key={t.name} className="bg-cream/50 border border-brown-100 rounded-2xl p-6">
-                  <p className="text-brown-600 text-sm leading-relaxed mb-4">&ldquo;{t.quote}&rdquo;</p>
-                  <p className="text-brown-800 text-sm font-medium">{t.name}</p>
-                  <p className="text-brown-400 text-xs">{t.loc}</p>
+                { icon: "\u0531", title: "Built for Western Armenian", desc: "Not Eastern Armenian, not a translation. Purpose-built curriculum using classical orthography \u2014 the standard taught in diaspora schools." },
+                { icon: "\uD83C\uDFD4\uFE0F", title: "Armenian culture woven in", desc: "Earn badges named after Armenian landmarks. Climb Mount Ararat as you level up. Learn through culturally meaningful content." },
+                { icon: "\u23F1\uFE0F", title: "Made for busy families", desc: "5 minutes a day is all it takes. Works on any device \u2014 phone, tablet, or laptop. No scheduling, no driving to lessons." },
+              ].map((c) => (
+                <div key={c.title} className="bg-cream/50 border border-brown-100 rounded-2xl p-6 text-center">
+                  <div className="text-3xl mb-3">{c.icon}</div>
+                  <h3 className="font-semibold text-brown-800 mb-2">{c.title}</h3>
+                  <p className="text-brown-500 text-sm leading-relaxed">{c.desc}</p>
                 </div>
               ))}
             </div>
@@ -262,9 +268,9 @@ export default async function LandingPage() {
               <p className="text-4xl font-bold text-brown-800 mt-4">$0</p>
               <p className="text-sm text-brown-400 mt-1">Forever free</p>
               <ul className="mt-6 space-y-3 text-sm text-brown-600">
-                <li>{"\u2713"} Alphabet lessons</li>
-                <li>{"\u2713"} 1 child profile</li>
-                <li>{"\u2713"} Basic progress tracking</li>
+                <li>{"\u2713"} Kindergarten lessons</li>
+                <li>{"\u2713"} Basic curriculum access</li>
+                <li>{"\u2713"} Progress tracking</li>
               </ul>
               <Link href="/signup" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
                 Start Free
@@ -277,8 +283,8 @@ export default async function LandingPage() {
               <p className="text-sm text-brown-400 mt-1">or $79.99/year (save 33%)</p>
               <ul className="mt-6 space-y-3 text-sm text-brown-600">
                 <li>{"\u2713"} Complete K-5 curriculum</li>
-                <li>{"\u2713"} Unlimited practice</li>
-                <li>{"\u2713"} All badges &amp; rewards</li>
+                <li>{"\u2713"} Extra practice (5 sessions/day)</li>
+                <li>{"\u2713"} Armenian-themed badges &amp; rewards</li>
                 <li>{"\u2713"} Up to 3 children</li>
               </ul>
               <Link href="/signup" className="block mt-8 text-center bg-gold hover:bg-gold-dark text-white py-3 rounded-lg font-medium transition-colors">
@@ -312,6 +318,7 @@ export default async function LandingPage() {
                 { q: "What ages is this for?", a: "Kindergarten through Grade 5. We\u2019re adding more levels regularly." },
                 { q: "Do I need to speak Armenian to help my child?", a: "No! The platform guides your child through each lesson. English hints are available when needed." },
                 { q: "Is it safe for kids?", a: "Absolutely. No ads, no social features, no external links. Your child only sees learning content. COPPA compliant." },
+                { q: "How is the curriculum created?", a: "Our curriculum is designed for Western Armenian learners and structured to build progressively from the alphabet through reading comprehension. Content is reviewed by Armenian language educators for accuracy." },
                 { q: "Can schools use this?", a: "Yes! We offer school plans with teacher dashboards and class management. Contact us at schools@hyelearn.com." },
                 { q: "How long does each lesson take?", a: "About 5 minutes. Short enough to fit into any daily routine, long enough to make real progress." },
               ].map((f) => (
