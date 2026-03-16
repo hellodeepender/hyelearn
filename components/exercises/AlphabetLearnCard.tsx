@@ -24,7 +24,7 @@ export default function AlphabetLearnCard({
       <div className="text-5xl">{emoji}</div>
 
       {/* Letter (large) */}
-      <p className="text-8xl font-bold text-brown-800 leading-tight">{letter}</p>
+      <p className="text-6xl md:text-8xl font-bold text-brown-800 leading-tight">{letter}</p>
 
       {/* Letter name */}
       <p className="text-lg text-brown-600">{letterName}</p>

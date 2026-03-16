@@ -8,6 +8,14 @@ interface Props {
   autoPlay?: boolean;
 }
 
+// Track whether user has interacted (Safari requires gesture before autoplay)
+let userHasInteracted = false;
+if (typeof window !== "undefined") {
+  const markInteracted = () => { userHasInteracted = true; };
+  window.addEventListener("pointerdown", markInteracted, { once: true, capture: true });
+  window.addEventListener("keydown", markInteracted, { once: true, capture: true });
+}
+
 export default function AudioButton({ word, autoPlay }: Props) {
   const [playing, setPlaying] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -31,12 +39,13 @@ export default function AudioButton({ word, autoPlay }: Props) {
     setPlaying(true);
     audio.addEventListener("ended", () => setPlaying(false));
     audio.addEventListener("error", () => { setPlaying(false); setHidden(true); });
-    audio.play().catch(() => { setPlaying(false); setHidden(true); });
+    // Safari blocks autoplay without user gesture — catch and show button instead
+    audio.play().catch(() => { setPlaying(false); });
   }, [playing, word]);
 
-  // Auto-play on first render after 500ms delay
+  // Auto-play after 500ms — only if user has previously interacted (Safari requirement)
   useEffect(() => {
-    if (!autoPlay || hasAutoPlayed || !word) return;
+    if (!autoPlay || hasAutoPlayed || !word || !userHasInteracted) return;
     const timer = setTimeout(() => {
       setHasAutoPlayed(true);
       play();

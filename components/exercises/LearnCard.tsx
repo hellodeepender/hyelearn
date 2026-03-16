@@ -18,8 +18,8 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
 
   return (
     <div className="text-center space-y-3 py-4">
-      <div className={young ? "text-8xl" : "text-6xl"}>{visual}</div>
-      <p className={`font-bold text-brown-800 ${young ? "text-5xl" : "text-4xl"}`}>
+      <div className={young ? "text-6xl md:text-8xl" : "text-5xl md:text-6xl"}>{visual}</div>
+      <p className={`font-bold text-brown-800 ${young ? "text-4xl md:text-5xl" : "text-3xl md:text-4xl"}`}>
         {primaryText}
       </p>
       {hasArmenian && latin !== primaryText && (

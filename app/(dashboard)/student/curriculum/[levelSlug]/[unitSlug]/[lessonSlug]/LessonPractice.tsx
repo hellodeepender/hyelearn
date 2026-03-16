@@ -290,7 +290,7 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
 
       {/* Sticky Next button */}
       {(isLearn || showNext) && (
-        <div className="sticky bottom-0 left-0 right-0 bg-cream/95 backdrop-blur-sm border-t border-brown-100 py-4 px-6 z-30">
+        <div className="sticky bottom-0 left-0 right-0 bg-cream/95 backdrop-blur-sm border-t border-brown-100 py-4 px-6 z-30" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
           <div className="max-w-md mx-auto">
             <button
               onClick={advance}
