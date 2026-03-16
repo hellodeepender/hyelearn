@@ -133,7 +133,7 @@ export default async function LandingPage() {
             {/* Feature 1 */}
             <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-brown-100">
-                <Img src="/images/screenshot-lesson.png" alt="Armenian lesson with audio pronunciation" />
+                <Img src="/images/screenshot-lesson.jpg" alt="Armenian lesson with audio pronunciation" />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-brown-800 mb-3">Audio-first learning</h3>
@@ -146,7 +146,7 @@ export default async function LandingPage() {
             {/* Feature 2 */}
             <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
               <div className="md:order-2 relative aspect-[4/3] rounded-2xl overflow-hidden bg-brown-100">
-                <Img src="/images/screenshot-dashboard.png" alt="Student dashboard with badges and XP" />
+                <Img src="/images/screenshot-dashboard.jpg" alt="Student dashboard with badges and XP" />
               </div>
               <div className="md:order-1">
                 <h3 className="text-2xl font-bold text-brown-800 mb-3">Armenian-themed rewards</h3>
