@@ -87,9 +87,14 @@ export default async function TeacherDashboard() {
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
-            <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              Content Editor
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Content Editor
+              </Link>
+              <Link href="/teacher/bulk-generate" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Bulk Generate
+              </Link>
+            </div>
           </div>
 
           <div className="bg-warm-white border border-brown-100 rounded-xl overflow-hidden">
