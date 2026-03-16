@@ -25,9 +25,6 @@ const GRADES: { value: string; label: string }[] = [
   { value: "3", label: "Grade 3" },
   { value: "4", label: "Grade 4" },
   { value: "5", label: "Grade 5" },
-  { value: "6", label: "Grade 6" },
-  { value: "7", label: "Grade 7" },
-  { value: "8", label: "Grade 8" },
 ];
 
 const SUBJECTS = [
@@ -73,6 +70,7 @@ interface Props {
   userId: string;
   gradeLevel: number;
   userRole: string;
+  subscriptionTier: string;
 }
 
 function isYoung(grade: string): boolean {
@@ -85,7 +83,7 @@ function getTopics(grade: string): Record<string, string[]> {
   return TOPICS_STANDARD;
 }
 
-export default function PracticeClient({ userId, gradeLevel, userRole }: Props) {
+export default function PracticeClient({ userId, gradeLevel, userRole, subscriptionTier }: Props) {
   const [grade, setGrade] = useState(String(gradeLevel));
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
@@ -189,6 +187,45 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   // --- Rate limited — show paywall ---
   if (rateLimited) {
     return <Paywall type="ai" />;
+  }
+
+  // --- Free tier — show upgrade prompt ---
+  const isFree = !subscriptionTier || subscriptionTier === "free";
+  if (isFree && phase === "config") {
+    return (
+      <main className="max-w-2xl mx-auto px-6 py-10">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-brown-800">Practice</h1>
+            <p className="text-brown-500 text-sm mt-1">AI-powered exercises for every topic.</p>
+          </div>
+          <Link
+            href={dashboardUrl}
+            className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Back
+          </Link>
+        </div>
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 text-center">
+          <div className="text-5xl mb-4">{"\uD83D\uDD12"}</div>
+          <h2 className="text-xl font-bold text-brown-800 mb-2">Extra Practice is a premium feature</h2>
+          <p className="text-brown-500 text-sm mb-6 max-w-md mx-auto">
+            Upgrade to Full Access for unlimited subjects, AI-powered practice, and the complete K-5 curriculum.
+          </p>
+          <Link
+            href="/pricing"
+            className="inline-block bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-gold/20"
+          >
+            Upgrade &mdash; $9.99/month
+          </Link>
+          <div className="mt-4">
+            <Link href={dashboardUrl} className="text-sm text-brown-400 hover:text-brown-600">
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   // --- Config phase ---

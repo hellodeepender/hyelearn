@@ -13,7 +13,7 @@ export default async function PracticePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, grade_level")
+    .select("full_name, role, grade_level, subscription_tier")
     .eq("id", user.id)
     .single();
 
@@ -27,6 +27,7 @@ export default async function PracticePage() {
         userId={user.id}
         gradeLevel={profile?.grade_level ?? 5}
         userRole={profile?.role ?? "student"}
+        subscriptionTier={profile?.subscription_tier ?? "free"}
       />
     </div>
   );

@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
 
   const { grade: rawGrade, subject, topic, exerciseType, count: rawCount } = body;
   const grade = String(rawGrade);
-  const validGrades = ["K", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+  const validGrades = ["K", "1", "2", "3", "4", "5"];
 
   if (!grade || !validGrades.includes(grade)) {
-    return NextResponse.json({ error: "grade must be K or a number between 1 and 12" }, { status: 400 });
+    return NextResponse.json({ error: "grade must be K or a number between 1 and 5" }, { status: 400 });
   }
   if (!subject || typeof subject !== "string") {
     return NextResponse.json({ error: "subject is required" }, { status: 400 });
