@@ -56,7 +56,7 @@ export default function BulkGeneratePage() {
         {running && (
           <div className="bg-warm-white border border-brown-100 rounded-xl p-6 text-center">
             <div className="flex justify-center gap-2 mb-4">
-              {["A", "B", "G", "D", "E"].map((l, i) => (
+              {["\u0531", "\u0532", "\u0533", "\u0534", "\u0535"].map((l, i) => (
                 <span key={i} className="text-xl font-bold text-gold animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>{l}</span>
               ))}
             </div>
