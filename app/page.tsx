@@ -162,9 +162,9 @@ export default async function LandingPage() {
                 <Img src="/images/kids-tablet.jpg" alt="Children learning Armenian on a tablet" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-brown-800 mb-3">Works everywhere</h3>
+                <h3 className="text-2xl font-bold text-brown-800 mb-3">From screen to notebook</h3>
                 <p className="text-brown-500 leading-relaxed">
-                  Phone, tablet, or laptop. Learn at home, in the car, or in the classroom. Works on any device.
+                  HyeLearn doesn&apos;t just teach on screens &mdash; it inspires kids to pick up a pencil and practice. Digital lessons build the foundation, real writing makes it stick.
                 </p>
               </div>
             </div>
