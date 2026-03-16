@@ -79,7 +79,7 @@ export default function AlphabetLearnCard({
 
       {/* Example word */}
       <p className="text-sm text-brown-400">
-        as in {exampleWord} = {exampleTranslation} {emoji}
+        as in {exampleWord} ({transliterate(exampleWord)}) {emoji}
       </p>
     </div>
   );
