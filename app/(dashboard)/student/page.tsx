@@ -248,7 +248,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             <h2 className="text-lg font-semibold text-brown-800">My Badges</h2>
             <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
           </div>
-          <div className="flex gap-5 overflow-x-auto pb-3 snap-x snap-mandatory">
+          <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
             {BADGES.slice(0, 6).map((badge) => {
               const isEarned = earnedBadgeSlugs.has(badge.slug);
               return (
