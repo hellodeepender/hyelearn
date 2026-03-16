@@ -162,5 +162,71 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  return NextResponse.json({ total: emptyLessons.length, completed, failed, details });
+  // --- SECOND PASS: Generate Review and Quiz lessons ---
+  const { data: reviewQuizLessons } = await db
+    .from("curriculum_lessons")
+    .select("id, slug, title, template_type, unit_id, curriculum_units!inner(id, title, curriculum_levels!inner(title))")
+    .in("template_type", ["review", "quiz"])
+    .eq("is_active", true);
+
+  // Filter to those with no exercises
+  const { data: usedExerciseLessonIds } = await db.from("curated_exercises").select("lesson_id");
+  const exercisedSet = new Set((usedExerciseLessonIds ?? []).map((r) => r.lesson_id));
+  const emptyReviewQuiz = (reviewQuizLessons ?? []).filter((l) => !exercisedSet.has(l.id));
+
+  for (const lesson of emptyReviewQuiz) {
+    const unitInfo = lesson.curriculum_units as unknown as { id: string; title: string; curriculum_levels: { title: string } };
+    const levelTitle = unitInfo.curriculum_levels.title;
+
+    try {
+      // Fetch all content_items from practice lessons in the same unit
+      const { data: practiceLessons } = await db
+        .from("curriculum_lessons")
+        .select("id")
+        .eq("unit_id", lesson.unit_id)
+        .not("template_type", "in", '("review","quiz")')
+        .order("sort_order");
+
+      const practiceIds = (practiceLessons ?? []).map((l) => l.id);
+      if (practiceIds.length === 0) {
+        details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "skipped: no practice lessons", items: 0 });
+        continue;
+      }
+
+      const { data: unitItems } = await db
+        .from("content_items")
+        .select("id, item_type, sort_order, item_data")
+        .in("lesson_id", practiceIds)
+        .order("sort_order");
+
+      if (!unitItems || unitItems.length < 3) {
+        details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "skipped: not enough content", items: 0 });
+        continue;
+      }
+
+      // Generate exercises using template engine (no AI call needed)
+      const generated = generateLessonContent(lesson.template_type, unitItems);
+
+      await db.from("curated_exercises").delete().eq("lesson_id", lesson.id);
+      await db.from("curated_exercises").insert(generated.map((ex) => ({
+        lesson_id: lesson.id,
+        exercise_type: ex.exercise_type,
+        exercise_data: ex.exercise_data,
+        sort_order: ex.sort_order,
+        status: "approved",
+        created_by: user.id,
+      })));
+
+      details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "success", items: generated.length });
+      completed++;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[bulk-generate] Review/Quiz failed: ${levelTitle} > ${unitInfo.title} > ${lesson.title}:`, msg);
+      details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: `error: ${msg}`, items: 0 });
+      failed++;
+    }
+  }
+
+  const total = emptyLessons.length + emptyReviewQuiz.length;
+  return NextResponse.json({ total, completed, failed, details });
 }
