@@ -170,9 +170,9 @@ export default async function LandingPage() {
                 <li>{"\u2713"} Teacher dashboards</li>
                 <li>{"\u2713"} Class management</li>
               </ul>
-              <a href="mailto:hello@hyelearn.com" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
+              <Link href="/contact" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
                 Contact Us
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -234,7 +234,7 @@ export default async function LandingPage() {
               <Link href="/" className="hover:text-brown-300">Home</Link>
               <a href="#pricing" className="hover:text-brown-300">Pricing</a>
               <Link href="/about" className="hover:text-brown-300">Our Story</Link>
-              <a href="mailto:hello@hyelearn.com" className="hover:text-brown-300">Contact</a>
+              <Link href="/contact" className="hover:text-brown-300">Contact</Link>
               <Link href="/privacy" className="hover:text-brown-300">Privacy</Link>
               <Link href="/terms" className="hover:text-brown-300">Terms</Link>
             </div>
