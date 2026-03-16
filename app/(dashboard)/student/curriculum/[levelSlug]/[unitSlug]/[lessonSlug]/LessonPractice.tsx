@@ -73,7 +73,7 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
   return steps;
 }
 
-export default function LessonPractice({ lessonId, lessonTitle, passingScore, exercises, backUrl, nextLessonUrl, gradeValue }: Props) {
+export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, gradeValue }: Props) {
   const young = gradeValue === "K" || gradeValue === "1";
   const learnCount = exercises.filter((e) => e.type === "learn_card").length;
 
@@ -161,9 +161,66 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-    const passed = result ? result.passed : pct >= passingScore;
+    const isReview = lessonType === "review";
+    const isQuiz = lessonType === "quiz";
+    // Review always passes; quiz/regular use passing score
+    const passed = isReview ? true : (result ? result.passed : pct >= passingScore);
     const stars = pct >= 90 ? 3 : pct >= 70 ? 2 : pct >= 50 ? 1 : 0;
 
+    // --- Review score screen ---
+    if (isReview) {
+      return (
+        <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
+          <div className="flex justify-center gap-2 text-4xl">
+            {[1, 2, 3].map((s) => (
+              <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}>
+                {"\u2B50"}
+              </span>
+            ))}
+          </div>
+          <div>
+            <p className={`font-bold text-green-700 ${young ? "text-3xl" : "text-2xl"}`}>Review Complete!</p>
+            <p className="text-brown-500 mt-1">You got {score} out of {total} correct.</p>
+            {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+          </div>
+          <div className="flex flex-col gap-3 pt-4">
+            {nextLessonUrl && (
+              <Link href={nextLessonUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                Continue to Quiz
+              </Link>
+            )}
+            {pct < 100 && (
+              <button onClick={handleRetry} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium">
+                Practice the ones you missed
+              </button>
+            )}
+            <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600 mt-1">Back to Unit</Link>
+          </div>
+        </main>
+      );
+    }
+
+    // --- Quiz score screen ---
+    if (isQuiz && !passed) {
+      return (
+        <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
+          <div className={young ? "text-6xl" : "text-5xl"}>{"\u{1F4AA}"}</div>
+          <div>
+            <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>Keep practicing!</p>
+            <p className="text-brown-500 mt-1">You scored {pct}%. You need {passingScore}% to pass.</p>
+            {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+          </div>
+          <div className="flex flex-col gap-3 pt-4">
+            <button onClick={handleRetry} className={`bg-gold hover:bg-gold-dark text-white font-semibold ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+              Try Again
+            </button>
+            <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600">Back to Review</Link>
+          </div>
+        </main>
+      );
+    }
+
+    // --- Regular lesson / passed quiz score screen ---
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
         {passed ? (
@@ -176,7 +233,7 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
               ))}
             </div>
             <div>
-              <p className={`font-bold text-green-700 ${young ? "text-3xl" : "text-2xl"}`}>Lesson Complete!</p>
+              <p className={`font-bold text-green-700 ${young ? "text-3xl" : "text-2xl"}`}>{isQuiz ? "Quiz Passed!" : "Lesson Complete!"}</p>
               <p className="text-brown-500 mt-1">You scored {pct}%</p>
               {learnCount > 0 && (
                 <p className="text-sm text-brown-400 mt-2">You learned {learnCount} new item{learnCount !== 1 ? "s" : ""}!</p>
@@ -186,7 +243,7 @@ export default function LessonPractice({ lessonId, lessonTitle, passingScore, ex
             <div className="flex flex-col gap-3 pt-4">
               {nextLessonUrl && (
                 <Link href={nextLessonUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
-                  Continue to next lesson
+                  {isQuiz ? "Continue to next unit" : "Continue to next lesson"}
                 </Link>
               )}
               <button onClick={handleRetry} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium">

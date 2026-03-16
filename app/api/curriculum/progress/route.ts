@@ -31,10 +31,10 @@ export async function POST(request: NextRequest) {
       })
     : authClient;
 
-  // 4. Look up the lesson's passing score
+  // 4. Look up the lesson's passing score and type
   const { data: lesson, error: lessonErr } = await db
     .from("curriculum_lessons")
-    .select("passing_score")
+    .select("passing_score, lesson_type")
     .eq("id", lesson_id)
     .single();
 
@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
   }
 
   const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  const passed = pct >= (lesson.passing_score ?? 70);
+  // Review lessons always pass on completion (no minimum score required)
+  const passed = lesson.lesson_type === "review" ? true : pct >= (lesson.passing_score ?? 70);
 
   // 5. Upsert into student_progress
   const { data, error: upsertErr } = await db

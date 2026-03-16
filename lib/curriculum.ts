@@ -117,9 +117,23 @@ export async function getLessonsWithProgress(
   return lessons.map((lesson, i) => {
     const prog = progressMap.get(lesson.id);
     let unlocked = i === 0;
+
     if (i > 0) {
-      const prevProg = progressMap.get(lessons[i - 1].id);
-      unlocked = prevProg?.passed ?? false;
+      const prevLesson = lessons[i - 1];
+      const prevProg = progressMap.get(prevLesson.id);
+
+      if (lesson.lesson_type === "review") {
+        // Review unlocks when ALL prior regular lessons are passed
+        const regularLessons = lessons.slice(0, i).filter((l) => l.lesson_type !== "review" && l.lesson_type !== "quiz");
+        unlocked = regularLessons.length > 0 && regularLessons.every((l) => progressMap.get(l.id)?.passed);
+      } else if (lesson.lesson_type === "quiz") {
+        // Quiz unlocks when the Review before it has been completed (any score)
+        const reviewLesson = lessons.slice(0, i).reverse().find((l) => l.lesson_type === "review");
+        unlocked = reviewLesson ? (progressMap.get(reviewLesson.id)?.attempts ?? 0) > 0 : (prevProg?.passed ?? false);
+      } else {
+        // Regular lessons: must pass the previous lesson
+        unlocked = prevProg?.passed ?? false;
+      }
     }
 
     return {
