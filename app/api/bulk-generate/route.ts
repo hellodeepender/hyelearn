@@ -19,12 +19,20 @@ const GRADE_GUIDANCE: Record<string, string> = {
 };
 
 const UNIT_THEMES: Record<string, string> = {
+  // Kindergarten specific
+  "Numbers 1-10": "ONLY number words. Lesson 1: one, two, three. Lesson 2: four, five, six. Lesson 3: seven, eight, nine. Use number emoji (1️⃣ 2️⃣ etc).",
+  "Colors": "ONLY color words. Lesson 1: red, blue, green. Lesson 2: yellow, orange, purple. Lesson 3: white, black, pink. Use colored emoji.",
+  "Animals": "ONLY animal words. Lesson 1: cat, dog, bird. Lesson 2: fish, horse, cow. Lesson 3: rabbit, bear, butterfly. Use animal emoji.",
+  "My Family": "ONLY family words. Lesson 1: mother, father, brother. Lesson 2: sister, grandmother, grandfather. Lesson 3: baby, family, home. Use family emoji.",
+  // Grade 1-2
   "Reading Basics": "reading and school words: story, to read, page, friend",
   "Everyday Words": "household and daily life: breakfast, kitchen, clothes",
   "Simple Sentences": "action verbs and adjectives: to run, big, small, happy",
+  // Grade 3-4
   "Grammar Foundations": "verbs, adjectives, prepositions: to write, beautiful, under",
   "Reading Comprehension": "abstract nouns: meaning, character, to explain",
   "Writing Practice": "expressive vocabulary: opinion, because, to describe",
+  // Grade 5
   "Armenian Literature": "literary vocabulary: poet, homeland, tradition, ancient",
   "Advanced Grammar": "complex verbs and conjunctions: although, to accomplish",
   "Composition": "academic vocabulary: argument, evidence, conclusion",

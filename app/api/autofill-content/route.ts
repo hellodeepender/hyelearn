@@ -12,12 +12,20 @@ const GRADE_GUIDANCE: Record<string, string> = {
 };
 
 const UNIT_THEME_GUIDANCE: Record<string, string> = {
+  // Kindergarten specific units
+  "Numbers 1-10": "Generate ONLY Armenian number words. Lesson 1: one, two, three. Lesson 2: four, five, six. Lesson 3: seven, eight, nine. Use number emoji (1️⃣ 2️⃣ 3️⃣ etc). Do NOT generate random vocabulary — only number words.",
+  "Colors": "Generate ONLY Armenian color words. Lesson 1: red, blue, green. Lesson 2: yellow, orange, purple. Lesson 3: white, black, pink. Use colored circle/object emoji. Do NOT generate random vocabulary — only colors.",
+  "Animals": "Generate ONLY Armenian animal words. Lesson 1: cat, dog, bird. Lesson 2: fish, horse, cow. Lesson 3: rabbit, bear, butterfly. Use animal emoji. Do NOT generate random vocabulary — only animals.",
+  "My Family": "Generate ONLY Armenian family member words. Lesson 1: mother, father, brother. Lesson 2: sister, grandmother, grandfather. Lesson 3: baby, family, home. Use family emoji. Do NOT generate random vocabulary — only family words.",
+  // Grade 1-2 units
   "Reading Basics": "Generate common nouns and simple verbs a child would encounter in reading: story, to read, page, friend, morning, school, picture, to learn.",
   "Everyday Words": "Generate household and daily life vocabulary: breakfast, to sleep, kitchen, clothes, to wash, door, window, to help, table, chair.",
   "Simple Sentences": "Generate action verbs and common adjectives for building sentences: to run, to eat, big, small, happy, sad, to play, fast, slow, new.",
+  // Grade 3-4 units
   "Grammar Foundations": "Generate a mix of verbs, adjectives, and prepositions useful for grammar examples: to write, beautiful, under, quickly, to think, difficult, above, slowly.",
   "Reading Comprehension": "Generate slightly abstract nouns and descriptive words for understanding texts: meaning, character, beginning, to explain, important, to understand, question, answer.",
   "Writing Practice": "Generate expressive vocabulary useful for writing: opinion, because, example, to describe, interesting, to feel, reason, to remember, favorite.",
+  // Grade 5 units
   "Armenian Literature": "Generate literary and cultural vocabulary: poet, story, homeland, tradition, ancient, to sing, hero, village, mountain, dream.",
   "Advanced Grammar": "Generate complex verbs and conjunctions for advanced grammar: although, therefore, to accomplish, nevertheless, to compare, to require, whenever, to improve.",
   "Composition": "Generate academic and essay vocabulary: argument, evidence, conclusion, to persuade, perspective, to analyze, furthermore, to support, to summarize.",
