@@ -130,7 +130,7 @@ export default function SignupPage() {
           </p>
           <p className="text-brown-400 text-xs">
             Are you a teacher or school?{" "}
-            <a href="mailto:hello@hyelearn.com" className="text-brown-500 hover:text-brown-700 underline">Contact us</a>
+            <a href="mailto:support@hyelearn.com" className="text-brown-500 hover:text-brown-700 underline">Contact us</a>
           </p>
         </div>
       </div>

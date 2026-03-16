@@ -51,7 +51,7 @@ export default function AboutPage() {
 
           <h2 className="text-xl font-bold text-brown-800 pt-4">Contact</h2>
           <p>
-            Questions, feedback, or partnership inquiries: <a href="mailto:hello@hyelearn.com" className="text-gold hover:text-gold-dark font-medium">hello@hyelearn.com</a>
+            Questions, feedback, or partnership inquiries: <a href="mailto:support@hyelearn.com" className="text-gold hover:text-gold-dark font-medium">support@hyelearn.com</a>
           </p>
         </div>
 

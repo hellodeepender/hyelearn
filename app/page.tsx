@@ -342,7 +342,7 @@ export default async function LandingPage() {
             <Link href="/signup" className="inline-block bg-gold hover:bg-gold-light text-brown-900 px-10 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg">
               Start Learning Free
             </Link>
-            <p className="text-brown-400 text-sm mt-6">Questions? Contact us at hello@hyelearn.com</p>
+            <p className="text-brown-400 text-sm mt-6">Questions? Contact us at support@hyelearn.com</p>
           </div>
         </section>
       </main>

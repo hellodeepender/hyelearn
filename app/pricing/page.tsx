@@ -144,7 +144,7 @@ export default function PricingPage() {
               <li>{"\u2713"} Bulk account management</li>
               <li>{"\u2713"} Admin analytics</li>
             </ul>
-            <a href="mailto:hello@hyelearn.com" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
+            <a href="mailto:support@hyelearn.com" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
               Contact Us
             </a>
           </div>
@@ -174,7 +174,7 @@ export default function PricingPage() {
           <p>&copy; {new Date().getFullYear()} HyeLearn</p>
           <div className="flex gap-6">
             <Link href="/pricing" className="hover:text-brown-600">Pricing</Link>
-            <a href="mailto:hello@hyelearn.com" className="hover:text-brown-600">Contact</a>
+            <a href="mailto:support@hyelearn.com" className="hover:text-brown-600">Contact</a>
           </div>
         </div>
       </footer>
