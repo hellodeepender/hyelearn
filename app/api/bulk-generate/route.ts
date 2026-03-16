@@ -164,45 +164,71 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
 
   // --- SECOND PASS: Generate Review and Quiz lessons (no AI needed) ---
   console.log("[bulk-generate] Starting second pass: Review/Quiz lessons");
-  const { data: reviewQuizLessons } = await db
+
+  // Step 1: Get all review/quiz lessons
+  const { data: allReviewQuiz } = await db
     .from("curriculum_lessons")
-    .select("id, slug, title, template_type, unit_id, curriculum_units!inner(id, title, curriculum_levels!inner(title))")
+    .select("id, title, template_type, unit_id")
     .in("template_type", ["review", "quiz"])
     .eq("is_active", true);
+  console.log(`[bulk-generate] Total review/quiz lessons: ${allReviewQuiz?.length ?? 0}`);
 
-  // Filter to those with no exercises
-  const { data: usedExerciseLessonIds } = await db.from("curated_exercises").select("lesson_id");
-  const exercisedSet = new Set((usedExerciseLessonIds ?? []).map((r) => r.lesson_id));
-  const emptyReviewQuiz = (reviewQuizLessons ?? []).filter((l) => !exercisedSet.has(l.id));
-  console.log(`[bulk-generate] Found ${emptyReviewQuiz.length} empty review/quiz lessons`);
+  // Step 2: Get lesson IDs that already have exercises
+  const { data: lessonIdsWithExercises } = await db
+    .from("curated_exercises")
+    .select("lesson_id");
+  const filledIds = new Set((lessonIdsWithExercises ?? []).map((r) => r.lesson_id));
+
+  // Step 3: Filter to only empty ones
+  const emptyReviewQuiz = (allReviewQuiz ?? []).filter((l) => !filledIds.has(l.id));
+  console.log(`[bulk-generate] Empty review/quiz lessons: ${emptyReviewQuiz.length}`);
+
+  // Get unit and level info for reporting
+  const reviewUnitIds = [...new Set(emptyReviewQuiz.map((l) => l.unit_id))];
+  const { data: reviewUnits } = reviewUnitIds.length > 0
+    ? await db.from("curriculum_units").select("id, title, level_id").in("id", reviewUnitIds)
+    : { data: [] as { id: string; title: string; level_id: string }[] };
+  const reviewLevelIds = [...new Set((reviewUnits ?? []).map((u) => u.level_id))];
+  const { data: reviewLevels } = reviewLevelIds.length > 0
+    ? await db.from("curriculum_levels").select("id, title").in("id", reviewLevelIds)
+    : { data: [] as { id: string; title: string }[] };
+  const unitMap = new Map((reviewUnits ?? []).map((u) => [u.id, u]));
+  const levelMap = new Map((reviewLevels ?? []).map((l) => [l.id, l]));
 
   for (const lesson of emptyReviewQuiz) {
-    const unitInfo = lesson.curriculum_units as unknown as { id: string; title: string; curriculum_levels: { title: string } };
-    const levelTitle = unitInfo.curriculum_levels.title;
+    const unitInfo = unitMap.get(lesson.unit_id);
+    const levelTitle = unitInfo ? (levelMap.get(unitInfo.level_id)?.title ?? "Unknown") : "Unknown";
+    const unitTitle = unitInfo?.title ?? "Unknown";
 
     try {
-      // Fetch all practice lessons in the same unit (exclude review/quiz)
+      // Get practice lesson IDs in the same unit
       const { data: allUnitLessons } = await db
         .from("curriculum_lessons")
         .select("id, template_type")
         .eq("unit_id", lesson.unit_id)
+        .eq("is_active", true)
         .order("sort_order");
-      const practiceLessons = (allUnitLessons ?? []).filter((l) => l.template_type !== "review" && l.template_type !== "quiz");
+      const practiceIds = (allUnitLessons ?? [])
+        .filter((l) => l.template_type !== "review" && l.template_type !== "quiz")
+        .map((l) => l.id);
 
-      const practiceIds = practiceLessons.map((l) => l.id);
       if (practiceIds.length === 0) {
-        details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "skipped: no practice lessons", items: 0 });
+        console.log(`[bulk-generate] Skipping ${lesson.title}: no practice lessons in unit`);
+        details.push({ level: levelTitle, unit: unitTitle, lesson: lesson.title, status: "skipped: no practice lessons", items: 0 });
         continue;
       }
 
+      // Get content items from all practice lessons in the unit
       const { data: unitItems } = await db
         .from("content_items")
         .select("id, item_type, sort_order, item_data")
         .in("lesson_id", practiceIds)
         .order("sort_order");
 
+      console.log(`[bulk-generate] ${lesson.title}: found ${unitItems?.length ?? 0} content items from ${practiceIds.length} practice lessons`);
+
       if (!unitItems || unitItems.length < 3) {
-        details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "skipped: not enough content", items: 0 });
+        details.push({ level: levelTitle, unit: unitTitle, lesson: lesson.title, status: "skipped: not enough content", items: 0 });
         continue;
       }
 
@@ -219,12 +245,13 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
         created_by: user.id,
       })));
 
-      details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "success", items: generated.length });
+      console.log(`[bulk-generate] ${lesson.title}: generated ${generated.length} exercises`);
+      details.push({ level: levelTitle, unit: unitTitle, lesson: lesson.title, status: "success", items: generated.length });
       completed++;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`[bulk-generate] Review/Quiz failed: ${levelTitle} > ${unitInfo.title} > ${lesson.title}:`, msg);
-      details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: `error: ${msg}`, items: 0 });
+      console.error(`[bulk-generate] Review/Quiz failed: ${levelTitle} > ${unitTitle} > ${lesson.title}:`, msg);
+      details.push({ level: levelTitle, unit: unitTitle, lesson: lesson.title, status: `error: ${msg}`, items: 0 });
       failed++;
     }
   }
