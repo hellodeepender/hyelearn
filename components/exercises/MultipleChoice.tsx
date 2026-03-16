@@ -88,7 +88,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
                 {answered && opt.id === selected && !opt.correct && <span className="text-red-500 text-lg shrink-0">{"\u2717"}</span>}
                 <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{opt.text_hy}</span>
               </div>
-              {answered && showCorrect && (
+              {answered && showCorrect && opt.text_en && (
                 <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>
               )}
             </button>

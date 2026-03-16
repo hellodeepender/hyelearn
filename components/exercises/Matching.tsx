@@ -103,7 +103,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
                 <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
-                {done && (
+                {done && item.left_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
                 )}
               </button>
@@ -122,7 +122,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
                 <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
-                {done && (
+                {done && item.right_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
                 )}
               </button>
