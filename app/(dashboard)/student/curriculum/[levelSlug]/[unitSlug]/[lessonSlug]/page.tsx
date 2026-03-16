@@ -51,7 +51,7 @@ export default async function LessonPage({
 
   const { data: nextLesson } = await supabase
     .from("curriculum_lessons")
-    .select("slug")
+    .select("slug, sort_order")
     .eq("unit_id", unit.id)
     .eq("is_active", true)
     .gt("sort_order", lesson.sort_order)
@@ -60,7 +60,14 @@ export default async function LessonPage({
     .single();
 
   const backUrl = `/student/curriculum/${levelSlug}/${unitSlug}`;
-  const nextLessonUrl = nextLesson ? `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}` : undefined;
+  // Gate next lesson: check if student can access it
+  let nextLessonUrl: string | undefined;
+  if (nextLesson) {
+    const nextAccess = await canAccessCurriculum(supabase, user.id, nextLesson.sort_order);
+    nextLessonUrl = nextAccess.allowed
+      ? `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}`
+      : undefined;
+  }
 
   return (
     <div className="min-h-screen bg-cream">

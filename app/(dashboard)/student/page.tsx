@@ -85,14 +85,21 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .eq("is_active", true)
     .order("sort_order");
 
+  const freeTier = !profile?.subscription_tier || profile.subscription_tier === "free";
   if (allUnits && allLessons) {
     for (const unit of allUnits) {
       const levelSlug = (unit.curriculum_levels as unknown as { slug: string }).slug;
       const unitLessons = allLessons.filter((l) => l.unit_id === unit.id);
       for (const lesson of unitLessons) {
         if (!passedLessonIds.has(lesson.id)) {
-          nextLessonUrl = `/student/curriculum/${levelSlug}/${unit.slug}/${lesson.slug}`;
-          nextLessonTitle = lesson.title;
+          // Free tier can only access lesson 1 of each unit
+          if (freeTier && lesson.sort_order > 1) {
+            nextLessonUrl = "/pricing";
+            nextLessonTitle = null;
+          } else {
+            nextLessonUrl = `/student/curriculum/${levelSlug}/${unit.slug}/${lesson.slug}`;
+            nextLessonTitle = lesson.title;
+          }
           break;
         }
       }
@@ -157,7 +164,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
                 </div>
                 {nextLessonUrl && (
                   <Link href={nextLessonUrl} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                    Keep Going
+                    {nextLessonUrl === "/pricing" ? "Upgrade to Continue" : "Keep Going"}
                   </Link>
                 )}
               </div>
@@ -181,7 +188,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
                   {streak > 0 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak! Keep it going!</p>}
                 </div>
                 <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                  Continue Lesson
+                  {nextLessonUrl === "/pricing" ? "Upgrade to Continue" : "Continue Lesson"}
                 </Link>
               </div>
             )}
