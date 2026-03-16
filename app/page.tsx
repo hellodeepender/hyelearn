@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "HyeLearn — Learn Western Armenian Online | K-5 Curriculum",
+  description: "The first interactive Western Armenian learning platform for K-5 students. Start free. Used by Armenian day schools and families worldwide.",
+};
 
 async function checkAuth() {
   try {
@@ -16,8 +22,34 @@ async function checkAuth() {
 export default async function LandingPage() {
   await checkAuth();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "EducationalOrganization",
+        "name": "HyeLearn",
+        "url": "https://hyelearn.com",
+        "description": "Interactive Western Armenian learning platform for K-5 students",
+      },
+      {
+        "@type": "Course",
+        "name": "Western Armenian for Kids (K-5)",
+        "description": "Complete Western Armenian language curriculum from Kindergarten through Grade 5",
+        "provider": { "@type": "Organization", "name": "HyeLearn", "url": "https://hyelearn.com" },
+        "educationalLevel": "K-5",
+        "inLanguage": ["en", "hy"],
+        "isAccessibleForFree": true,
+        "offers": [
+          { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free tier" },
+          { "@type": "Offer", "price": "9.99", "priceCurrency": "USD", "description": "Full Access Monthly" },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-warm-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Header */}
       <header className="fixed top-0 w-full bg-warm-white/80 backdrop-blur-sm border-b border-brown-100 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
