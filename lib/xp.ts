@@ -145,7 +145,7 @@ export async function processLessonRewards(
 }
 
 // --- Check and award badges ---
-async function checkAndAwardBadges(
+export async function checkAndAwardBadges(
   db: SupabaseClient,
   studentId: string,
   streak: number,

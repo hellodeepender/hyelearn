@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
-import { getCurrentLevel, getProgressToNextLevel } from "@/lib/xp";
+import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
 import { BADGES } from "@/lib/badges";
 
 export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
@@ -130,8 +131,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
   const isFree = !profile?.subscription_tier || profile.subscription_tier === "free";
 
-  // XP & badges
+  // XP & badges — check for newly earned badges on every dashboard load (idempotent)
   const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0);
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (sk) {
+    const db = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } });
+    await checkAndAwardBadges(db, user.id, streak).catch(() => {});
+  }
   const { data: earnedBadges } = await supabase.from("student_badges").select("badge_slug").eq("student_id", user.id);
   const earnedBadgeSlugs = new Set((earnedBadges ?? []).map((b) => b.badge_slug));
 
