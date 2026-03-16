@@ -248,15 +248,15 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             <h2 className="text-lg font-semibold text-brown-800">My Badges</h2>
             <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="flex gap-4 overflow-x-auto pb-2">
             {BADGES.slice(0, 6).map((badge) => {
               const isEarned = earnedBadgeSlugs.has(badge.slug);
               return (
-                <div key={badge.slug} className="flex flex-col items-center shrink-0 w-16">
+                <div key={badge.slug} className="flex flex-col items-center shrink-0" style={{ width: 72 }}>
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${isEarned ? "bg-gold/10 border-2 border-gold/30" : "bg-brown-50 border-2 border-brown-100"}`}>
                     {isEarned ? badge.emoji : "\uD83D\uDD12"}
                   </div>
-                  <p className={`text-xs mt-1 text-center leading-tight ${isEarned ? "text-brown-700" : "text-brown-300"}`}>{badge.name}</p>
+                  <p className={`text-[11px] mt-1.5 text-center leading-tight line-clamp-2 ${isEarned ? "text-brown-700" : "text-brown-300"}`}>{badge.name}</p>
                 </div>
               );
             })}
