@@ -20,33 +20,39 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const totalCurriculumLessons = levels.reduce((s, l) => s + l.totalLessons, 0);
   const completedCurriculumLessons = levels.reduce((s, l) => s + l.completedLessons, 0);
 
-  // Check if student did a lesson today (for Daily 5)
+  // Check if student completed a lesson today (passed = true, score IS NOT NULL)
   const today = new Date().toISOString().split("T")[0];
   const { data: todayProgress } = await supabase
     .from("student_progress")
     .select("id")
     .eq("student_id", user.id)
+    .eq("passed", true)
+    .not("score", "is", null)
     .gte("completed_at", today)
     .limit(1);
   const didLessonToday = (todayProgress?.length ?? 0) > 0;
 
-  // Streak: count consecutive days
+  // Streak: count consecutive days with actual completed exercises
   const { data: recentProgress } = await supabase
     .from("student_progress")
     .select("completed_at")
     .eq("student_id", user.id)
+    .eq("passed", true)
+    .not("score", "is", null)
+    .not("completed_at", "is", null)
     .order("completed_at", { ascending: false })
-    .limit(30);
+    .limit(60);
   let streak = 0;
   if (recentProgress && recentProgress.length > 0) {
-    const uniqueDays = new Set(recentProgress.map((p) => p.completed_at?.split("T")[0]));
-    const sorted = Array.from(uniqueDays).filter(Boolean).sort().reverse();
+    const uniqueDays = [...new Set(recentProgress.map((p) => p.completed_at!.split("T")[0]))].sort().reverse();
     const oneDay = 86400000;
     const todayTs = new Date(today).getTime();
-    if (sorted[0] && new Date(sorted[0]).getTime() >= todayTs - oneDay) {
+    // Most recent activity must be today or yesterday
+    if (uniqueDays[0] && new Date(uniqueDays[0]).getTime() >= todayTs - oneDay) {
       streak = 1;
-      for (let i = 1; i < sorted.length; i++) {
-        if (new Date(sorted[i - 1]).getTime() - new Date(sorted[i]).getTime() <= oneDay) {
+      for (let i = 1; i < uniqueDays.length; i++) {
+        const diff = new Date(uniqueDays[i - 1]).getTime() - new Date(uniqueDays[i]).getTime();
+        if (diff <= oneDay) {
           streak++;
         } else break;
       }
