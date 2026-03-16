@@ -12,7 +12,7 @@ export default async function LevelPage({ params }: { params: Promise<{ levelSlu
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
   const { data: level } = await supabase.from("curriculum_levels").select("id, slug, title, description").eq("slug", levelSlug).single();
   if (!level) notFound();
 
@@ -22,7 +22,7 @@ export default async function LevelPage({ params }: { params: Promise<{ levelSlu
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <StudentNav />
+        <StudentNav subscriptionTier={profile?.subscription_tier} />
         <Breadcrumbs items={[
           { label: "Dashboard", href: "/student" },
           { label: "Curriculum", href: "/student/curriculum" },

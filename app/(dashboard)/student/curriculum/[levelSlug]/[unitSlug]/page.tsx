@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
-import { getUserSubscription, isSubscriptionActive } from "@/lib/access";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -13,7 +12,7 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
 
   const { data: level } = await supabase.from("curriculum_levels").select("id, title").eq("slug", levelSlug).single();
   if (!level) notFound();
@@ -28,15 +27,15 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
 
   const lessons = await getLessonsWithProgress(supabase, user.id, unit.id);
 
-  // Check if user has a paid plan
-  const sub = await getUserSubscription(supabase, user.id);
-  const hasPaidAccess = sub !== null && isSubscriptionActive(sub);
+  // Check if user has paid access
+  const tier = profile?.subscription_tier ?? "free";
+  const hasPaidAccess = tier === "family" || tier === "school";
 
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-3xl mx-auto px-6 py-10">
-        <StudentNav />
+        <StudentNav subscriptionTier={profile?.subscription_tier} />
         <Breadcrumbs items={[
           { label: "Dashboard", href: "/student" },
           { label: "Curriculum", href: "/student/curriculum" },

@@ -12,7 +12,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
   const levels = await getLevelsWithProgress(supabase, user.id);
@@ -119,12 +119,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const allComplete = totalCurriculumLessons > 0 && completedCurriculumLessons >= totalCurriculumLessons;
   const neverStarted = completedCurriculumLessons === 0 && !didLessonToday;
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
+  const isFree = !profile?.subscription_tier || profile.subscription_tier === "free";
 
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-6xl mx-auto px-6 py-10">
-        <StudentNav />
+        <StudentNav subscriptionTier={profile?.subscription_tier} />
 
         {showSubscriptionSuccess && (
           <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6">
@@ -186,6 +187,23 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             )}
           </div>
         </section>
+
+        {/* Upgrade banner for free tier */}
+        {isFree && (
+          <section className="mb-8">
+            <div className="bg-gradient-to-r from-gold/10 to-amber-50 border border-gold/20 rounded-2xl p-5 flex items-center justify-between">
+              <div>
+                <p className="font-medium text-brown-800">Unlock all lessons across K-5</p>
+                <p className="text-sm text-brown-500 mt-0.5">You&apos;re on the free plan. Upgrade for full access.</p>
+              </div>
+              <div className="text-right shrink-0 ml-4">
+                <Link href="/pricing" className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors inline-block">
+                  Upgrade
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Progress */}
         <section className="mb-8">

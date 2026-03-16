@@ -13,7 +13,7 @@ export default async function CurriculumPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("full_name, role, subscription_tier")
     .eq("id", user.id)
     .single();
 
@@ -23,7 +23,7 @@ export default async function CurriculumPage() {
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <StudentNav />
+        <StudentNav subscriptionTier={profile?.subscription_tier} />
         <Breadcrumbs items={[{ label: "Dashboard", href: "/student" }, { label: "Curriculum" }]} />
         <h1 className="text-3xl font-bold text-brown-800 mb-1">Curriculum</h1>
         <p className="text-brown-500 text-sm mb-8">Your structured learning path</p>
