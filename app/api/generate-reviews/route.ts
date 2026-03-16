@@ -10,15 +10,7 @@ export async function POST() {
   }
   const db = createClient(url, sk, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // Step 1: Get ALL lesson IDs that already have exercises (override default 1000-row limit)
-  const { data: lessonsWithExercises } = await db
-    .from("curated_exercises")
-    .select("lesson_id")
-    .limit(50000);
-  const filledSet = new Set((lessonsWithExercises ?? []).map((r) => r.lesson_id).filter(Boolean));
-  console.log(`[generate-reviews] exercises rows fetched: ${lessonsWithExercises?.length}, unique lesson_ids: ${filledSet.size}`);
-
-  // Step 2: Get all review/quiz lessons
+  // Get all review/quiz lessons
   const { data: allLessons, error: queryErr } = await db
     .from("curriculum_lessons")
     .select("id, title, template_type, unit_id")
@@ -29,25 +21,23 @@ export async function POST() {
     return NextResponse.json({ error: "Query failed", details: queryErr.message }, { status: 500 });
   }
 
-  const empty = (allLessons ?? []).filter((l) => !filledSet.has(l.id));
-
-  if (empty.length === 0) {
-    return NextResponse.json({
-      totalReviewQuiz: allLessons?.length ?? 0,
-      alreadyFilled: (allLessons ?? []).filter((l) => filledSet.has(l.id)).length,
-      empty: 0,
-      generated: [],
-      skipped: [],
-      failed: [],
-      message: "All review/quiz lessons already have exercises",
-    });
-  }
-
   const generated: { lessonId: string; title: string; type: string; count: number }[] = [];
   const skipped: { lessonId: string; title: string; reason: string }[] = [];
   const failed: { lessonId: string; title: string; error: string }[] = [];
+  let alreadyFilled = 0;
 
-  for (const lesson of empty) {
+  for (const lesson of allLessons ?? []) {
+    // Check THIS specific lesson for existing exercises
+    const { count } = await db
+      .from("curated_exercises")
+      .select("id", { count: "exact", head: true })
+      .eq("lesson_id", lesson.id);
+
+    if ((count ?? 0) > 0) {
+      alreadyFilled++;
+      continue;
+    }
+
     try {
       const { data: allUnitLessons } = await db
         .from("curriculum_lessons")
@@ -81,7 +71,9 @@ export async function POST() {
         continue;
       }
 
-      // Don't delete first — these are empty lessons
+      // Delete any stale/duplicate rows first, then insert fresh
+      await db.from("curated_exercises").delete().eq("lesson_id", lesson.id);
+
       const { error: insertErr } = await db
         .from("curated_exercises")
         .insert(exercises.map((ex) => ({
@@ -98,7 +90,18 @@ export async function POST() {
         continue;
       }
 
-      generated.push({ lessonId: lesson.id, title: lesson.title, type: lesson.template_type, count: exercises.length });
+      // Verify
+      const { count: verifyCount } = await db
+        .from("curated_exercises")
+        .select("id", { count: "exact", head: true })
+        .eq("lesson_id", lesson.id);
+
+      if ((verifyCount ?? 0) === 0) {
+        failed.push({ lessonId: lesson.id, title: lesson.title, error: `Insert reported success but verify found 0 rows` });
+        continue;
+      }
+
+      generated.push({ lessonId: lesson.id, title: lesson.title, type: lesson.template_type, count: verifyCount ?? 0 });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       failed.push({ lessonId: lesson.id, title: lesson.title, error: msg });
@@ -107,8 +110,7 @@ export async function POST() {
 
   return NextResponse.json({
     totalReviewQuiz: allLessons?.length ?? 0,
-    alreadyFilled: (allLessons ?? []).filter((l) => filledSet.has(l.id)).length,
-    empty: empty.length,
+    alreadyFilled,
     generated,
     skipped,
     failed,
