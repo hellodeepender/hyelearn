@@ -20,7 +20,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .single();
   if (!cls) notFound();
 
-  // Get members
+  // Get class members
   const { data: members } = await supabase
     .from("class_memberships")
     .select("student_id, joined_at, status, profiles!class_memberships_student_id_fkey(full_name)")
@@ -28,26 +28,76 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .eq("status", "active")
     .order("joined_at");
 
-  // Get progress for each student
   const studentIds = (members ?? []).map((m) => m.student_id);
+
+  // Get all progress for class students
   const { data: progress } = studentIds.length > 0
-    ? await supabase.from("student_progress").select("student_id, passed, completed_at").in("student_id", studentIds)
+    ? await supabase
+        .from("student_progress")
+        .select("student_id, lesson_id, score, total, passed, completed_at")
+        .in("student_id", studentIds)
     : { data: [] };
 
+  // Count total available lessons for the grade
+  const gradeValue = cls.grade_level === 0 ? "K" : String(cls.grade_level);
+  const { data: gradeLevel } = await supabase.from("curriculum_levels").select("id").eq("grade_value", gradeValue).single();
+  let totalLessons = 0;
+  if (gradeLevel) {
+    const { data: units } = await supabase.from("curriculum_units").select("id").eq("level_id", gradeLevel.id).eq("is_active", true);
+    if (units) {
+      const { count } = await supabase
+        .from("curriculum_lessons")
+        .select("id", { count: "exact", head: true })
+        .in("unit_id", units.map((u) => u.id))
+        .eq("is_active", true);
+      totalLessons = count ?? 0;
+    }
+  }
+
+  const now = Date.now();
+  const weekAgo = now - 7 * 86400000;
+  const dayAgo = now - 86400000;
+
   const roster = (members ?? []).map((m) => {
-    const studentProgress = (progress ?? []).filter((p) => p.student_id === m.student_id);
-    const lessonsDone = studentProgress.filter((p) => p.passed).length;
-    const lastActive = studentProgress.length > 0
-      ? studentProgress.sort((a, b) => (b.completed_at ?? "").localeCompare(a.completed_at ?? ""))[0]?.completed_at
+    const sp = (progress ?? []).filter((p) => p.student_id === m.student_id);
+    const passed = sp.filter((p) => p.passed);
+    const lessonsDone = passed.length;
+    const scores = sp.filter((p) => p.score != null && p.total != null && p.total > 0);
+    const avgScore = scores.length > 0
+      ? Math.round(scores.reduce((s, p) => s + (p.score / p.total) * 100, 0) / scores.length)
       : null;
+    const lastActiveTs = sp.length > 0
+      ? Math.max(...sp.map((p) => p.completed_at ? new Date(p.completed_at).getTime() : 0))
+      : null;
+    const lastActive = lastActiveTs && lastActiveTs > 0 ? new Date(lastActiveTs).toISOString() : null;
+    const activityStatus = lastActiveTs
+      ? lastActiveTs >= dayAgo ? "active" : lastActiveTs >= weekAgo ? "recent" : "inactive"
+      : "inactive";
+
     return {
       id: m.student_id,
       name: (m.profiles as unknown as { full_name: string })?.full_name ?? "Student",
       joinedAt: m.joined_at,
       lessonsDone,
+      totalLessons,
+      avgScore,
       lastActive,
+      activityStatus,
     };
+  }).sort((a, b) => {
+    // Sort: active first, then recent, then inactive
+    const order = { active: 0, recent: 1, inactive: 2 };
+    return (order[a.activityStatus as keyof typeof order] ?? 2) - (order[b.activityStatus as keyof typeof order] ?? 2);
   });
+
+  // Aggregate stats
+  const totalStudents = roster.length;
+  const allScores = (progress ?? []).filter((p) => p.score != null && p.total != null && p.total > 0);
+  const classAvgScore = allScores.length > 0
+    ? Math.round(allScores.reduce((s, p) => s + (p.score / p.total) * 100, 0) / allScores.length)
+    : 0;
+  const totalLessonsDone = roster.reduce((s, r) => s + r.lessonsDone, 0);
+  const activeThisWeek = roster.filter((r) => r.activityStatus === "active" || r.activityStatus === "recent").length;
 
   const gradeLabel = cls.grade_level === 0 ? "Kindergarten" : `Grade ${cls.grade_level}`;
 
@@ -60,6 +110,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
         gradeLabel={gradeLabel}
         joinCode={cls.join_code}
         roster={roster}
+        stats={{ totalStudents, classAvgScore, totalLessonsDone, activeThisWeek }}
       />
     </div>
   );
