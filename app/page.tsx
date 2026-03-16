@@ -235,6 +235,8 @@ export default async function LandingPage() {
               <a href="#pricing" className="hover:text-brown-300">Pricing</a>
               <Link href="/about" className="hover:text-brown-300">Our Story</Link>
               <a href="mailto:hello@hyelearn.com" className="hover:text-brown-300">Contact</a>
+              <Link href="/privacy" className="hover:text-brown-300">Privacy</Link>
+              <Link href="/terms" className="hover:text-brown-300">Terms</Link>
             </div>
           </div>
           <div className="border-t border-brown-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
