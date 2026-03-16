@@ -200,7 +200,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     });
   }
 
-  // Recognition: 3 options each
+  // Picture recognition: show emoji only, pick the Armenian word
   for (let i = 0; i < words.length; i++) {
     const d = words[i].item_data;
     results.push({
@@ -208,10 +208,10 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       exercise_data: {
         type: "multiple_choice", id: String(sort.val),
         emoji: d.emoji as string,
-        question_hy: d.armenian as string, question_en: "What is this?",
+        question_hy: "", question_en: "What is this?",
         options: make3Options(armWords[i], pickWrong(armWords, i)),
-        hint_hy: "", hint_en: `This is: ${d.english}`,
-        explanation_hy: d.armenian as string, explanation_en: `${d.armenian} (${transliterate(d.armenian as string)}) means ${d.english}`,
+        hint_hy: "", hint_en: "Choose the Armenian word for this picture",
+        explanation_hy: d.armenian as string, explanation_en: `${d.emoji} ${d.armenian} (${transliterate(d.armenian as string)}) means ${d.english}`,
         sort_order: sort.val,
       },
       sort_order: sort.val++,
@@ -361,17 +361,17 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
     mcCount++;
   }
 
-  // Word recognition
+  // Word recognition: show emoji only, pick the Armenian word
   for (let i = 0; i < words.length && mcCount < mcMax; i++) {
     const d = words[i].item_data;
     results.push({
       exercise_type: "multiple_choice",
       exercise_data: {
         type: "multiple_choice", id: String(sortVal),
-        emoji: d.emoji as string, question_hy: d.armenian as string, question_en: "What is this?",
+        emoji: d.emoji as string, question_hy: "", question_en: "What is this?",
         options: make3Options(wordPool[i], pickWrong(wordPool, i)),
-        hint_hy: "", hint_en: h(`This is ${d.english}`),
-        explanation_hy: d.armenian as string, explanation_en: `${d.armenian} (${transliterate(d.armenian as string)}) means ${d.english}`,
+        hint_hy: "", hint_en: h("Choose the Armenian word for this picture"),
+        explanation_hy: d.armenian as string, explanation_en: `${d.emoji} ${d.armenian} (${transliterate(d.armenian as string)}) means ${d.english}`,
         showCorrectAnswer: showCorrect, sort_order: sortVal,
       },
       sort_order: sortVal++,
