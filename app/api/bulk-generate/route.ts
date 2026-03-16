@@ -60,8 +60,8 @@ export async function POST() {
 
   if (!allLessons) return NextResponse.json({ error: "No lessons found" }, { status: 404 });
 
-  // Filter to lessons with no content_items
-  const { data: usedLessonIds } = await db.from("content_items").select("lesson_id");
+  // Filter to lessons with no content_items (override default 1000-row limit)
+  const { data: usedLessonIds } = await db.from("content_items").select("lesson_id").limit(50000);
   const usedSet = new Set((usedLessonIds ?? []).map((r) => r.lesson_id));
   const emptyLessons = allLessons.filter((l) => !usedSet.has(l.id));
 
@@ -173,10 +173,11 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
     .eq("is_active", true);
   console.log(`[bulk-generate] Total review/quiz lessons: ${allReviewQuiz?.length ?? 0}`);
 
-  // Step 2: Get lesson IDs that already have exercises
+  // Step 2: Get lesson IDs that already have exercises (override default 1000-row limit)
   const { data: lessonIdsWithExercises } = await db
     .from("curated_exercises")
-    .select("lesson_id");
+    .select("lesson_id")
+    .limit(50000);
   const filledIds = new Set((lessonIdsWithExercises ?? []).map((r) => r.lesson_id));
 
   // Step 3: Filter to only empty ones

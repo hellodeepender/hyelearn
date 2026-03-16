@@ -10,11 +10,13 @@ export async function POST() {
   }
   const db = createClient(url, sk, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // Step 1: Get ALL lesson IDs that already have exercises
+  // Step 1: Get ALL lesson IDs that already have exercises (override default 1000-row limit)
   const { data: lessonsWithExercises } = await db
     .from("curated_exercises")
-    .select("lesson_id");
+    .select("lesson_id")
+    .limit(50000);
   const filledSet = new Set((lessonsWithExercises ?? []).map((r) => r.lesson_id).filter(Boolean));
+  console.log(`[generate-reviews] exercises rows fetched: ${lessonsWithExercises?.length}, unique lesson_ids: ${filledSet.size}`);
 
   // Step 2: Get all review/quiz lessons
   const { data: allLessons, error: queryErr } = await db
