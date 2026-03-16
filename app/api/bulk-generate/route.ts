@@ -162,7 +162,8 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  // --- SECOND PASS: Generate Review and Quiz lessons ---
+  // --- SECOND PASS: Generate Review and Quiz lessons (no AI needed) ---
+  console.log("[bulk-generate] Starting second pass: Review/Quiz lessons");
   const { data: reviewQuizLessons } = await db
     .from("curriculum_lessons")
     .select("id, slug, title, template_type, unit_id, curriculum_units!inner(id, title, curriculum_levels!inner(title))")
@@ -173,21 +174,22 @@ Use Western Armenian with classical orthography. Emoji must match the word.`
   const { data: usedExerciseLessonIds } = await db.from("curated_exercises").select("lesson_id");
   const exercisedSet = new Set((usedExerciseLessonIds ?? []).map((r) => r.lesson_id));
   const emptyReviewQuiz = (reviewQuizLessons ?? []).filter((l) => !exercisedSet.has(l.id));
+  console.log(`[bulk-generate] Found ${emptyReviewQuiz.length} empty review/quiz lessons`);
 
   for (const lesson of emptyReviewQuiz) {
     const unitInfo = lesson.curriculum_units as unknown as { id: string; title: string; curriculum_levels: { title: string } };
     const levelTitle = unitInfo.curriculum_levels.title;
 
     try {
-      // Fetch all content_items from practice lessons in the same unit
-      const { data: practiceLessons } = await db
+      // Fetch all practice lessons in the same unit (exclude review/quiz)
+      const { data: allUnitLessons } = await db
         .from("curriculum_lessons")
-        .select("id")
+        .select("id, template_type")
         .eq("unit_id", lesson.unit_id)
-        .not("template_type", "in", '("review","quiz")')
         .order("sort_order");
+      const practiceLessons = (allUnitLessons ?? []).filter((l) => l.template_type !== "review" && l.template_type !== "quiz");
 
-      const practiceIds = (practiceLessons ?? []).map((l) => l.id);
+      const practiceIds = practiceLessons.map((l) => l.id);
       if (practiceIds.length === 0) {
         details.push({ level: levelTitle, unit: unitInfo.title, lesson: lesson.title, status: "skipped: no practice lessons", items: 0 });
         continue;
