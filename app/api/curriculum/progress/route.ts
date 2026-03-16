@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
+import { processLessonRewards } from "@/lib/xp";
 
 export async function POST(request: NextRequest) {
-  // 1. Auth: get the logged-in user
   const authClient = await createServerClient();
   const { data: { user }, error: authError } = await authClient.auth.getUser();
 
@@ -11,19 +11,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized", details: authError?.message }, { status: 401 });
   }
 
-  // 2. Parse body
-  let body: { lesson_id: string; score: number; total: number };
+  let body: { lesson_id: string; score: number; total: number; streak?: number };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { lesson_id, score, total } = body;
-  console.log("[curriculum/progress] user:", user.id, "lesson:", lesson_id, "score:", score, "/", total);
+  const { lesson_id, score, total, streak: clientStreak } = body;
 
-  // 3. Build a Supabase client that can write.
-  //    Prefer service role key (bypasses RLS). Fall back to the user's session client.
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const db = serviceKey
     ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {
@@ -31,7 +27,7 @@ export async function POST(request: NextRequest) {
       })
     : authClient;
 
-  // 4. Look up the lesson's passing score and type
+  // Look up lesson
   const { data: lesson, error: lessonErr } = await db
     .from("curriculum_lessons")
     .select("passing_score, lesson_type")
@@ -39,15 +35,13 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (lessonErr || !lesson) {
-    console.error("[curriculum/progress] Lesson lookup failed:", lessonErr);
     return NextResponse.json({ error: "Lesson not found", details: lessonErr?.message }, { status: 404 });
   }
 
   const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  // Review lessons always pass on completion (no minimum score required)
   const passed = lesson.lesson_type === "review" ? true : pct >= (lesson.passing_score ?? 70);
 
-  // 5. Upsert into student_progress
+  // Upsert progress
   const { data, error: upsertErr } = await db
     .from("student_progress")
     .upsert(
@@ -60,21 +54,31 @@ export async function POST(request: NextRequest) {
         attempts: 1,
         completed_at: new Date().toISOString(),
       },
-      { onConflict: "student_id,lesson_id" }
+      { onConflict: "student_id,lesson_id" },
     )
     .select("id, passed, attempts")
     .single();
 
   if (upsertErr) {
-    console.error("[curriculum/progress] Upsert error:", upsertErr.message, upsertErr.details, upsertErr.hint, upsertErr.code);
-    return NextResponse.json({
-      error: upsertErr.message,
-      details: upsertErr.details,
-      hint: upsertErr.hint,
-      code: upsertErr.code,
-    }, { status: 500 });
+    return NextResponse.json({ error: upsertErr.message, details: upsertErr.details }, { status: 500 });
   }
 
-  console.log("[progress] Save result:", { id: data.id, passed: data.passed, attempts: data.attempts, error: null });
-  return NextResponse.json({ passed: data.passed, pct });
+  // Process rewards (XP + badges) — best-effort, don't block the response
+  let rewards = { xpEarned: 0, newBadges: [] as string[], newTotal: 0, leveledUp: false };
+  try {
+    rewards = await processLessonRewards(
+      db, user.id, lesson_id, lesson.lesson_type ?? "lesson", data.passed, pct, clientStreak ?? 0,
+    );
+  } catch (err) {
+    console.error("[progress] Rewards error:", err);
+  }
+
+  return NextResponse.json({
+    passed: data.passed,
+    pct,
+    xpEarned: rewards.xpEarned,
+    newBadges: rewards.newBadges,
+    newTotal: rewards.newTotal,
+    leveledUp: rewards.leveledUp,
+  });
 }

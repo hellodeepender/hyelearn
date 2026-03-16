@@ -14,6 +14,7 @@ import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import LearnCard from "@/components/exercises/LearnCard";
 import AlphabetLearnCard from "@/components/exercises/AlphabetLearnCard";
+import { getBadgeBySlug } from "@/lib/badges";
 
 interface ExerciseEntry { type: string; data: unknown }
 interface Step { kind: "learn" | "exercise"; entry: ExerciseEntry }
@@ -85,6 +86,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   const [showNext, setShowNext] = useState(false);
   const [done, setDone] = useState(totalSteps === 0);
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
+  const [rewards, setRewards] = useState<{ xpEarned: number; newBadges: string[]; leveledUp: boolean } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const didSave = useRef(false);
 
@@ -122,6 +124,9 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
       }
       const data = await res.json();
       setResult({ passed: data.passed ?? localPassed, pct: data.pct ?? localPct });
+      if (data.xpEarned || data.newBadges?.length || data.leveledUp) {
+        setRewards({ xpEarned: data.xpEarned ?? 0, newBadges: data.newBadges ?? [], leveledUp: data.leveledUp ?? false });
+      }
     } catch {
       setSaveError(true);
       setResult({ passed: localPassed, pct: localPct });
@@ -167,6 +172,28 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     const passed = isReview ? true : (result ? result.passed : pct >= passingScore);
     const stars = pct >= 90 ? 3 : pct >= 70 ? 2 : pct >= 50 ? 1 : 0;
 
+    // --- Rewards display (shared across all score screens) ---
+    const rewardsBlock = rewards && (rewards.xpEarned > 0 || rewards.newBadges.length > 0 || rewards.leveledUp) ? (
+      <div className="space-y-2 animate-fade-in">
+        {rewards.xpEarned > 0 && (
+          <p className="text-gold font-bold text-lg">+{rewards.xpEarned} XP</p>
+        )}
+        {rewards.newBadges.map((slug) => {
+          const badge = getBadgeBySlug(slug);
+          return badge ? (
+            <div key={slug} className="bg-gold/5 border border-gold/20 rounded-xl p-3">
+              <span className="text-3xl">{badge.emoji}</span>
+              <p className="font-medium text-brown-800 text-sm mt-1">New badge: {badge.name}!</p>
+              <p className="text-xs text-brown-400">{badge.description}</p>
+            </div>
+          ) : null;
+        })}
+        {rewards.leveledUp && (
+          <p className="text-gold font-medium text-sm">{"\uD83C\uDFD4\uFE0F"} Level up!</p>
+        )}
+      </div>
+    ) : null;
+
     // --- Review score screen ---
     if (isReview) {
       return (
@@ -182,6 +209,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
             <p className={`font-bold text-green-700 ${young ? "text-3xl" : "text-2xl"}`}>Review Complete!</p>
             <p className="text-brown-500 mt-1">You got {score} out of {total} correct.</p>
             {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+            {rewardsBlock}
           </div>
           <div className="flex flex-col gap-3 pt-4">
             {nextLessonUrl && (
@@ -209,6 +237,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
             <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>Keep practicing!</p>
             <p className="text-brown-500 mt-1">You scored {pct}%. You need {passingScore}% to pass.</p>
             {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+            {rewardsBlock}
           </div>
           <div className="flex flex-col gap-3 pt-4">
             <button onClick={handleRetry} className={`bg-gold hover:bg-gold-dark text-white font-semibold ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>

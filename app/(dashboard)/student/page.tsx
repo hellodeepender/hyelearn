@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
+import { getCurrentLevel, getProgressToNextLevel } from "@/lib/xp";
+import { BADGES } from "@/lib/badges";
 
 export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
   const params = await searchParams;
@@ -12,7 +14,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp").eq("id", user.id).single();
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
   const levels = await getLevelsWithProgress(supabase, user.id);
@@ -128,6 +130,11 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
   const isFree = !profile?.subscription_tier || profile.subscription_tier === "free";
 
+  // XP & badges
+  const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0);
+  const { data: earnedBadges } = await supabase.from("student_badges").select("badge_slug").eq("student_id", user.id);
+  const earnedBadgeSlugs = new Set((earnedBadges ?? []).map((b) => b.badge_slug));
+
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
@@ -222,12 +229,37 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             </div>
             <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
               <h3 className="text-sm font-medium text-brown-500 mb-1">Streak</h3>
-              <p className="text-3xl font-bold text-gold">{streak} day{streak !== 1 ? "s" : ""}</p>
+              <p className="text-3xl font-bold text-gold">{streak >= 3 ? "\uD83D\uDD25 " : ""}{streak} day{streak !== 1 ? "s" : ""}</p>
             </div>
             <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-              <h3 className="text-sm font-medium text-brown-500 mb-1">Practice</h3>
-              <p className="text-3xl font-bold text-gold">{sessions?.length ?? 0}</p>
+              <h3 className="text-sm font-medium text-brown-500 mb-1">{araratProgress.current.emoji} Level</h3>
+              <p className="text-lg font-bold text-gold">{araratProgress.current.name}</p>
+              <div className="w-full h-1.5 bg-brown-100 rounded-full mt-2 overflow-hidden">
+                <div className="h-full bg-gold rounded-full transition-all" style={{ width: `${araratProgress.percentage}%` }} />
+              </div>
+              <p className="text-xs text-brown-400 mt-1">{profile?.total_xp ?? 0} XP</p>
             </div>
+          </div>
+        </section>
+
+        {/* Badges */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-brown-800">My Badges</h2>
+            <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {BADGES.slice(0, 6).map((badge) => {
+              const isEarned = earnedBadgeSlugs.has(badge.slug);
+              return (
+                <div key={badge.slug} className="flex flex-col items-center shrink-0 w-16">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${isEarned ? "bg-gold/10 border-2 border-gold/30" : "bg-brown-50 border-2 border-brown-100"}`}>
+                    {isEarned ? badge.emoji : "\uD83D\uDD12"}
+                  </div>
+                  <p className={`text-xs mt-1 text-center leading-tight ${isEarned ? "text-brown-700" : "text-brown-300"}`}>{badge.name}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
