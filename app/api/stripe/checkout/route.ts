@@ -53,9 +53,10 @@ export async function POST(request: NextRequest) {
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/student?subscription=success`,
+      success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
-      metadata: { userId: user.id },
+      client_reference_id: user.id,
+      metadata: { userId: user.id, plan: "family" },
       subscription_data: { metadata: { userId: user.id } },
     });
 
