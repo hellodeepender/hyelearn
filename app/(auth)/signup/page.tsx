@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { useTranslations } from "@/lib/use-translations";
+import { useLocale } from "@/lib/locale-context";
 
 export default function SignupPage() {
   const tc = useTranslations("common");
   const router = useRouter();
   const supabase = createClient();
+  const locale = useLocale();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +29,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { role: "student", full_name: fullName },
+        data: { role: "student", full_name: fullName, locale: locale.locale },
       },
     });
 

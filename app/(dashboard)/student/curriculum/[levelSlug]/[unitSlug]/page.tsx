@@ -5,6 +5,7 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getLessonsWithProgress } from "@/lib/curriculum";
+import { getLocale } from "@/lib/server-locale";
 
 export default async function UnitPage({ params }: { params: Promise<{ levelSlug: string; unitSlug: string }> }) {
   const { levelSlug, unitSlug } = await params;
@@ -25,7 +26,8 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
     .single();
   if (!unit) notFound();
 
-  const lessons = await getLessonsWithProgress(supabase, user.id, unit.id);
+  const locale = await getLocale();
+  const lessons = await getLessonsWithProgress(supabase, user.id, unit.id, locale);
 
   // Check if user has paid access
   const tier = profile?.subscription_tier ?? "free";

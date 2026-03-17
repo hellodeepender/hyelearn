@@ -5,6 +5,7 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getLevelsWithProgress } from "@/lib/curriculum";
+import { getLocale } from "@/lib/server-locale";
 
 export default async function CurriculumPage() {
   const supabase = await createClient();
@@ -17,7 +18,8 @@ export default async function CurriculumPage() {
     .eq("id", user.id)
     .single();
 
-  const levels = await getLevelsWithProgress(supabase, user.id);
+  const locale = await getLocale();
+  const levels = await getLevelsWithProgress(supabase, user.id, locale);
 
   return (
     <div className="min-h-screen bg-cream">

@@ -5,6 +5,7 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getUnitsWithProgress } from "@/lib/curriculum";
+import { getLocale } from "@/lib/server-locale";
 
 export default async function LevelPage({ params }: { params: Promise<{ levelSlug: string }> }) {
   const { levelSlug } = await params;
@@ -16,7 +17,8 @@ export default async function LevelPage({ params }: { params: Promise<{ levelSlu
   const { data: level } = await supabase.from("curriculum_levels").select("id, slug, title, description").eq("slug", levelSlug).single();
   if (!level) notFound();
 
-  const units = await getUnitsWithProgress(supabase, user.id, level.id);
+  const locale = await getLocale();
+  const units = await getUnitsWithProgress(supabase, user.id, level.id, locale);
 
   return (
     <div className="min-h-screen bg-cream">

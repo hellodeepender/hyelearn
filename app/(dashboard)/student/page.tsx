@@ -8,7 +8,7 @@ import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
 import { BADGES } from "@/lib/badges";
 import { getTranslations } from "@/lib/translations";
-import { getServerLocale } from "@/lib/server-locale";
+import { getServerLocale, getLocale } from "@/lib/server-locale";
 
 export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
   const params = await searchParams;
@@ -20,7 +20,8 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp").eq("id", user.id).single();
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
-  const levels = await getLevelsWithProgress(supabase, user.id);
+  const locale = await getLocale();
+  const levels = await getLevelsWithProgress(supabase, user.id, locale);
   const currentLevel = levels.find((l) => l.unlocked && l.completedLessons < l.totalLessons) ?? levels[0];
   const totalCurriculumLessons = levels.reduce((s, l) => s + l.totalLessons, 0);
   const completedCurriculumLessons = levels.reduce((s, l) => s + l.completedLessons, 0);

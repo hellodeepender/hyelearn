@@ -1,10 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export async function getLevelsWithProgress(supabase: SupabaseClient, userId: string) {
+export async function getLevelsWithProgress(supabase: SupabaseClient, userId: string, locale: string) {
   const { data: levels } = await supabase
     .from("curriculum_levels")
     .select("id, slug, title, description, grade_value, sort_order")
     .eq("is_active", true)
+    .eq("locale", locale)
     .order("sort_order");
 
   if (!levels) return [];
@@ -13,7 +14,8 @@ export async function getLevelsWithProgress(supabase: SupabaseClient, userId: st
   const { data: allLessons } = await supabase
     .from("curriculum_lessons")
     .select("id, unit_id, curriculum_units!inner(level_id)")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("locale", locale);
 
   const { data: progress } = await supabase
     .from("student_progress")
@@ -51,13 +53,15 @@ export async function getLevelsWithProgress(supabase: SupabaseClient, userId: st
 export async function getUnitsWithProgress(
   supabase: SupabaseClient,
   userId: string,
-  levelId: string
+  levelId: string,
+  locale: string
 ) {
   const { data: units } = await supabase
     .from("curriculum_units")
     .select("id, slug, title, description, sort_order")
     .eq("level_id", levelId)
     .eq("is_active", true)
+    .eq("locale", locale)
     .order("sort_order");
 
   if (!units) return [];
@@ -68,7 +72,8 @@ export async function getUnitsWithProgress(
     .from("curriculum_lessons")
     .select("id, unit_id, lesson_type")
     .in("unit_id", unitIds)
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("locale", locale);
 
   const { data: progress } = await supabase
     .from("student_progress")
@@ -96,13 +101,15 @@ export async function getUnitsWithProgress(
 export async function getLessonsWithProgress(
   supabase: SupabaseClient,
   userId: string,
-  unitId: string
+  unitId: string,
+  locale: string
 ) {
   const { data: lessons } = await supabase
     .from("curriculum_lessons")
     .select("id, slug, title, description, lesson_type, template_type, sort_order, passing_score")
     .eq("unit_id", unitId)
     .eq("is_active", true)
+    .eq("locale", locale)
     .order("sort_order");
 
   if (!lessons) return [];
