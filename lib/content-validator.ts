@@ -41,6 +41,18 @@ export function validateLesson(
       knownArmenian.add(d.target_lang as string);
       knownEnglish.add(d.english as string);
       if (d.emoji) knownEmoji.add(d.emoji as string);
+    } else if (item.item_type === "phrase") {
+      knownArmenian.add(d.target_lang as string);
+      knownEnglish.add(d.english as string);
+    } else if (item.item_type === "reading_passage") {
+      if (d.text) knownArmenian.add(d.text as string);
+      if (d.title) knownEnglish.add(d.title as string);
+    } else if (item.item_type === "grammar_note") {
+      if (d.topic) knownEnglish.add(d.topic as string);
+      if (d.explanation) knownEnglish.add(d.explanation as string);
+    } else if (item.item_type === "discussion_question") {
+      if (d.question) knownArmenian.add(d.question as string);
+      if (d.question_eng) knownEnglish.add(d.question_eng as string);
     }
   }
 
