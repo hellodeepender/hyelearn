@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "@/lib/use-translations";
+import { useLocale } from "@/lib/locale-context";
 
 export default function PricingPage() {
+  const tc = useTranslations("common");
+  const { brandName, supportEmail, locale } = useLocale();
   const [yearly, setYearly] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
 
   async function handleSubscribe() {
     setLoading(true);
@@ -22,7 +28,6 @@ export default function PricingPage() {
       const data = await res.json();
 
       if (res.status === 401) {
-        // Not logged in — send to signup
         window.location.href = "/signup";
         return;
       }
@@ -47,11 +52,11 @@ export default function PricingPage() {
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">Log In</Link>
+            <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">{tc("logIn")}</Link>
             <Link href="/signup" className="text-sm bg-gold hover:bg-gold-dark text-white px-4 py-1.5 rounded-lg font-medium transition-colors">
               Sign Up
             </Link>
@@ -87,7 +92,6 @@ export default function PricingPage() {
         )}
 
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Free */}
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
             <h3 className="text-lg font-semibold text-brown-800">Free</h3>
             <p className="text-4xl font-bold text-brown-800 mt-4">$0</p>
@@ -102,7 +106,6 @@ export default function PricingPage() {
             </Link>
           </div>
 
-          {/* Family */}
           <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">
               Most Popular
@@ -131,7 +134,6 @@ export default function PricingPage() {
             </button>
           </div>
 
-          {/* School */}
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
             <h3 className="text-lg font-semibold text-brown-800">School</h3>
             <p className="text-4xl font-bold text-brown-800 mt-4">Custom</p>
@@ -144,20 +146,19 @@ export default function PricingPage() {
               <li>{"\u2713"} Bulk account management</li>
               <li>{"\u2713"} Admin analytics</li>
             </ul>
-            <a href="mailto:support@hyelearn.com" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
+            <a href={`mailto:${supportEmail}`} className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
               Contact Us
             </a>
           </div>
         </div>
 
-        {/* FAQ */}
         <div className="mt-20 max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold text-brown-800 text-center mb-8">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {[
-              { q: "Is this Western Armenian?", a: "Yes. All content uses Western Armenian with classical orthography \u2014 the same standard taught in Armenian day schools across the diaspora." },
+              { q: `Is this ${languageDesc}?`, a: `Yes. All content uses ${languageDesc} \u2014 the same standard taught in ${tc("language")} day schools across the diaspora.` },
               { q: "What ages is this for?", a: "Kindergarten through Grade 5, with more levels coming soon." },
-              { q: "How is the curriculum created?", a: "Our curriculum is built and reviewed by Armenian language educators. Each lesson is carefully structured to build on the previous one." },
+              { q: "How is the curriculum created?", a: `Our curriculum is built and reviewed by ${tc("language")} language educators. Each lesson is carefully structured to build on the previous one.` },
               { q: "Is it safe for kids?", a: "Absolutely. No ads, no social features, no external links. Your child only sees learning content." },
             ].map((faq) => (
               <div key={faq.q} className="bg-warm-white border border-brown-100 rounded-xl p-5">
@@ -171,10 +172,10 @@ export default function PricingPage() {
 
       <footer className="py-8 px-6 border-t border-brown-100 mt-16">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brown-400">
-          <p>&copy; {new Date().getFullYear()} HyeLearn</p>
+          <p>&copy; {new Date().getFullYear()} {brandName}</p>
           <div className="flex gap-6">
             <Link href="/pricing" className="hover:text-brown-600">Pricing</Link>
-            <a href="mailto:support@hyelearn.com" className="hover:text-brown-600">Contact</a>
+            <a href={`mailto:${supportEmail}`} className="hover:text-brown-600">Contact</a>
           </div>
         </div>
       </footer>

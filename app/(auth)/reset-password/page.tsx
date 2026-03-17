@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useTranslations } from "@/lib/use-translations";
 
 export default function ResetPasswordPage() {
+  const tc = useTranslations("common");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [done, setDone] = useState(false);
@@ -32,8 +34,8 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-3xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-2xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-3xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-2xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <h1 className="text-2xl font-bold text-brown-800">Set new password</h1>
         </div>

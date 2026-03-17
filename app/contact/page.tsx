@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "@/lib/use-translations";
+import { useLocale } from "@/lib/locale-context";
 
 const SUBJECTS = [
   "General Inquiry",
@@ -12,6 +14,8 @@ const SUBJECTS = [
 ];
 
 export default function ContactPage() {
+  const tc = useTranslations("common");
+  const { brandName, supportEmail } = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState(SUBJECTS[0]);
@@ -39,7 +43,7 @@ export default function ContactPage() {
 
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please email us directly at support@hyelearn.com");
+      setError(err instanceof Error ? err.message : `Something went wrong. Please email us directly at ${supportEmail}`);
     }
     setLoading(false);
   }
@@ -49,22 +53,21 @@ export default function ContactPage() {
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">Log In</Link>
-            <Link href="/signup" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Start Free</Link>
+            <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">{tc("logIn")}</Link>
+            <Link href="/signup" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">{tc("startFree")}</Link>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Contact Us</h1>
-        <p className="text-brown-500 mb-10">Have questions about HyeLearn? We&apos;d love to hear from you.</p>
+        <p className="text-brown-500 mb-10">Have questions about {brandName}? We&apos;d love to hear from you.</p>
 
         <div className="grid md:grid-cols-3 gap-10">
-          {/* Form */}
           <div className="md:col-span-2">
             {sent ? (
               <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
@@ -105,11 +108,10 @@ export default function ContactPage() {
             )}
           </div>
 
-          {/* Contact info */}
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold text-brown-800 mb-2">Email</h3>
-              <a href="mailto:support@hyelearn.com" className="text-gold hover:text-gold-dark font-medium">support@hyelearn.com</a>
+              <a href={`mailto:${supportEmail}`} className="text-gold hover:text-gold-dark font-medium">{supportEmail}</a>
             </div>
             <div>
               <h3 className="font-semibold text-brown-800 mb-2">Schools</h3>
@@ -117,10 +119,10 @@ export default function ContactPage() {
             </div>
             <div className="pt-4 border-t border-brown-100">
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-gold">{"\u0531"}</span>
-                <span className="font-semibold text-brown-800">HyeLearn</span>
+                <span className="text-xl font-bold text-gold">{tc("brandLetter")}</span>
+                <span className="font-semibold text-brown-800">{brandName}</span>
               </div>
-              <p className="text-xs text-brown-400 mt-1">Armenian language learning for kids</p>
+              <p className="text-xs text-brown-400 mt-1">{tc("language")} language learning for kids</p>
             </div>
           </div>
         </div>
@@ -133,7 +135,7 @@ export default function ContactPage() {
             <Link href="/terms" className="hover:text-brown-600">Terms of Service</Link>
             <Link href="/cookies" className="hover:text-brown-600">Cookie Policy</Link>
           </div>
-          &copy; {new Date().getFullYear()} HyeLearn
+          &copy; {new Date().getFullYear()} {brandName}
         </div>
       </footer>
     </div>

@@ -1,16 +1,18 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { getTranslations } from "@/lib/translations";
+import { getServerLocale } from "@/lib/server-locale";
 
-export const metadata: Metadata = { title: "Cookie Policy — HyeLearn" };
+export default async function CookiePolicyPage() {
+  const tc = await getTranslations("common");
+  const { brandName, supportEmail } = await getServerLocale();
 
-export default function CookiePolicyPage() {
   return (
     <div className="min-h-screen bg-warm-white">
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <Link href="/" className="text-sm text-brown-500 hover:text-brown-700">Home</Link>
         </div>
@@ -34,12 +36,12 @@ export default function CookiePolicyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">Managing Cookies</h2>
-            <p>You can manage cookies through your browser settings. Note that disabling cookies will prevent you from staying logged in to HyeLearn.</p>
+            <p>You can manage cookies through your browser settings. Note that disabling cookies will prevent you from staying logged in to {brandName}.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">Contact</h2>
-            <p>Questions about our cookie practices? Contact us at <a href="mailto:support@hyelearn.com" className="text-gold">support@hyelearn.com</a>.</p>
+            <p>Questions about our cookie practices? Contact us at <a href={`mailto:${supportEmail}`} className="text-gold">{supportEmail}</a>.</p>
           </section>
         </div>
       </main>
@@ -51,7 +53,7 @@ export default function CookiePolicyPage() {
             <Link href="/terms" className="hover:text-brown-600">Terms of Service</Link>
             <Link href="/cookies" className="hover:text-brown-600">Cookie Policy</Link>
           </div>
-          &copy; {new Date().getFullYear()} HyeLearn
+          &copy; {new Date().getFullYear()} {brandName}
         </div>
       </footer>
     </div>

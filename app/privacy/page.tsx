@@ -1,16 +1,19 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { getTranslations } from "@/lib/translations";
+import { getServerLocale } from "@/lib/server-locale";
 
-export const metadata: Metadata = { title: "Privacy Policy — HyeLearn" };
+export default async function PrivacyPage() {
+  const tc = await getTranslations("common");
+  const { brandName, supportEmail, locale } = await getServerLocale();
+  const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
 
-export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-warm-white">
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <Link href="/" className="text-sm text-brown-500 hover:text-brown-700">Home</Link>
         </div>
@@ -32,7 +35,7 @@ export default function PrivacyPage() {
         <div className="prose-brown space-y-8 text-brown-600 text-sm leading-relaxed">
           <section id="section-1">
             <h2 className="text-lg font-semibold text-brown-800">1. Introduction</h2>
-            <p>HyeLearn is an Armenian language learning platform designed for children in Kindergarten through Grade 5. We are committed to protecting the privacy of all our users, especially children. This policy explains what information we collect, how we use it, and how we protect it.</p>
+            <p>{brandName} is a {languageDesc} language learning platform designed for children in Kindergarten through Grade 5. We are committed to protecting the privacy of all our users, especially children. This policy explains what information we collect, how we use it, and how we protect it.</p>
           </section>
 
           <section id="section-2">
@@ -45,7 +48,7 @@ export default function PrivacyPage() {
           <section id="section-3">
             <h2 className="text-lg font-semibold text-brown-800">3. How We Use Information</h2>
             <ul className="list-disc ml-5 space-y-1">
-              <li>To provide the Armenian language learning service</li>
+              <li>To provide the {languageDesc} language learning service</li>
               <li>To track learning progress for parents and teachers</li>
               <li>To process subscription payments (via Stripe)</li>
               <li>To send transactional emails (account confirmations, password resets)</li>
@@ -55,26 +58,26 @@ export default function PrivacyPage() {
 
           <section id="section-4" className="bg-blue-50/50 border border-blue-100 rounded-xl p-5">
             <h2 className="text-lg font-semibold text-brown-800">4. Children&apos;s Privacy (COPPA Compliance)</h2>
-            <p>HyeLearn is designed for children under 13 and complies with the Children&apos;s Online Privacy Protection Act (COPPA).</p>
+            <p>{brandName} is designed for children under 13 and complies with the Children&apos;s Online Privacy Protection Act (COPPA).</p>
             <ul className="list-disc ml-5 space-y-1 mt-2">
               <li>We require verifiable parental consent: a parent or guardian must create the account.</li>
               <li>Children cannot create accounts independently.</li>
               <li>We collect minimal data from children: first name and learning progress only.</li>
               <li>No children&apos;s personal information is shared with third parties for marketing or advertising.</li>
-              <li>Parents can review, request deletion of, or refuse further collection of their child&apos;s data by contacting <a href="mailto:support@hyelearn.com" className="text-gold">support@hyelearn.com</a>.</li>
-              <li>Schools using HyeLearn may act as the parent&apos;s agent for COPPA consent in the educational context.</li>
+              <li>Parents can review, request deletion of, or refuse further collection of their child&apos;s data by contacting <a href={`mailto:${supportEmail}`} className="text-gold">{supportEmail}</a>.</li>
+              <li>Schools using {brandName} may act as the parent&apos;s agent for COPPA consent in the educational context.</li>
             </ul>
           </section>
 
           <section id="section-5">
             <h2 className="text-lg font-semibold text-brown-800">5. Data Sharing</h2>
-            <p>We use the following third-party services to operate HyeLearn:</p>
+            <p>We use the following third-party services to operate {brandName}:</p>
             <ul className="list-disc ml-5 space-y-1 mt-2">
-              <li><strong>Supabase</strong> — Database hosting and authentication (US region)</li>
-              <li><strong>Vercel</strong> — Web hosting (US)</li>
-              <li><strong>Stripe</strong> — Payment processing (PCI compliant). Only receives parent payment data, never children&apos;s data.</li>
-              <li><strong>Narakeet</strong> — Text-to-speech audio. Only Armenian text is sent; no user data.</li>
-              <li><strong>Resend</strong> — Transactional email. Only parent email for confirmations.</li>
+              <li><strong>Supabase</strong> &mdash; Database hosting and authentication (US region)</li>
+              <li><strong>Vercel</strong> &mdash; Web hosting (US)</li>
+              <li><strong>Stripe</strong> &mdash; Payment processing (PCI compliant). Only receives parent payment data, never children&apos;s data.</li>
+              <li><strong>Narakeet</strong> &mdash; Text-to-speech audio. Only {languageDesc} text is sent; no user data.</li>
+              <li><strong>Resend</strong> &mdash; Transactional email. Only parent email for confirmations.</li>
             </ul>
             <p className="mt-3">No children&apos;s personal information is shared with any third party for marketing, advertising, or any purpose other than operating the service.</p>
           </section>
@@ -94,7 +97,7 @@ export default function PrivacyPage() {
             <ul className="list-disc ml-5 space-y-1">
               <li>Parents can access, correct, or delete their child&apos;s data at any time.</li>
               <li>You have the right to opt out of non-essential communications.</li>
-              <li>To exercise these rights, contact <a href="mailto:support@hyelearn.com" className="text-gold">support@hyelearn.com</a>.</li>
+              <li>To exercise these rights, contact <a href={`mailto:${supportEmail}`} className="text-gold">{supportEmail}</a>.</li>
             </ul>
           </section>
 
@@ -105,7 +108,7 @@ export default function PrivacyPage() {
 
           <section id="section-10">
             <h2 className="text-lg font-semibold text-brown-800">10. Contact</h2>
-            <p>HyeLearn &mdash; <a href="mailto:support@hyelearn.com" className="text-gold">support@hyelearn.com</a></p>
+            <p>{brandName} &mdash; <a href={`mailto:${supportEmail}`} className="text-gold">{supportEmail}</a></p>
           </section>
         </div>
       </main>
@@ -117,7 +120,7 @@ export default function PrivacyPage() {
             <Link href="/terms" className="hover:text-brown-600">Terms of Service</Link>
             <Link href="/cookies" className="hover:text-brown-600">Cookie Policy</Link>
           </div>
-          &copy; {new Date().getFullYear()} HyeLearn
+          &copy; {new Date().getFullYear()} {brandName}
         </div>
       </footer>
     </div>
