@@ -46,7 +46,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 export function getDomainConfig(hostname: string): DomainConfig {
-  const cleanHost = hostname.split(":")[0];
+  const cleanHost = hostname.split(":")[0].replace(/^www\./, "");
 
   if (DOMAIN_MAP[cleanHost]) {
     return DOMAIN_MAP[cleanHost];
