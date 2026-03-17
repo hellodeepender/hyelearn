@@ -33,12 +33,12 @@ export function validateLesson(
       knownArmenian.add(d.letter_upper as string);
       knownArmenian.add(d.letter_lower as string);
       knownArmenian.add(d.letter_name as string);
-      knownArmenian.add(d.example_word_arm as string);
+      knownArmenian.add(d.example_word_target as string);
       knownEnglish.add(d.example_word_eng as string);
       knownEnglish.add(d.transliteration as string);
       if (d.emoji) knownEmoji.add(d.emoji as string);
     } else if (item.item_type === "word") {
-      knownArmenian.add(d.armenian as string);
+      knownArmenian.add(d.target_lang as string);
       knownEnglish.add(d.english as string);
       if (d.emoji) knownEmoji.add(d.emoji as string);
     }

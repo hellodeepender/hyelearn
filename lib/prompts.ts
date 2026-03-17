@@ -1,19 +1,58 @@
 import type { ExerciseType } from "./types";
 
-export function getSystemPrompt(): string {
-  return `You are an expert Western Armenian language teacher creating bilingual exercises for Armenian day school students in California.
+// ── Locale config ─────────────────────────────────────────────
+// Add a new entry here when adding a new language.
+
+interface LocaleConfig {
+  languageName: string;       // e.g. "Western Armenian"
+  dialect?: string;           // e.g. "with classical orthography"
+  studentDescription: string; // e.g. "Armenian day school students in California"
+  scriptField: string;        // e.g. "hy" → fields become _hy
+  scriptNote: string;         // instruction about script usage
+}
+
+const LOCALE_CONFIGS: Record<string, LocaleConfig> = {
+  hy: {
+    languageName: "Western Armenian",
+    dialect: "with classical orthography (traditional diaspora spelling)",
+    studentDescription: "Armenian diaspora children in the United States",
+    scriptField: "hy",
+    scriptNote: "Armenian script appears ONLY in _hy fields. English appears ONLY in _en fields. NEVER mix scripts.",
+  },
+  el: {
+    languageName: "Greek",
+    dialect: "Standard Modern Greek as spoken in the Greek diaspora",
+    studentDescription: "Greek diaspora children learning heritage Greek",
+    scriptField: "el",
+    scriptNote: "Greek script appears ONLY in _el fields. English appears ONLY in _en fields. NEVER mix scripts.",
+  },
+};
+
+function getLocaleConfig(locale: string): LocaleConfig {
+  return LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS["hy"];
+}
+
+// ── System prompt ─────────────────────────────────────────────
+
+export function getSystemPrompt(locale: string = "hy"): string {
+  const cfg = getLocaleConfig(locale);
+  const dialectNote = cfg.dialect ? ` ${cfg.dialect}` : "";
+
+  return `You are an expert ${cfg.languageName} language teacher creating bilingual exercises for ${cfg.studentDescription}.
 
 RULES:
-- Use WESTERN Armenian with classical orthography (traditional diaspora spelling).
-- Armenian script appears ONLY in _hy fields. English appears ONLY in _en fields. NEVER mix scripts.
+- Use ${cfg.languageName}${dialectNote}.
+- ${cfg.scriptNote}
 - Return ONLY valid JSON. No markdown, no backticks, no preamble, no explanation outside the JSON.
 - Content must be pedagogically appropriate for the specified grade level.
-- Every exercise must be factually correct and culturally appropriate for Armenian day schools.
+- Every exercise must be factually correct and culturally appropriate.
 - When an "emoji" field is requested, follow these rules:
-  - For fill_blank exercises: The emoji MUST represent the CORRECT ANSWER (the word that fills the blank), NOT any other word in the sentence. The emoji is a visual hint to help the student guess the missing word. Example: if the sentence is "The child eats ___" and the answer is "apple", the emoji must be an apple, not a child.
+  - For fill_blank exercises: The emoji MUST represent the CORRECT ANSWER (the word that fills the blank), NOT any other word in the sentence. The emoji is a visual hint to help the student guess the missing word.
   - For multiple_choice exercises: The emoji on the question MUST represent the subject being asked about — the thing the student needs to identify. Do NOT use emoji for people or generic concepts.
   - Always use a single, concrete, recognizable emoji.`;
 }
+
+// ── Helpers ───────────────────────────────────────────────────
 
 function isYoungLearner(grade: string): boolean {
   return grade === "K" || grade === "1";
@@ -23,210 +62,163 @@ function gradeLabel(grade: string): string {
   return grade === "K" ? "Kindergarten" : `Grade ${grade}`;
 }
 
-function multipleChoicePrompt(grade: string, subject: string, topic: string, count: number): string {
-  if (isYoungLearner(grade)) {
-    const optCount = grade === "K" ? 3 : 3;
-    return `Generate ${count} multiple-choice questions for ${gradeLabel(grade)} students (ages ${grade === "K" ? "5-6" : "6-7"}).
-Subject: ${subject}
-Topic: ${topic}
-
-IMPORTANT: These are very young learners. Use only simple, concrete vocabulary. Single-word answers. Picture-identification style.
-
-Return this exact JSON structure:
-{
-  "exercises": [
-    {
-      "id": "1",
-      "question_hy": "Simple question in Armenian script",
-      "question_en": "Same question in English",
-      "emoji": "single emoji representing the question concept",
-      "options": [
-        { "id": "a", "text_hy": "Single Armenian word", "text_en": "English word", "emoji": "emoji for this option", "correct": true },
-        { "id": "b", "text_hy": "Single Armenian word", "text_en": "English word", "emoji": "emoji for this option", "correct": false },
-        { "id": "c", "text_hy": "Single Armenian word", "text_en": "English word", "emoji": "emoji for this option", "correct": false }
-      ],
-      "hint_hy": "",
-      "hint_en": "",
-      "explanation_hy": "Simple explanation in Armenian",
-      "explanation_en": "Simple explanation in English"
-    }
-  ],
-  "topic_title_hy": "Topic name in Armenian",
-  "topic_title_en": "${topic}"
+// Returns the script field suffix for a locale, e.g. "el" for Greek
+function sf(locale: string): string {
+  return getLocaleConfig(locale).scriptField;
 }
 
-Each question must have exactly ${optCount} options with exactly one correct answer. Keep all text very simple.`;
-  }
+// ── Exercise prompt builders ──────────────────────────────────
+
+function multipleChoicePrompt(grade: string, subject: string, topic: string, count: number, locale: string): string {
+  const s = sf(locale);
+  const young = isYoungLearner(grade);
+  const optCount = young ? 3 : 4;
+  const ageRange = grade === "K" ? "5-6" : "6-7";
+
+  const youngNote = young
+    ? `\n\nIMPORTANT: These are very young learners (ages ${ageRange}). Use only simple, concrete vocabulary. Single-word answers. Picture-identification style.`
+    : "";
 
   return `Generate ${count} multiple-choice questions for ${gradeLabel(grade)} students.
 Subject: ${subject}
-Topic: ${topic}
+Topic: ${topic}${youngNote}
 
 Return this exact JSON structure:
 {
   "exercises": [
     {
       "id": "1",
-      "question_hy": "Question in Armenian script",
+      "question_${s}": "Question in target language script",
       "question_en": "Same question in English",
+      ${young ? `"emoji": "single emoji representing the question concept",` : ""}
       "options": [
-        { "id": "a", "text_hy": "Armenian option", "text_en": "English option", "correct": false },
-        { "id": "b", "text_hy": "Armenian option", "text_en": "English option", "correct": true },
-        { "id": "c", "text_hy": "Armenian option", "text_en": "English option", "correct": false },
-        { "id": "d", "text_hy": "Armenian option", "text_en": "English option", "correct": false }
+        { "id": "a", "text_${s}": "Option in target language", "text_en": "English", ${young ? `"emoji": "emoji for option", ` : ""}"correct": true },
+        { "id": "b", "text_${s}": "Option in target language", "text_en": "English", ${young ? `"emoji": "emoji for option", ` : ""}"correct": false },
+        { "id": "c", "text_${s}": "Option in target language", "text_en": "English", ${young ? `"emoji": "emoji for option", ` : ""}"correct": false }${!young ? `,
+        { "id": "d", "text_${s}": "Option in target language", "text_en": "English", "correct": false }` : ""}
       ],
-      "hint_hy": "Hint in Armenian",
-      "hint_en": "Hint in English",
-      "explanation_hy": "Why the answer is correct, in Armenian",
-      "explanation_en": "Why the answer is correct, in English"
-    }
-  ],
-  "topic_title_hy": "Topic name in Armenian",
-  "topic_title_en": "${topic}"
-}
-
-Each question must have exactly 4 options with exactly one correct answer.`;
-}
-
-function fillBlankPrompt(grade: string, subject: string, topic: string, count: number): string {
-  if (isYoungLearner(grade)) {
-    return `Generate ${count} fill-in-the-blank exercises for ${gradeLabel(grade)} students (ages ${grade === "K" ? "5-6" : "6-7"}).
-Subject: ${subject}
-Topic: ${topic}
-
-IMPORTANT: Very young learners. Use very simple sentences with single-word blanks. Only concrete, familiar vocabulary.
-
-Return this exact JSON structure:
-{
-  "exercises": [
-    {
-      "id": "1",
-      "sentence_hy": "Simple Armenian sentence with ___ for the blank",
-      "sentence_en": "English translation of the full sentence",
-      "emoji": "emoji representing the sentence topic",
-      "answer_hy": "Correct word in Armenian",
-      "answer_en": "Correct word in English",
-      "answer_emoji": "emoji for the correct answer",
-      "distractors_hy": ["wrong1_hy", "wrong2_hy"],
-      "distractors_en": ["wrong1_en", "wrong2_en"],
-      "distractors_emoji": ["emoji1", "emoji2"],
-      "hint_hy": "",
-      "hint_en": "",
-      "explanation_hy": "Simple explanation in Armenian",
-      "explanation_en": "Simple explanation in English"
-    }
-  ],
-  "topic_title_hy": "Topic name in Armenian",
-  "topic_title_en": "${topic}"
-}
-
-Each sentence must contain exactly one ___ blank. Provide exactly 2 distractors for young learners.`;
-  }
-
-  return `Generate ${count} fill-in-the-blank exercises for ${gradeLabel(grade)} students.
-Subject: ${subject}
-Topic: ${topic}
-
-Return this exact JSON structure:
-{
-  "exercises": [
-    {
-      "id": "1",
-      "sentence_hy": "Armenian sentence with ___ for the blank",
-      "sentence_en": "English translation of the full sentence",
-      "answer_hy": "Correct word in Armenian",
-      "answer_en": "Correct word in English",
-      "distractors_hy": ["wrong1_hy", "wrong2_hy", "wrong3_hy"],
-      "distractors_en": ["wrong1_en", "wrong2_en", "wrong3_en"],
-      "hint_hy": "Hint in Armenian",
-      "hint_en": "Hint in English",
-      "explanation_hy": "Explanation in Armenian",
+      "hint_${s}": "${young ? "" : "Hint in target language"}",
+      "hint_en": "${young ? "" : "Hint in English"}",
+      "explanation_${s}": "Explanation in target language",
       "explanation_en": "Explanation in English"
     }
   ],
-  "topic_title_hy": "Topic name in Armenian",
+  "topic_title_${s}": "Topic name in target language",
   "topic_title_en": "${topic}"
 }
 
-Each sentence must contain exactly one ___ blank. Provide exactly 3 distractors (wrong answers) for each.`;
+Each question must have exactly ${optCount} options with exactly one correct answer.`;
 }
 
-function matchingPrompt(grade: string, subject: string, topic: string, count: number): string {
-  const extra = isYoungLearner(grade)
-    ? `\n\nIMPORTANT: Very young learners. Use only simple single words. Add an "emoji" field to each pair.\nAdd "emoji_left" and "emoji_right" fields with relevant emoji for each item.`
+function fillBlankPrompt(grade: string, subject: string, topic: string, count: number, locale: string): string {
+  const s = sf(locale);
+  const young = isYoungLearner(grade);
+  const ageRange = grade === "K" ? "5-6" : "6-7";
+  const distractorCount = young ? 2 : 3;
+
+  const youngNote = young
+    ? `\n\nIMPORTANT: Very young learners (ages ${ageRange}). Use very simple sentences with single-word blanks. Only concrete, familiar vocabulary.`
+    : "";
+
+  return `Generate ${count} fill-in-the-blank exercises for ${gradeLabel(grade)} students.
+Subject: ${subject}
+Topic: ${topic}${youngNote}
+
+Return this exact JSON structure:
+{
+  "exercises": [
+    {
+      "id": "1",
+      "sentence_${s}": "Sentence in target language with ___ for the blank",
+      "sentence_en": "English translation of the full sentence",
+      ${young ? `"emoji": "emoji representing the sentence topic",` : ""}
+      "answer_${s}": "Correct word in target language",
+      "answer_en": "Correct word in English",
+      ${young ? `"answer_emoji": "emoji for the correct answer",` : ""}
+      "distractors_${s}": ${JSON.stringify(Array(distractorCount).fill("wrong_option"))},
+      "distractors_en": ${JSON.stringify(Array(distractorCount).fill("wrong_option_en"))},
+      ${young ? `"distractors_emoji": ${JSON.stringify(Array(distractorCount).fill("emoji"))},` : ""}
+      "hint_${s}": "${young ? "" : "Hint in target language"}",
+      "hint_en": "${young ? "" : "Hint in English"}",
+      "explanation_${s}": "Explanation in target language",
+      "explanation_en": "Explanation in English"
+    }
+  ],
+  "topic_title_${s}": "Topic name in target language",
+  "topic_title_en": "${topic}"
+}
+
+Each sentence must contain exactly one ___ blank. Provide exactly ${distractorCount} distractors.`;
+}
+
+function matchingPrompt(grade: string, subject: string, topic: string, count: number, locale: string): string {
+  const s = sf(locale);
+  const young = isYoungLearner(grade);
+
+  const youngNote = young
+    ? `\n\nIMPORTANT: Very young learners. Use only simple single words. Add "emoji_left" and "emoji_right" fields with relevant emoji for each item.`
     : "";
 
   return `Generate ${count} matching pairs for ${gradeLabel(grade)} students.
 Subject: ${subject}
-Topic: ${topic}${extra}
+Topic: ${topic}${youngNote}
 
 Return this exact JSON structure:
 {
   "exercises": [
     {
       "id": "1",
-      "left_hy": "Armenian word or phrase (left column)",
+      "left_${s}": "Word or phrase in target language",
       "left_en": "English translation of left item",
-      "right_hy": "Armenian definition, synonym, or match (right column)",
-      "right_en": "English translation of right item"${isYoungLearner(grade) ? `,
+      "right_${s}": "Definition, synonym, or match in target language",
+      "right_en": "English translation of right item"${young ? `,
       "emoji_left": "emoji for left item",
       "emoji_right": "emoji for right item"` : ""}
     }
   ],
-  "topic_title_hy": "Topic name in Armenian",
+  "topic_title_${s}": "Topic name in target language",
   "topic_title_en": "${topic}"
 }
 
 Each pair should have a clear, unambiguous match.`;
 }
 
-function trueFalsePrompt(grade: string, subject: string, topic: string, count: number): string {
-  const extra = isYoungLearner(grade)
+function trueFalsePrompt(grade: string, subject: string, topic: string, count: number, locale: string): string {
+  const s = sf(locale);
+  const young = isYoungLearner(grade);
+
+  const youngNote = young
     ? `\n\nIMPORTANT: Very young learners. Use very simple, concrete statements. Add an "emoji" field with a relevant emoji for each statement.`
     : "";
 
   return `Generate ${count} true/false questions for ${gradeLabel(grade)} students.
 Subject: ${subject}
-Topic: ${topic}${extra}
+Topic: ${topic}${youngNote}
 
 Return this exact JSON structure:
 {
   "exercises": [
     {
       "id": "1",
-      "statement_hy": "Statement in Armenian",
-      "statement_en": "Same statement in English",${isYoungLearner(grade) ? `
-      "emoji": "relevant emoji",` : ""}
+      "statement_${s}": "Statement in target language",
+      "statement_en": "Same statement in English",
+      ${young ? `"emoji": "relevant emoji",` : ""}
       "correct_answer": true,
-      "explanation_hy": "Why it is true/false, in Armenian",
+      "explanation_${s}": "Why it is true/false, in target language",
       "explanation_en": "Why it is true/false, in English"
     }
   ],
-  "topic_title_hy": "Topic name in Armenian",
+  "topic_title_${s}": "Topic name in target language",
   "topic_title_en": "${topic}"
 }
 
 Mix true and false answers roughly equally.`;
 }
 
-export function buildUserPrompt(
-  grade: string,
-  subject: string,
-  topic: string,
-  exerciseType: ExerciseType,
-  count: number
-): string {
-  switch (exerciseType) {
-    case "multiple_choice":
-      return multipleChoicePrompt(grade, subject, topic, count);
-    case "fill_blank":
-      return fillBlankPrompt(grade, subject, topic, count);
-    case "matching":
-      return matchingPrompt(grade, subject, topic, count);
-    case "true_false":
-      return trueFalsePrompt(grade, subject, topic, count);
-    case "learn_card":
-      return `Generate ${count} vocabulary learn cards for ${grade === "K" ? "Kindergarten" : `Grade ${grade}`} students.
+function learnCardPrompt(grade: string, topic: string, count: number, locale: string): string {
+  const s = sf(locale);
+
+  return `Generate ${count} vocabulary learn cards for ${gradeLabel(grade)} students.
 Topic: ${topic}
 
 Return this exact JSON structure:
@@ -235,12 +227,35 @@ Return this exact JSON structure:
     {
       "id": "1",
       "visual": "single emoji representing the word",
-      "primary_text": "Armenian word in Armenian script",
+      "primary_text": "Word in target language script",
       "secondary_text": "English translation"
     }
   ],
-  "topic_title_hy": "Topic name in Armenian",
+  "topic_title_${s}": "Topic name in target language",
   "topic_title_en": "${topic}"
 }`;
+}
+
+// ── Main export ───────────────────────────────────────────────
+
+export function buildUserPrompt(
+  grade: string,
+  subject: string,
+  topic: string,
+  exerciseType: ExerciseType,
+  count: number,
+  locale: string = "hy"
+): string {
+  switch (exerciseType) {
+    case "multiple_choice":
+      return multipleChoicePrompt(grade, subject, topic, count, locale);
+    case "fill_blank":
+      return fillBlankPrompt(grade, subject, topic, count, locale);
+    case "matching":
+      return matchingPrompt(grade, subject, topic, count, locale);
+    case "true_false":
+      return trueFalsePrompt(grade, subject, topic, count, locale);
+    case "learn_card":
+      return learnCardPrompt(grade, topic, count, locale);
   }
 }

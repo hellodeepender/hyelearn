@@ -8,13 +8,13 @@ interface Level { id: string; slug: string; title: string; sort_order: number }
 interface Unit { id: string; slug: string; title: string; level_id: string; sort_order: number }
 interface Lesson { id: string; slug: string; title: string; unit_id: string; template_type: string; sort_order: number }
 
-interface LetterRow { letter_upper: string; letter_lower: string; letter_name: string; transliteration: string; sound: string; example_word_arm: string; example_word_eng: string; emoji: string }
-interface WordRow { armenian: string; english: string; emoji: string; category: string }
+interface LetterRow { letter_upper: string; letter_lower: string; letter_name: string; transliteration: string; sound: string; example_word_target: string; example_word_eng: string; emoji: string }
+interface WordRow { target_lang: string; english: string; emoji: string; category: string }
 
 interface Props { levels: Level[]; units: Unit[]; lessons: Lesson[]; userId: string }
 
-const EMPTY_LETTER: LetterRow = { letter_upper: "", letter_lower: "", letter_name: "", transliteration: "", sound: "", example_word_arm: "", example_word_eng: "", emoji: "" };
-const EMPTY_WORD: WordRow = { armenian: "", english: "", emoji: "", category: "general" };
+const EMPTY_LETTER: LetterRow = { letter_upper: "", letter_lower: "", letter_name: "", transliteration: "", sound: "", example_word_target: "", example_word_eng: "", emoji: "" };
+const EMPTY_WORD: WordRow = { target_lang: "", english: "", emoji: "", category: "general" };
 
 type ContentStatus = "empty" | "loaded" | "modified" | "ai";
 
@@ -76,7 +76,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
               letter_name: d.letter_name ?? "",
               transliteration: d.transliteration ?? "",
               sound: d.sound ?? "",
-              example_word_arm: d.example_word_arm ?? "",
+              example_word_target: d.example_word_target ?? "",
               example_word_eng: d.example_word_eng ?? "",
               emoji: d.emoji ?? "",
             };
@@ -89,7 +89,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           .map((i) => {
             const d = i.item_data as Record<string, string>;
             return {
-              armenian: d.armenian ?? "",
+              target_lang: d.target_lang ?? "",
               english: d.english ?? "",
               emoji: d.emoji ?? "",
               category: d.category ?? "general",
@@ -154,13 +154,13 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           letter_name: item.letter_name ?? "",
           transliteration: item.transliteration ?? "",
           sound: item.sound ?? "",
-          example_word_arm: item.example_word_arm ?? "",
+          example_word_target: item.example_word_target ?? "",
           example_word_eng: item.example_word_eng ?? "",
           emoji: item.emoji ?? "",
         })));
       } else if (Array.isArray(data.items)) {
         setWordRows(data.items.map((item: Record<string, string>) => ({
-          armenian: item.armenian ?? "",
+          target_lang: item.target_lang ?? "",
           english: item.english ?? "",
           emoji: item.emoji ?? "",
           category: item.category ?? "general",
@@ -189,7 +189,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           unit_id: unitId, lesson_id: selectedLesson, item_type: "letter",
           sort_order: i + 1, item_data: r, created_by: userId,
         }))
-      : wordRows.filter((r) => r.armenian).map((r, i) => ({
+      : wordRows.filter((r) => r.target_lang).map((r, i) => ({
           unit_id: unitId, lesson_id: selectedLesson, item_type: "word",
           sort_order: i + 1, item_data: r, created_by: userId,
         }));
@@ -340,7 +340,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                     <input placeholder="Transliteration" value={row.transliteration} onChange={(e) => updateLetter(i, "transliteration", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
-                    <input placeholder="Example word" value={row.example_word_arm} onChange={(e) => updateLetter(i, "example_word_arm", e.target.value)}
+                    <input placeholder="Example word" value={row.example_word_target} onChange={(e) => updateLetter(i, "example_word_target", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                     <input placeholder="English" value={row.example_word_eng} onChange={(e) => updateLetter(i, "example_word_eng", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
@@ -353,7 +353,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
               <div className="space-y-3">
                 {wordRows.map((row, i) => (
                   <div key={i} className="grid grid-cols-3 gap-2">
-                    <input placeholder={wordLabel} value={row.armenian} onChange={(e) => updateWord(i, "armenian", e.target.value)}
+                    <input placeholder={wordLabel} value={row.target_lang} onChange={(e) => updateWord(i, "target_lang", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />
                     <input placeholder={engLabel} value={row.english} onChange={(e) => updateWord(i, "english", e.target.value)}
                       className="px-2 py-1.5 border border-brown-200 rounded text-sm bg-warm-white" />

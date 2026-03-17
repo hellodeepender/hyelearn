@@ -122,7 +122,7 @@ Return EXACTLY 3 letters as a JSON array. Each object must have these exact fiel
   "letter_name": "(letter name in Armenian script)",
   "transliteration": "(letter name in Latin characters)",
   "sound": "(phonetic sound, e.g. ah, b, g)",
-  "example_word_arm": "(simple common Armenian word starting with this letter, in Armenian script)",
+  "example_word_target": "(simple common Armenian word starting with this letter, in Armenian script)",
   "example_word_eng": "(English translation)",
   "emoji": "(single emoji that visually matches the example word)"
 }
@@ -147,7 +147,7 @@ ${globalExclusions}
 
 Return EXACTLY 3 words as a JSON array. Each object must have these exact fields:
 {
-  "armenian": "(word in Armenian script)",
+  "target_lang": "(word in Armenian script)",
   "english": "(English translation)",
   "emoji": "(single emoji that visually matches the word)",
   "category": "(category: food, animal, color, family, school, etc.)"

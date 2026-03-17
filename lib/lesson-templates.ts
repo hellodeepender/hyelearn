@@ -89,8 +89,8 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
         letter_name: d.letter_name as string,
         transliteration: (d.transliteration as string) || transliterate(d.letter_name as string),
         sound: d.sound as string,
-        example_word: d.example_word_arm as string,
-        example_translation: transliterate(d.example_word_arm as string),
+        example_word: d.example_word_target as string,
+        example_translation: transliterate(d.example_word_target as string),
         emoji: d.emoji as string,
         sort_order: s,
       },
@@ -151,7 +151,7 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
   // SHOW: example word + emoji → PICK: letter character
   // Tests: "This word starts with which letter?"
   const wl = letters[0].item_data;
-  const wlArm = wl.example_word_arm as string;
+  const wlArm = wl.example_word_target as string;
   results.push({
     exercise_type: "multiple_choice",
     exercise_data: {
@@ -224,7 +224,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       exercise_type: "learn_card",
       exercise_data: {
         type: "learn_card", visual: d.emoji as string,
-        primary_text: d.armenian as string, secondary_text: d.english as string,
+        primary_text: d.target_lang as string, secondary_text: d.english as string,
         sort_order: s,
       },
       sort_order: s++,
@@ -232,7 +232,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
   }
 
   // Option pools
-  const armPool = words.map((w) => ({ hy: w.item_data.armenian as string, en: "" }));
+  const armPool = words.map((w) => ({ hy: w.item_data.target_lang as string, en: "" }));
   const engPool = words.map((w) => ({ hy: w.item_data.english as string, en: w.item_data.english as string }));
 
   // --- Exercise 1-3: Picture Recognition (sort 4-6) ---
@@ -248,8 +248,8 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
         question_hy: "", question_en: "What is this?",
         options: make3Options(armPool[i], pickWrong(armPool, i)),
         hint_hy: "", hint_en: "Choose the Armenian word for this picture",
-        explanation_hy: d.armenian as string,
-        explanation_en: `${d.emoji} ${armFeedback(d.armenian as string, d.english as string)}`,
+        explanation_hy: d.target_lang as string,
+        explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string)}`,
         sort_order: s,
       },
       sort_order: s++,
@@ -265,11 +265,11 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       exercise_type: "multiple_choice",
       exercise_data: {
         type: "multiple_choice", id: String(s), emoji: "",
-        question_hy: d.armenian as string, question_en: "What does this word mean?",
+        question_hy: d.target_lang as string, question_en: "What does this word mean?",
         options: make3Options(engPool[i], pickWrong(engPool, i)),
         hint_hy: "", hint_en: `Think about: ${d.english}`,
-        explanation_hy: `${d.armenian} = ${d.english}`,
-        explanation_en: armFeedback(d.armenian as string, d.english as string),
+        explanation_hy: `${d.target_lang} = ${d.english}`,
+        explanation_en: armFeedback(d.target_lang as string, d.english as string),
         sort_order: s,
       },
       sort_order: s++,
@@ -288,9 +288,9 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       emoji: rd.emoji as string,
       question_hy: rd.english as string, question_en: "How do you say this in Armenian?",
       options: make3Options(armPool[ri], pickWrong(armPool, ri)),
-      hint_hy: "", hint_en: armFeedback(rd.armenian as string, rd.english as string),
-      explanation_hy: rd.armenian as string,
-      explanation_en: armFeedback(rd.armenian as string, rd.english as string),
+      hint_hy: "", hint_en: armFeedback(rd.target_lang as string, rd.english as string),
+      explanation_hy: rd.target_lang as string,
+      explanation_en: armFeedback(rd.target_lang as string, rd.english as string),
       sort_order: s,
     },
     sort_order: s++,
@@ -300,8 +300,8 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
   // 3 pairs: Armenian word ↔ English word
   emitMatching(
     words.map((w) => ({
-      left_hy: w.item_data.armenian as string,
-      left_en: transliterate(w.item_data.armenian as string),
+      left_hy: w.item_data.target_lang as string,
+      left_en: transliterate(w.item_data.target_lang as string),
       right_hy: w.item_data.english as string,
       right_en: w.item_data.english as string,
     })),
@@ -318,12 +318,12 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       type: "fill_blank", id: String(s),
       emoji: fb.emoji as string,
       sentence_hy: `___ ${fb.emoji}`, sentence_en: `___ means ${fb.english}`,
-      answer_hy: fb.armenian as string, answer_en: fb.english as string,
-      distractors_hy: words.slice(1, 3).map((w) => w.item_data.armenian as string),
+      answer_hy: fb.target_lang as string, answer_en: fb.english as string,
+      distractors_hy: words.slice(1, 3).map((w) => w.item_data.target_lang as string),
       distractors_en: words.slice(1, 3).map((w) => w.item_data.english as string),
-      hint_hy: "", hint_en: armFeedback(fb.armenian as string, fb.english as string),
-      explanation_hy: `${fb.armenian} = ${fb.english}`,
-      explanation_en: armFeedback(fb.armenian as string, fb.english as string),
+      hint_hy: "", hint_en: armFeedback(fb.target_lang as string, fb.english as string),
+      explanation_hy: `${fb.target_lang} = ${fb.english}`,
+      explanation_en: armFeedback(fb.target_lang as string, fb.english as string),
       sort_order: s,
     },
     sort_order: s,
@@ -358,8 +358,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
             letter_name: d.letter_name as string,
             transliteration: (d.transliteration as string) || transliterate(d.letter_name as string),
             sound: d.sound as string,
-            example_word: d.example_word_arm as string,
-            example_translation: transliterate(d.example_word_arm as string),
+            example_word: d.example_word_target as string,
+            example_translation: transliterate(d.example_word_target as string),
             emoji: d.emoji as string,
             sort_order: s,
           },
@@ -370,7 +370,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           exercise_type: "learn_card",
           exercise_data: {
             type: "learn_card", visual: d.emoji as string,
-            primary_text: d.armenian as string, secondary_text: d.english as string,
+            primary_text: d.target_lang as string, secondary_text: d.english as string,
             sort_order: s,
           },
           sort_order: s++,
@@ -386,7 +386,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
     hy: `${l.item_data.letter_upper} ${l.item_data.letter_lower}`,
     en: l.item_data.transliteration as string,
   }));
-  const armPool = words.map((w) => ({ hy: w.item_data.armenian as string, en: "" }));
+  const armPool = words.map((w) => ({ hy: w.item_data.target_lang as string, en: "" }));
   const engPool = words.map((w) => ({ hy: w.item_data.english as string, en: w.item_data.english as string }));
 
   // Shuffle for variety
@@ -412,8 +412,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           emoji: d.emoji as string, question_hy: "", question_en: "What is this?",
           options: make3Options(armPool[idx], pickWrong(armPool, idx)),
           hint_hy: "", hint_en: h("Choose the Armenian word for this picture"),
-          explanation_hy: d.armenian as string,
-          explanation_en: `${d.emoji} ${armFeedback(d.armenian as string, d.english as string)}`,
+          explanation_hy: d.target_lang as string,
+          explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string)}`,
           showCorrectAnswer: showCorrect, sort_order: s,
         },
         sort_order: s++,
@@ -446,11 +446,11 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         exercise_type: "multiple_choice",
         exercise_data: {
           type: "multiple_choice", id: String(s), emoji: "",
-          question_hy: d.armenian as string, question_en: "What does this word mean?",
+          question_hy: d.target_lang as string, question_en: "What does this word mean?",
           options: make3Options(engPool[idx], pickWrong(engPool, idx)),
           hint_hy: "", hint_en: h(`Think about: ${d.english}`),
-          explanation_hy: `${d.armenian} = ${d.english}`,
-          explanation_en: armFeedback(d.armenian as string, d.english as string),
+          explanation_hy: `${d.target_lang} = ${d.english}`,
+          explanation_en: armFeedback(d.target_lang as string, d.english as string),
           showCorrectAnswer: showCorrect, sort_order: s,
         },
         sort_order: s++,
@@ -487,8 +487,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           question_hy: d.english as string, question_en: "How do you say this in Armenian?",
           options: make3Options(armPool[idx], pickWrong(armPool, idx)),
           hint_hy: "", hint_en: "",
-          explanation_hy: d.armenian as string,
-          explanation_en: armFeedback(d.armenian as string, d.english as string),
+          explanation_hy: d.target_lang as string,
+          explanation_en: armFeedback(d.target_lang as string, d.english as string),
           showCorrectAnswer: false, sort_order: s,
         },
         sort_order: s++,
@@ -497,7 +497,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
       // Word association as reverse for letter-only units
       const idx = sL[li++];
       const d = letters[idx].item_data;
-      const arm = d.example_word_arm as string;
+      const arm = d.example_word_target as string;
       results.push({
         exercise_type: "multiple_choice",
         exercise_data: {
@@ -524,8 +524,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         const d = item.item_data;
         const isLetter = item.item_type === "letter";
         return {
-          left_hy: isLetter ? `${d.letter_upper} ${d.letter_lower}` : d.armenian as string,
-          left_en: isLetter ? d.transliteration as string : transliterate(d.armenian as string),
+          left_hy: isLetter ? `${d.letter_upper} ${d.letter_lower}` : d.target_lang as string,
+          left_en: isLetter ? d.transliteration as string : transliterate(d.target_lang as string),
           right_hy: isLetter ? d.letter_name as string : d.english as string,
           right_en: isLetter ? d.transliteration as string : d.english as string,
         };
@@ -567,12 +567,12 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           type: "fill_blank", id: String(s),
           emoji: d.emoji as string,
           sentence_hy: `___ ${d.emoji}`, sentence_en: `___ means ${d.english}`,
-          answer_hy: d.armenian as string, answer_en: d.english as string,
-          distractors_hy: others.slice(0, 2).map((o) => o.item_data.armenian as string),
+          answer_hy: d.target_lang as string, answer_en: d.english as string,
+          distractors_hy: others.slice(0, 2).map((o) => o.item_data.target_lang as string),
           distractors_en: others.slice(0, 2).map((o) => o.item_data.english as string),
-          hint_hy: "", hint_en: h(armFeedback(d.armenian as string, d.english as string)),
-          explanation_hy: `${d.armenian} = ${d.english}`,
-          explanation_en: armFeedback(d.armenian as string, d.english as string),
+          hint_hy: "", hint_en: h(armFeedback(d.target_lang as string, d.english as string)),
+          explanation_hy: `${d.target_lang} = ${d.english}`,
+          explanation_en: armFeedback(d.target_lang as string, d.english as string),
           sort_order: s,
         },
         sort_order: s++,

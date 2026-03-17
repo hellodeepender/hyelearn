@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLocale } from "@/lib/locale-context";
 
 interface Detail {
   level: string; unit: string; lesson: string; status: string; items: number;
 }
 
 export default function BulkGeneratePage() {
+  const { englishName } = useLocale();
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<{ total: number; completed: number; failed: number; details: Detail[] } | null>(null);
   const [error, setError] = useState("");
@@ -35,7 +37,7 @@ export default function BulkGeneratePage() {
 
         <h1 className="text-2xl font-bold text-brown-800 mb-2">Bulk Generate Content</h1>
         <p className="text-brown-500 text-sm mb-6">
-          Auto-fill and generate exercises for all empty lessons across all grades. AI-generated content should be reviewed by an Armenian speaker.
+          Auto-fill and generate exercises for all empty lessons across all grades. AI-generated content should be reviewed by a {englishName} speaker.
         </p>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">{error}</div>}

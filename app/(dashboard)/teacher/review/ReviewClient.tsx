@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useLocale } from "@/lib/locale-context";
 
 interface ExerciseItem {
   id: string;
@@ -46,14 +47,14 @@ function EditableField({ label, value, onChange, large, multiline }: {
 }
 
 // --- Exercise preview renderers ---
-function MCPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void }) {
+function MCPreview({ data, onUpdate, lang }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void; lang: string }) {
   const emoji = data.emoji as string | undefined;
   const options = (data.options ?? []) as { id: string; text_hy: string; text_en: string; correct: boolean; emoji?: string }[];
 
   return (
     <div className="space-y-4">
       {emoji && <div className="text-4xl text-center">{emoji}</div>}
-      <EditableField label="Question (Armenian)" value={String(data.question_hy ?? "")} large
+      <EditableField label={`Question (${lang})`} value={String(data.question_hy ?? "")} large
         onChange={(v) => onUpdate({ ...data, question_hy: v })} />
       <EditableField label="Question (English)" value={String(data.question_en ?? "")}
         onChange={(v) => onUpdate({ ...data, question_en: v })} />
@@ -63,7 +64,7 @@ function MCPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
           <div key={opt.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 ${opt.correct ? "border-green-400 bg-green-50" : "border-brown-100 bg-brown-50/50"}`}>
             {opt.emoji && <span className="text-2xl">{opt.emoji}</span>}
             <div className="flex-1 min-w-0">
-              <EditableField label={`Option ${opt.id.toUpperCase()} (Armenian)`} value={opt.text_hy} large
+              <EditableField label={`Option ${opt.id.toUpperCase()} (${lang})`} value={opt.text_hy} large
                 onChange={(v) => {
                   const newOpts = [...options];
                   newOpts[i] = { ...newOpts[i], text_hy: v };
@@ -93,7 +94,7 @@ function MCPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
       </div>
 
       <div className="border-t border-brown-100 pt-3">
-        <EditableField label="Explanation (Armenian)" value={String(data.explanation_hy ?? "")} multiline
+        <EditableField label={`Explanation (${lang})`} value={String(data.explanation_hy ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_hy: v })} />
         <EditableField label="Explanation (English)" value={String(data.explanation_en ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_en: v })} />
@@ -102,7 +103,7 @@ function MCPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
   );
 }
 
-function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void }) {
+function FBPreview({ data, onUpdate, lang }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void; lang: string }) {
   const emoji = data.emoji as string | undefined;
   const distractorsHy = (data.distractors_hy ?? []) as string[];
   const distractorsEn = (data.distractors_en ?? []) as string[];
@@ -110,7 +111,7 @@ function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
   return (
     <div className="space-y-4">
       {emoji && <div className="text-4xl text-center">{emoji}</div>}
-      <EditableField label="Sentence (Armenian, use ___ for blank)" value={String(data.sentence_hy ?? "")} large
+      <EditableField label={`Sentence (${lang}, use ___ for blank)`} value={String(data.sentence_hy ?? "")} large
         onChange={(v) => onUpdate({ ...data, sentence_hy: v })} />
       <EditableField label="Sentence (English)" value={String(data.sentence_en ?? "")}
         onChange={(v) => onUpdate({ ...data, sentence_en: v })} />
@@ -118,7 +119,7 @@ function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
       <div className="grid grid-cols-2 gap-2">
         <div className="p-3 rounded-xl border-2 border-green-400 bg-green-50">
           <p className="text-[10px] uppercase text-green-600 mb-1">Correct Answer</p>
-          <EditableField label="Armenian" value={String(data.answer_hy ?? "")} large
+          <EditableField label={lang} value={String(data.answer_hy ?? "")} large
             onChange={(v) => onUpdate({ ...data, answer_hy: v })} />
           <EditableField label="English" value={String(data.answer_en ?? "")}
             onChange={(v) => onUpdate({ ...data, answer_en: v })} />
@@ -126,7 +127,7 @@ function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
         {distractorsHy.map((d, i) => (
           <div key={i} className="p-3 rounded-xl border-2 border-brown-100 bg-brown-50/50">
             <p className="text-[10px] uppercase text-brown-400 mb-1">Distractor {i + 1}</p>
-            <EditableField label="Armenian" value={d} large
+            <EditableField label={lang} value={d} large
               onChange={(v) => {
                 const nd = [...distractorsHy]; nd[i] = v;
                 onUpdate({ ...data, distractors_hy: nd });
@@ -141,7 +142,7 @@ function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
       </div>
 
       <div className="border-t border-brown-100 pt-3">
-        <EditableField label="Explanation (Armenian)" value={String(data.explanation_hy ?? "")} multiline
+        <EditableField label={`Explanation (${lang})`} value={String(data.explanation_hy ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_hy: v })} />
         <EditableField label="Explanation (English)" value={String(data.explanation_en ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_en: v })} />
@@ -150,19 +151,19 @@ function FBPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
   );
 }
 
-function MatchPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void }) {
+function MatchPreview({ data, onUpdate, lang }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void; lang: string }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div>
         <p className="text-[10px] uppercase text-brown-400 mb-2">Left Column</p>
-        <EditableField label="Armenian" value={String(data.left_hy ?? "")} large
+        <EditableField label={lang} value={String(data.left_hy ?? "")} large
           onChange={(v) => onUpdate({ ...data, left_hy: v })} />
         <EditableField label="English" value={String(data.left_en ?? "")}
           onChange={(v) => onUpdate({ ...data, left_en: v })} />
       </div>
       <div>
         <p className="text-[10px] uppercase text-brown-400 mb-2">Right Column (Match)</p>
-        <EditableField label="Armenian" value={String(data.right_hy ?? "")} large
+        <EditableField label={lang} value={String(data.right_hy ?? "")} large
           onChange={(v) => onUpdate({ ...data, right_hy: v })} />
         <EditableField label="English" value={String(data.right_en ?? "")}
           onChange={(v) => onUpdate({ ...data, right_en: v })} />
@@ -171,14 +172,14 @@ function MatchPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpd
   );
 }
 
-function TFPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void }) {
+function TFPreview({ data, onUpdate, lang }: { data: Record<string, unknown>; onUpdate: (d: Record<string, unknown>) => void; lang: string }) {
   const emoji = data.emoji as string | undefined;
   const correct = data.correct_answer as boolean;
 
   return (
     <div className="space-y-4">
       {emoji && <div className="text-4xl text-center">{emoji}</div>}
-      <EditableField label="Statement (Armenian)" value={String(data.statement_hy ?? "")} large
+      <EditableField label={`Statement (${lang})`} value={String(data.statement_hy ?? "")} large
         onChange={(v) => onUpdate({ ...data, statement_hy: v })} />
       <EditableField label="Statement (English)" value={String(data.statement_en ?? "")}
         onChange={(v) => onUpdate({ ...data, statement_en: v })} />
@@ -199,7 +200,7 @@ function TFPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
       </div>
 
       <div className="border-t border-brown-100 pt-3">
-        <EditableField label="Explanation (Armenian)" value={String(data.explanation_hy ?? "")} multiline
+        <EditableField label={`Explanation (${lang})`} value={String(data.explanation_hy ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_hy: v })} />
         <EditableField label="Explanation (English)" value={String(data.explanation_en ?? "")} multiline
           onChange={(v) => onUpdate({ ...data, explanation_en: v })} />
@@ -210,6 +211,7 @@ function TFPreview({ data, onUpdate }: { data: Record<string, unknown>; onUpdate
 
 // --- Main Review Client ---
 export default function ReviewClient({ exercises: initial }: { exercises: ExerciseItem[] }) {
+  const { englishName: lang } = useLocale();
   const router = useRouter();
   const [exercises, setExercises] = useState(initial);
   const [editedData, setEditedData] = useState<Map<string, Record<string, unknown>>>(new Map());
@@ -328,16 +330,16 @@ export default function ReviewClient({ exercises: initial }: { exercises: Exerci
             {/* Rendered preview with inline editing */}
             <div className="px-6 py-5">
               {ex.type === "multiple_choice" && (
-                <MCPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} />
+                <MCPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} lang={lang} />
               )}
               {ex.type === "fill_blank" && (
-                <FBPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} />
+                <FBPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} lang={lang} />
               )}
               {ex.type === "matching" && (
-                <MatchPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} />
+                <MatchPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} lang={lang} />
               )}
               {ex.type === "true_false" && (
-                <TFPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} />
+                <TFPreview data={data} onUpdate={(d) => updateExerciseData(ex.id, d)} lang={lang} />
               )}
             </div>
 

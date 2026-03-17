@@ -100,7 +100,7 @@ export async function POST() {
           "You are a Western Armenian language expert. Return ONLY valid JSON array.",
           `Generate 3 Armenian alphabet letters for ${level.title}. ${gradeGuide}${letterExclusions}
 
-Return JSON array: [{"letter_upper":"...","letter_lower":"...","letter_name":"...","transliteration":"...","sound":"...","example_word_arm":"...","example_word_eng":"...","emoji":"..."}]
+Return JSON array: [{"letter_upper":"...","letter_lower":"...","letter_name":"...","transliteration":"...","sound":"...","example_word_target":"...","example_word_eng":"...","emoji":"..."}]
 
 Use Western Armenian pronunciation. Emoji must match the example word.`
         );
@@ -112,7 +112,7 @@ Use Western Armenian pronunciation. Emoji must match the example word.`
 
 Do NOT generate meta-vocabulary (words about the subject like "letter", "grammar"). Generate vocabulary that belongs to the subject.
 
-Return JSON array: [{"armenian":"...","english":"...","emoji":"...","category":"..."}]
+Return JSON array: [{"target_lang":"...","english":"...","emoji":"...","category":"..."}]
 
 Use Western Armenian with classical orthography. Emoji must match the word.`
         );
