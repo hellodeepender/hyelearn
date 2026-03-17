@@ -124,5 +124,5 @@
   "schemaOrgDesc": "Interactive Western Armenian learning platform for K-5 students",
   "schemaCourseName": "Western Armenian for Kids (K-5)",
   "schemaCourseDesc": "Complete Western Armenian language curriculum from Kindergarten through Grade 5",
-  "schemaLanguages": ["en", "hy"]
+  "schemaLanguages": "en,hy"
 }
