@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { useTranslations } from "@/lib/use-translations";
 
 interface HeaderProps {
   userName: string;
@@ -11,6 +12,7 @@ interface HeaderProps {
 }
 
 export default function Header({ userName: initialName, userRole: initialRole }: HeaderProps) {
+  const t = useTranslations("common");
   const router = useRouter();
   const supabaseRef = useRef(createClient());
   const [displayName, setDisplayName] = useState(initialName);
@@ -63,8 +65,8 @@ export default function Header({ userName: initialName, userRole: initialRole }:
           href={displayRole === "teacher" || displayRole === "admin" ? "/teacher" : "/student"}
           className="flex items-center gap-2"
         >
-          <span className="text-2xl font-bold text-gold">Ա</span>
-          <span className="text-xl font-semibold text-brown-800">HyeLearn</span>
+          <span className="text-2xl font-bold text-gold">{t("brandLetter")}</span>
+          <span className="text-xl font-semibold text-brown-800">{t("brand")}</span>
         </Link>
         <div className="flex items-center gap-4">
           {loading ? (
@@ -80,7 +82,7 @@ export default function Header({ userName: initialName, userRole: initialRole }:
             onClick={handleLogout}
             className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors"
           >
-            Log out
+            {t("logOut")}
           </button>
         </div>
       </div>
