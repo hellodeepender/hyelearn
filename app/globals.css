@@ -1,24 +1,45 @@
 @import "tailwindcss";
 
+/* Default theme values (Armenian/HyeLearn) — overridden by layout.tsx per domain */
+:root {
+  --theme-primary: #D4A843;
+  --theme-primary-dark: #B8923F;
+  --theme-primary-light: rgba(212,168,67,0.1);
+  --theme-text-900: #1A1303;
+  --theme-text-800: #2D2106;
+  --theme-text-700: #4A3609;
+  --theme-text-600: #6B4F0E;
+  --theme-text-500: #8B6914;
+  --theme-text-400: #B8923F;
+  --theme-text-300: #C9A96E;
+  --theme-text-200: #E0CDB0;
+  --theme-bg: #FFFDF7;
+  --theme-bg-alt: #FDF6E3;
+  --theme-bg-alt-dark: #F5E6C8;
+  --theme-surface: #FAF5F0;
+  --theme-border: #F0E6D6;
+  --theme-hero-overlay: #2D2106;
+}
+
 @theme {
-  --color-cream: #FDF6E3;
-  --color-cream-dark: #F5E6C8;
-  --color-brown-50: #FAF5F0;
-  --color-brown-100: #F0E6D6;
-  --color-brown-200: #E0CDB0;
-  --color-brown-300: #C9A96E;
-  --color-brown-400: #B8923F;
-  --color-brown-500: #8B6914;
-  --color-brown-600: #6B4F0E;
-  --color-brown-700: #4A3609;
-  --color-brown-800: #2D2106;
-  --color-brown-900: #1A1303;
-  --color-gold: #D4A843;
-  --color-gold-light: #E8C96A;
-  --color-gold-dark: #B8923F;
-  --color-earth: #8B6914;
-  --color-earth-dark: #6B4F0E;
-  --color-warm-white: #FFFDF7;
+  --color-cream: var(--theme-bg-alt);
+  --color-cream-dark: var(--theme-bg-alt-dark);
+  --color-brown-50: var(--theme-surface);
+  --color-brown-100: var(--theme-border);
+  --color-brown-200: var(--theme-text-200);
+  --color-brown-300: var(--theme-text-300);
+  --color-brown-400: var(--theme-text-400);
+  --color-brown-500: var(--theme-text-500);
+  --color-brown-600: var(--theme-text-600);
+  --color-brown-700: var(--theme-text-700);
+  --color-brown-800: var(--theme-text-800);
+  --color-brown-900: var(--theme-text-900);
+  --color-gold: var(--theme-primary);
+  --color-gold-light: var(--theme-primary-light);
+  --color-gold-dark: var(--theme-primary-dark);
+  --color-earth: var(--theme-text-500);
+  --color-earth-dark: var(--theme-text-600);
+  --color-warm-white: var(--theme-bg);
   --animate-fade-in: fade-in 0.3s ease-in;
 }
 

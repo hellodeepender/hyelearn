@@ -116,8 +116,30 @@ export default async function RootLayout({
     ? `${notoSans.variable} font-[family-name:var(--font-noto-sans)]`
     : `${notoSansArmenian.variable} font-[family-name:var(--font-noto-armenian)]`;
 
+  const t = domainConfig.theme;
+
   return (
     <html lang={domainConfig.locale} dir={domainConfig.dir}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --theme-primary: ${t.primary};
+            --theme-primary-dark: ${t.primaryDark};
+            --theme-primary-light: ${t.primaryLight};
+            --theme-text-900: ${t.text900};
+            --theme-text-800: ${t.text800};
+            --theme-text-600: ${t.text600};
+            --theme-text-500: ${t.text500};
+            --theme-text-400: ${t.text400};
+            --theme-text-300: ${t.text300};
+            --theme-bg: ${t.bg};
+            --theme-bg-alt: ${t.bgAlt};
+            --theme-surface: ${t.surface};
+            --theme-border: ${t.border};
+            --theme-hero-overlay: ${t.heroOverlay};
+          }
+        `}} />
+      </head>
       <body className={`${fontClass} antialiased`}>
         <LocaleProvider domainConfig={domainConfig}>
           {children}
