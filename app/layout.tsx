@@ -119,7 +119,7 @@ export default async function RootLayout({
   const t = domainConfig.theme;
 
   return (
-    <html lang={domainConfig.locale} dir={domainConfig.dir}>
+    <html lang="en" dir={domainConfig.dir}>
       <head>
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
