@@ -7,6 +7,8 @@ import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
 import { BADGES } from "@/lib/badges";
+import { getTranslations } from "@/lib/translations";
+import { getServerLocale } from "@/lib/server-locale";
 
 export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
   const params = await searchParams;
@@ -131,6 +133,10 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
   const isFree = !profile?.subscription_tier || profile.subscription_tier === "free";
 
+  // Locale
+  const tc = await getTranslations("common");
+  const { brandName } = await getServerLocale();
+
   // XP & badges — check for newly earned badges on every dashboard load (idempotent)
   const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0);
   const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -149,13 +155,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
 
         {showSubscriptionSuccess && (
           <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6">
-            <p className="font-medium">Welcome to HyeLearn Full Access!</p>
+            <p className="font-medium">Welcome to {brandName} Full Access!</p>
             <p className="text-sm text-green-600 mt-0.5">You now have access to all lessons and unlimited practice.</p>
           </div>
         )}
 
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
-        <p className="text-brown-500 mb-8">Continue your Armenian learning journey.</p>
+        <p className="text-brown-500 mb-8">Continue your {tc("language")} learning journey.</p>
 
         {/* Contextual message */}
         <section className="mb-8">
@@ -186,7 +192,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
                 <div>
                   <p className="text-xs font-medium text-brown-400 uppercase mb-1">Your daily 5 minutes</p>
                   <p className="font-semibold text-brown-800">Let&apos;s get started!</p>
-                  <p className="text-sm text-brown-500 mt-0.5">Begin your Armenian learning journey</p>
+                  <p className="text-sm text-brown-500 mt-0.5">Begin your {tc("language")} learning journey</p>
                 </div>
                 <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
                   Start Learning
@@ -310,7 +316,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
       {/* Footer */}
       <footer className="mt-10 py-6 px-6 border-t border-brown-100">
         <div className="max-w-6xl mx-auto text-center text-xs text-brown-400">
-          HyeLearn &middot; Made with love for the Armenian diaspora
+          {brandName} &middot; Made with love for diaspora communities
         </div>
       </footer>
     </div>

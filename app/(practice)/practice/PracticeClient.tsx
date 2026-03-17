@@ -15,6 +15,7 @@ import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
 import Paywall from "@/components/ui/Paywall";
+import { useLocale } from "@/lib/locale-context";
 
 // --- Config data ---
 
@@ -34,26 +35,27 @@ const SUBJECTS = [
   { id: "culture", label: "Culture & History", icon: "🏛️" },
 ] as const;
 
-const TOPICS_YOUNG: Record<string, string[]> = {
-  vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body"],
-  reading: ["Short Story", "Dialogue"],
-  grammar: ["Simple Words", "Sentence Structure"],
-  culture: ["Armenian Holidays", "Alphabet History"],
-};
-
-const TOPICS_YOUNG_G1: Record<string, string[]> = {
-  vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body", "Family", "School & Classroom", "Greetings", "Weather"],
-  reading: ["Short Story", "Dialogue"],
-  grammar: ["Simple Words", "Noun Plurals", "Sentence Structure"],
-  culture: ["Armenian Holidays", "Famous Armenians", "Alphabet History"],
-};
-
-const TOPICS_STANDARD: Record<string, string[]> = {
-  vocabulary: ["Animals", "Family", "Food & Drink", "Colors & Shapes", "School & Classroom", "Body Parts", "Greetings"],
-  reading: ["Short Story", "Dialogue", "Historical Passage"],
-  grammar: ["Verb Conjugation", "Noun Plurals", "Sentence Structure"],
-  culture: ["Armenian Holidays", "Famous Armenians", "Geography of Armenia", "Alphabet History"],
-};
+function buildTopics(language: string) {
+  const young: Record<string, string[]> = {
+    vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body"],
+    reading: ["Short Story", "Dialogue"],
+    grammar: ["Simple Words", "Sentence Structure"],
+    culture: [`${language} Holidays`, "Alphabet History"],
+  };
+  const youngG1: Record<string, string[]> = {
+    vocabulary: ["Animals", "Colors", "Numbers", "Fruits & Food", "Shapes", "My Body", "Family", "School & Classroom", "Greetings", "Weather"],
+    reading: ["Short Story", "Dialogue"],
+    grammar: ["Simple Words", "Noun Plurals", "Sentence Structure"],
+    culture: [`${language} Holidays`, `Famous ${language}s`, "Alphabet History"],
+  };
+  const standard: Record<string, string[]> = {
+    vocabulary: ["Animals", "Family", "Food & Drink", "Colors & Shapes", "School & Classroom", "Body Parts", "Greetings"],
+    reading: ["Short Story", "Dialogue", "Historical Passage"],
+    grammar: ["Verb Conjugation", "Noun Plurals", "Sentence Structure"],
+    culture: [`${language} Holidays`, `Famous ${language}s`, `Geography`, "Alphabet History"],
+  };
+  return { young, youngG1, standard };
+}
 
 const EXERCISE_TYPES: { id: ExerciseType; label: string; icon: string }[] = [
   { id: "multiple_choice", label: "Multiple Choice", icon: "🔘" },
@@ -62,7 +64,8 @@ const EXERCISE_TYPES: { id: ExerciseType; label: string; icon: string }[] = [
   { id: "true_false", label: "True / False", icon: "⚖️" },
 ];
 
-const LOADING_LETTERS = ["\u0531", "\u0532", "\u0533", "\u0534", "\u0535", "\u0536", "\u0537", "\u0538", "\u0539", "\u053A"];
+const LOADING_LETTERS_HY = ["\u0531", "\u0532", "\u0533", "\u0534", "\u0535", "\u0536", "\u0537", "\u0538", "\u0539", "\u053A"];
+const LOADING_LETTERS_EL = ["\u0391", "\u0392", "\u0393", "\u0394", "\u0395", "\u0396", "\u0397", "\u0398", "\u0399", "\u039A"];
 
 type Phase = "config" | "loading" | "practicing" | "complete";
 
@@ -77,13 +80,15 @@ function isYoung(grade: string): boolean {
   return grade === "K" || grade === "1";
 }
 
-function getTopics(grade: string): Record<string, string[]> {
-  if (grade === "K") return TOPICS_YOUNG;
-  if (grade === "1") return TOPICS_YOUNG_G1;
-  return TOPICS_STANDARD;
+function getTopics(grade: string, language: string): Record<string, string[]> {
+  const t = buildTopics(language);
+  if (grade === "K") return t.young;
+  if (grade === "1") return t.youngG1;
+  return t.standard;
 }
 
 export default function PracticeClient({ userId, gradeLevel, userRole, subscriptionTier }: Props) {
+  const { locale, englishName } = useLocale();
   const [grade, setGrade] = useState(String(gradeLevel));
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
@@ -99,7 +104,8 @@ export default function PracticeClient({ userId, gradeLevel, userRole, subscript
   const [rateLimited, setRateLimited] = useState(false);
 
   const young = isYoung(grade);
-  const topics = getTopics(grade);
+  const topics = getTopics(grade, englishName);
+  const loadingLetters = locale === "el" ? LOADING_LETTERS_EL : LOADING_LETTERS_HY;
 
   async function handleGenerate() {
     setError("");
@@ -356,7 +362,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole, subscript
     return (
       <main className="max-w-2xl mx-auto px-6 py-20 text-center">
         <div className="flex justify-center gap-3 mb-6">
-          {LOADING_LETTERS.map((letter, i) => (
+          {loadingLetters.map((letter, i) => (
             <span
               key={i}
               className="text-2xl font-bold text-gold animate-bounce"

@@ -4,10 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { useTranslations } from "@/lib/use-translations";
+import { useLocale } from "@/lib/locale-context";
 
 type Step = "code" | "account" | "done";
 
 export default function JoinPage() {
+  const tc = useTranslations("common");
+  const { brandName } = useLocale();
   const router = useRouter();
   const supabase = createClient();
   const [step, setStep] = useState<Step>("code");
@@ -70,8 +74,8 @@ export default function JoinPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-3xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-2xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-3xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-2xl font-semibold text-brown-800">{brandName}</span>
           </Link>
         </div>
 

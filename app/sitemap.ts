@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
+import { getServerLocale } from "@/lib/server-locale";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://hyelearn.com";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { url: baseUrl } = await getServerLocale();
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },

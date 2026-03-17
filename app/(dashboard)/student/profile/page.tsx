@@ -4,8 +4,10 @@ import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
 import { getProgressToNextLevel, ARARAT_LEVELS } from "@/lib/xp";
 import { BADGES } from "@/lib/badges";
+import { getTranslations } from "@/lib/translations";
 
 export default async function ProfilePage() {
+  const tc = await getTranslations("common");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -34,7 +36,7 @@ export default async function ProfilePage() {
         {/* Name & level */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-brown-800">{profile?.full_name ?? "Student"}</h1>
-          <p className="text-brown-400 text-sm mt-1">Armenian learner</p>
+          <p className="text-brown-400 text-sm mt-1">{tc("language")} learner</p>
         </div>
 
         {/* Ararat climb */}
