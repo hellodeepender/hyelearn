@@ -1,9 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getDomainConfig } from "@/config/domains";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  // ── Locale detection ──────────────────────────────────────
+  const hostname = request.headers.get("host") || "hyelearn.com";
+  const domainConfig = getDomainConfig(hostname);
+
+  // ── Supabase auth (unchanged from original) ───────────────
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -44,9 +50,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // ── Attach locale to response ─────────────────────────────
+  supabaseResponse.headers.set("x-locale", domainConfig.locale);
+  supabaseResponse.headers.set("x-brand-name", domainConfig.brandName);
+  supabaseResponse.headers.set("x-domain", hostname.split(":")[0]);
+
+  supabaseResponse.cookies.set("locale", domainConfig.locale, {
+    path: "/",
+    sameSite: "lax",
+  });
+
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/teacher/:path*", "/student/:path*", "/practice/:path*", "/account/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)",
+  ],
 };
