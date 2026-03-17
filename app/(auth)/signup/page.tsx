@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { useTranslations } from "@/lib/use-translations";
 
 export default function SignupPage() {
+  const tc = useTranslations("common");
   const router = useRouter();
   const supabase = createClient();
   const [fullName, setFullName] = useState("");
@@ -88,11 +90,11 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-3xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-2xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-3xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-2xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <h1 className="text-2xl font-bold text-brown-800">Create your free account</h1>
-          <p className="text-brown-500 mt-1">Start learning Armenian today</p>
+          <p className="text-brown-500 mt-1">{tc("startLearningToday")}</p>
         </div>
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,7 +132,7 @@ export default function SignupPage() {
           </p>
           <p className="text-brown-400 text-xs">
             Are you a teacher or school?{" "}
-            <a href="mailto:support@hyelearn.com" className="text-brown-500 hover:text-brown-700 underline">Contact us</a>
+            <a href={`mailto:${tc("teacherContact")}`} className="text-brown-500 hover:text-brown-700 underline">Contact us</a>
           </p>
         </div>
       </div>

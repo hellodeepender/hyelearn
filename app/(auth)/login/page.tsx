@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
+import { useTranslations } from "@/lib/use-translations";
 
 export default function LoginPage() {
+  const tc = useTranslations("common");
   const router = useRouter();
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -60,8 +62,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-3xl font-bold text-gold">{"\u0531"}</span>
-            <span className="text-2xl font-semibold text-brown-800">HyeLearn</span>
+            <span className="text-3xl font-bold text-gold">{tc("brandLetter")}</span>
+            <span className="text-2xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <h1 className="text-2xl font-bold text-brown-800">Welcome back</h1>
           <p className="text-brown-500 mt-1">Sign in to your account</p>
