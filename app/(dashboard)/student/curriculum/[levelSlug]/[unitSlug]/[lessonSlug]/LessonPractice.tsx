@@ -28,6 +28,7 @@ interface Props {
   backUrl: string;
   nextLessonUrl?: string;
   gradeValue: string;
+  locale: string;
 }
 
 /** Group matching exercises by sort_order into separate matching_group entries (max 3 pairs each). */
@@ -74,7 +75,7 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
   return steps;
 }
 
-export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, gradeValue }: Props) {
+export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, gradeValue, locale }: Props) {
   const young = gradeValue === "K" || gradeValue === "1";
   const learnCount = exercises.filter((e) => e.type === "learn_card").length;
 
@@ -179,7 +180,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
           <p className="text-gold font-bold text-lg">+{rewards.xpEarned} XP</p>
         )}
         {rewards.newBadges.map((slug) => {
-          const badge = getBadgeBySlug(slug);
+          const badge = getBadgeBySlug(slug, locale);
           return badge ? (
             <div key={slug} className="bg-gold/5 border border-gold/20 rounded-xl p-3">
               <span className="text-3xl">{badge.emoji}</span>
@@ -189,7 +190,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
           ) : null;
         })}
         {rewards.leveledUp && (
-          <p className="text-gold font-medium text-sm">{"\uD83C\uDFD4\uFE0F"} Level up!</p>
+          <p className="text-gold font-medium text-sm">{locale === "el" ? "\u26F0\uFE0F" : "\uD83C\uDFD4\uFE0F"} Level up!</p>
         )}
       </div>
     ) : null;

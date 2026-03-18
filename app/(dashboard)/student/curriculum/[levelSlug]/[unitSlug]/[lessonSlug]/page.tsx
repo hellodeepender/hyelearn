@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { canAccessCurriculum } from "@/lib/access";
+import { getLocale } from "@/lib/server-locale";
 import Header from "@/components/ui/Header";
 import Paywall from "@/components/ui/Paywall";
 import LessonPractice from "./LessonPractice";
@@ -81,6 +82,7 @@ export default async function LessonPage({
         backUrl={backUrl}
         nextLessonUrl={nextLessonUrl}
         gradeValue={level.grade_value}
+        locale={await getLocale()}
       />
     </div>
   );
