@@ -3,6 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getDomainConfig } from "@/config/domains";
 
 export async function middleware(request: NextRequest) {
+  // ── Auth code redirect ────────────────────────────────────
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && !request.nextUrl.pathname.startsWith("/auth/callback")) {
+    const callbackUrl = new URL("/auth/callback", request.url);
+    callbackUrl.searchParams.set("code", code);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   // ── Locale detection ──────────────────────────────────────
   const hostname = request.headers.get("host") || "hyelearn.com";
   const domainConfig = getDomainConfig(hostname);
