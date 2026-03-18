@@ -68,19 +68,18 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
     next.set(leftOriginalIndex, rightOriginalIndex);
     setMatches(next);
     setSelectedLeft(null);
+  }
 
-    // Auto-check when all pairs are matched
-    if (next.size === exercises.length) {
-      const res = new Map<number, boolean>();
-      let allCorrect = true;
-      next.forEach((rightIdx, leftIdx) => {
-        const isCorrect = leftIdx === rightIdx;
-        res.set(leftIdx, isCorrect);
-        if (!isCorrect) allCorrect = false;
-      });
-      setResults(res);
-      onAnswer(allCorrect, false);
-    }
+  function handleCheck() {
+    const res = new Map<number, boolean>();
+    let allCorrect = true;
+    matches.forEach((rightIdx, leftIdx) => {
+      const isCorrect = leftIdx === rightIdx;
+      res.set(leftIdx, isCorrect);
+      if (!isCorrect) allCorrect = false;
+    });
+    setResults(res);
+    onAnswer(allCorrect, false);
   }
 
   function getLeftStatus(originalIndex: number) {
@@ -158,6 +157,15 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
           })}
         </div>
       </div>
+
+      {!done && matches.size === exercises.length && (
+        <div className="text-center">
+          <button onClick={handleCheck}
+            className="bg-gold hover:bg-gold-dark text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors">
+            Check answers
+          </button>
+        </div>
+      )}
 
       {done && (
         <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 text-center animate-fade-in`}>
