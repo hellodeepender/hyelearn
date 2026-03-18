@@ -440,10 +440,14 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
                 {bandConfig.label}
               </span>
             </div>
-            <button onClick={handleAutofill} disabled={autofilling}
-              className="flex items-center gap-1.5 border-2 border-gold/50 hover:border-gold text-gold-dark px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-              {autofilling ? "Generating..." : "\u2728 Auto-fill with AI"}
-            </button>
+            {isAlphabet ? (
+              <p className="text-xs font-medium text-brown-400">Alphabet content is pre-set. You can edit example words and emoji.</p>
+            ) : (
+              <button onClick={handleAutofill} disabled={autofilling}
+                className="flex items-center gap-1.5 border-2 border-gold/50 hover:border-gold text-gold-dark px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+                {autofilling ? "Generating..." : "\u2728 Auto-fill with AI"}
+              </button>
+            )}
           </div>
 
           <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
