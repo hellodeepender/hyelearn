@@ -77,6 +77,52 @@ const GREEK_LETTERS: LetterData[] = [
   { letter_upper: "\u03A9", letter_lower: "\u03C9", letter_name: "\u03C9\u03BC\u03AD\u03B3\u03B1", transliteration: "oméga", sound: "o", example_word_target: "\u03CE\u03C1\u03B1", example_word_eng: "hour", emoji: "\uD83D\uDD50" },
 ];
 
+// ── Armenian alphabet (38 letters, Western Armenian pronunciation) ──
+const ARMENIAN_LETTERS: LetterData[] = [
+  // 1-9: Alphabet Part 1
+  { letter_upper: "\u0531", letter_lower: "\u0561", letter_name: "\u0561\u0575\u0562", transliteration: "ayp", sound: "a", example_word_target: "\u0561\u0574\u057A", example_word_eng: "cloud", emoji: "\u2601\uFE0F" },
+  { letter_upper: "\u0532", letter_lower: "\u0562", letter_name: "\u0562\u0565\u0576", transliteration: "pen", sound: "p", example_word_target: "\u0562\u0561\u057C", example_word_eng: "word", emoji: "\uD83D\uDCDD" },
+  { letter_upper: "\u0533", letter_lower: "\u0563", letter_name: "\u0563\u056B\u0574", transliteration: "kim", sound: "k", example_word_target: "\u0563\u056B\u0580\u0584", example_word_eng: "book", emoji: "\uD83D\uDCD6" },
+  { letter_upper: "\u0534", letter_lower: "\u0564", letter_name: "\u0564\u0561", transliteration: "ta", sound: "t", example_word_target: "\u0564\u0578\u0582\u057C", example_word_eng: "door", emoji: "\uD83D\uDEAA" },
+  { letter_upper: "\u0535", letter_lower: "\u0565", letter_name: "\u0565\u0579", transliteration: "yech", sound: "ye", example_word_target: "\u0565\u056F\u0565\u0572\u0565\u0581\u056B", example_word_eng: "church", emoji: "\u26EA" },
+  { letter_upper: "\u0536", letter_lower: "\u0566", letter_name: "\u0566\u0561", transliteration: "za", sound: "z", example_word_target: "\u0566\u0561\u0576\u0563", example_word_eng: "bell", emoji: "\uD83D\uDD14" },
+  { letter_upper: "\u0537", letter_lower: "\u0567", letter_name: "\u0567", transliteration: "eh", sound: "e", example_word_target: "\u0567\u057B", example_word_eng: "page", emoji: "\uD83D\uDCC4" },
+  { letter_upper: "\u0538", letter_lower: "\u0568", letter_name: "\u0568\u0569", transliteration: "ut", sound: "u", example_word_target: "\u0568\u0576\u057F\u0561\u0576\u056B\u0584", example_word_eng: "family", emoji: "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67" },
+  { letter_upper: "\u0539", letter_lower: "\u0569", letter_name: "\u0569\u0578", transliteration: "to", sound: "t'", example_word_target: "\u0569\u056B\u057C", example_word_eng: "bird", emoji: "\uD83D\uDC26" },
+  // 10-18: Alphabet Part 2
+  { letter_upper: "\u053A", letter_lower: "\u056A", letter_name: "\u056A\u0567", transliteration: "zhe", sound: "zh", example_word_target: "\u056A\u0561\u0574", example_word_eng: "hour", emoji: "\u23F0" },
+  { letter_upper: "\u053B", letter_lower: "\u056B", letter_name: "\u056B\u0576\u056B", transliteration: "ini", sound: "i", example_word_target: "\u056B\u0576\u0584", example_word_eng: "self", emoji: "\uD83E\uDDD1" },
+  { letter_upper: "\u053C", letter_lower: "\u056C", letter_name: "\u056C\u056B\u0582\u0576", transliteration: "liun", sound: "l", example_word_target: "\u056C\u0578\u0582\u057D\u056B\u0576", example_word_eng: "light", emoji: "\uD83D\uDCA1" },
+  { letter_upper: "\u053D", letter_lower: "\u056D", letter_name: "\u056D\u0567", transliteration: "khe", sound: "kh", example_word_target: "\u056D\u0576\u0571\u0578\u0580", example_word_eng: "apple", emoji: "\uD83C\uDF4E" },
+  { letter_upper: "\u053E", letter_lower: "\u056E", letter_name: "\u056E\u0561", transliteration: "dza", sound: "dz", example_word_target: "\u056E\u0561\u057C", example_word_eng: "tree", emoji: "\uD83C\uDF33" },
+  { letter_upper: "\u053F", letter_lower: "\u056F", letter_name: "\u0563\u0565\u0576", transliteration: "gen", sound: "g", example_word_target: "\u056F\u0561\u057F\u0578\u0582", example_word_eng: "cat", emoji: "\uD83D\uDC31" },
+  { letter_upper: "\u0540", letter_lower: "\u0570", letter_name: "\u0570\u0578", transliteration: "ho", sound: "h", example_word_target: "\u0570\u0561\u0581", example_word_eng: "bread", emoji: "\uD83C\uDF5E" },
+  { letter_upper: "\u0541", letter_lower: "\u0571", letter_name: "\u0571\u0561", transliteration: "tsa", sound: "ts", example_word_target: "\u0571\u0578\u0582\u056F", example_word_eng: "fish", emoji: "\uD83D\uDC1F" },
+  { letter_upper: "\u0542", letter_lower: "\u0572", letter_name: "\u0572\u0561\u057F", transliteration: "ghat", sound: "gh", example_word_target: "\u0572\u0565\u056F", example_word_eng: "beautiful", emoji: "\u2728" },
+  // 19-27: Alphabet Part 3
+  { letter_upper: "\u0543", letter_lower: "\u0573", letter_name: "\u0573\u0567", transliteration: "je", sound: "j", example_word_target: "\u0573\u0578\u0582\u0580", example_word_eng: "water", emoji: "\uD83D\uDCA7" },
+  { letter_upper: "\u0544", letter_lower: "\u0574", letter_name: "\u0574\u0565\u0576", transliteration: "men", sound: "m", example_word_target: "\u0574\u0561\u0574\u0561", example_word_eng: "mother", emoji: "\uD83D\uDC69" },
+  { letter_upper: "\u0545", letter_lower: "\u0575", letter_name: "\u0575\u056B", transliteration: "yi", sound: "y", example_word_target: "\u0575\u0578\u0569", example_word_eng: "seven", emoji: "7\uFE0F\u20E3" },
+  { letter_upper: "\u0546", letter_lower: "\u0576", letter_name: "\u0576\u0578\u0582", transliteration: "nu", sound: "n", example_word_target: "\u0576\u0561\u0580\u0576\u057B", example_word_eng: "orange", emoji: "\uD83C\uDF4A" },
+  { letter_upper: "\u0547", letter_lower: "\u0577", letter_name: "\u0577\u0561", transliteration: "sha", sound: "sh", example_word_target: "\u0577\u0578\u0582\u0576", example_word_eng: "dog", emoji: "\uD83D\uDC15" },
+  { letter_upper: "\u0548", letter_lower: "\u0578", letter_name: "\u0578", transliteration: "vo", sound: "o", example_word_target: "\u0578\u057F\u0584", example_word_eng: "foot", emoji: "\uD83E\uDDB6" },
+  { letter_upper: "\u0549", letter_lower: "\u0579", letter_name: "\u0579\u0561", transliteration: "cha", sound: "ch", example_word_target: "\u0579\u0578\u0580\u057D", example_word_eng: "four", emoji: "4\uFE0F\u20E3" },
+  { letter_upper: "\u054A", letter_lower: "\u057A", letter_name: "\u057A\u0567", transliteration: "be", sound: "b", example_word_target: "\u057A\u0561\u057F\u0578\u0582\u0570\u0561\u0576", example_word_eng: "window", emoji: "\uD83E\uDE9F" },
+  { letter_upper: "\u054B", letter_lower: "\u057B", letter_name: "\u057B\u0567", transliteration: "che", sound: "ch", example_word_target: "\u057B\u0565\u0580\u0574\u0561\u056F", example_word_eng: "warm", emoji: "\u2600\uFE0F" },
+  // 28-38: Alphabet Part 4
+  { letter_upper: "\u054C", letter_lower: "\u057C", letter_name: "\u057C\u0561", transliteration: "ra", sound: "r", example_word_target: "\u057C\u0561\u0564\u056B\u0578", example_word_eng: "radio", emoji: "\uD83D\uDCFB" },
+  { letter_upper: "\u054D", letter_lower: "\u057D", letter_name: "\u057D\u0567", transliteration: "se", sound: "s", example_word_target: "\u057D\u0565\u0572\u0561\u0576", example_word_eng: "table", emoji: "\uD83E\uDE91" },
+  { letter_upper: "\u054E", letter_lower: "\u057E", letter_name: "\u057E\u0565\u0582", transliteration: "vev", sound: "v", example_word_target: "\u057E\u0561\u0580\u0564", example_word_eng: "rose", emoji: "\uD83C\uDF39" },
+  { letter_upper: "\u054F", letter_lower: "\u057F", letter_name: "\u057F\u056B\u0582\u0576", transliteration: "diun", sound: "d", example_word_target: "\u057F\u0578\u0582\u0576", example_word_eng: "house", emoji: "\uD83C\uDFE0" },
+  { letter_upper: "\u0550", letter_lower: "\u0580", letter_name: "\u0580\u0567", transliteration: "re", sound: "r", example_word_target: "\u0580\u0561\u0576\u0581\u0584", example_word_eng: "lunch", emoji: "\uD83C\uDF5D" },
+  { letter_upper: "\u0551", letter_lower: "\u0581", letter_name: "\u0581\u0578", transliteration: "tso", sound: "ts'", example_word_target: "\u0581\u0578\u0580\u0565\u0576", example_word_eng: "wheat", emoji: "\uD83C\uDF3E" },
+  { letter_upper: "\u0552", letter_lower: "\u0582", letter_name: "\u0582\u056B\u0582", transliteration: "hiun", sound: "u", example_word_target: "\u0578\u0582\u057D\u0578\u0582\u0581\u056B\u0579", example_word_eng: "teacher", emoji: "\uD83D\uDC69\u200D\uD83C\uDFEB" },
+  { letter_upper: "\u0553", letter_lower: "\u0583", letter_name: "\u0583\u056B\u0582\u0580", transliteration: "piur", sound: "p'", example_word_target: "\u0583\u0578\u0584\u0580", example_word_eng: "small", emoji: "\uD83D\uDC23" },
+  { letter_upper: "\u0554", letter_lower: "\u0584", letter_name: "\u0584\u0567", transliteration: "ke", sound: "k'", example_word_target: "\u0584\u0561\u0572\u0561\u0584", example_word_eng: "city", emoji: "\uD83C\uDFD9\uFE0F" },
+  { letter_upper: "\u0555", letter_lower: "\u0585", letter_name: "\u0585", transliteration: "o", sound: "o", example_word_target: "\u0585\u0564", example_word_eng: "air", emoji: "\uD83D\uDCA8" },
+  { letter_upper: "\u0556", letter_lower: "\u0586", letter_name: "\u0586\u0567", transliteration: "fe", sound: "f", example_word_target: "\u0586\u0578\u0582\u0569\u057A\u0578\u056C", example_word_eng: "football", emoji: "\u26BD" },
+];
+
 // ── Main ─────────────────────────────────────────────────────
 async function main() {
   console.log(`\n\uD83D\uDD24 Hardcoded Alphabet Seeder`);
@@ -170,18 +216,47 @@ async function main() {
       console.log(`\n  Inserted ${Math.min(letterIdx, GREEK_LETTERS.length)} Greek letters\n`);
 
     } else {
-      // Armenian: query existing data and log it
-      console.log("\u2550\u2550\u2550 Armenian alphabet content already seeded \u2550\u2550\u2550\n");
-      const { data: existing } = await db.from("content_items")
-        .select("item_data")
-        .eq("item_type", "letter")
-        .in("lesson_id", alphabetLessons.map((l) => l.id));
-      const armLetters = (existing ?? []).map((i) => (i.item_data as Record<string, string>).letter_upper).filter(Boolean);
-      console.log(`  Found ${armLetters.length} Armenian letters in DB`);
-      console.log(`  Letters: ${armLetters.join(" ")}\n`);
-      if (armLetters.length < 36) {
-        console.warn("  Warning: expected 36-38 letters. Run seed-alphabet-deterministic.ts first.\n");
+      // Armenian: hardcoded 38 letters
+      console.log("\u2550\u2550\u2550 Seeding Armenian alphabet content \u2550\u2550\u2550\n");
+
+      const allIds = [...alphabetLessons.map((l) => l.id), ...aggregateLessons.map((l) => l.id)];
+      await db.from("curated_exercises").delete().in("lesson_id", allIds);
+      await db.from("content_items").delete().in("lesson_id", alphabetLessons.map((l) => l.id));
+      console.log("  \uD83D\uDDD1  Cleaned existing content + exercises\n");
+
+      // 38 letters across 12 lessons: 3 per lesson, last 2 lessons get 4
+      // Distribution: 3,3,3 | 3,3,3 | 3,3,3 | 3,4,4 (= 9+9+9+11 = 38)
+      const LETTERS_PER_LESSON = [3,3,3, 3,3,3, 3,3,3, 3,4,4];
+
+      let letterIdx = 0;
+      for (let li = 0; li < alphabetLessons.length; li++) {
+        const lesson = alphabetLessons[li];
+        const unit = lesson.curriculum_units;
+        const count = LETTERS_PER_LESSON[li] ?? 3;
+        const lettersForLesson = ARMENIAN_LETTERS.slice(letterIdx, letterIdx + count);
+        letterIdx += count;
+
+        if (lettersForLesson.length === 0) continue;
+
+        const rows = lettersForLesson.map((l, i) => ({
+          unit_id: unit.id,
+          lesson_id: lesson.id,
+          item_type: "letter",
+          sort_order: i + 1,
+          item_data: l,
+          created_by: null,
+        }));
+
+        const { error: insertErr } = await db.from("content_items").insert(rows);
+        const names = lettersForLesson.map((l) => `${l.letter_upper}${l.letter_lower}`).join(" ");
+        if (insertErr) {
+          console.error(`  \u274C ${unit.title} > ${lesson.title}: ${insertErr.message}`);
+        } else {
+          console.log(`  \u2705 ${unit.title} > ${lesson.title}: ${names}`);
+        }
       }
+
+      console.log(`\n  Inserted ${Math.min(letterIdx, ARMENIAN_LETTERS.length)} Armenian letters\n`);
     }
   }
 
