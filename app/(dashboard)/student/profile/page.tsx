@@ -2,12 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import Header from "@/components/ui/Header";
-import { getProgressToNextLevel, ARARAT_LEVELS } from "@/lib/xp";
-import { BADGES } from "@/lib/badges";
+import { getProgressToNextLevel, getClimbLevels, CLIMB_NAMES } from "@/lib/xp";
+import { getBadges } from "@/lib/badges";
 import { getTranslations } from "@/lib/translations";
+import { getLocale } from "@/lib/server-locale";
 
 export default async function ProfilePage() {
   const tc = await getTranslations("common");
+  const locale = await getLocale();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -25,7 +27,9 @@ export default async function ProfilePage() {
 
   const earnedMap = new Map((earnedBadges ?? []).map((b) => [b.badge_slug, b.earned_at]));
   const totalXP = profile?.total_xp ?? 0;
-  const progress = getProgressToNextLevel(totalXP);
+  const progress = getProgressToNextLevel(totalXP, locale);
+  const climbLevels = getClimbLevels(locale);
+  const badges = getBadges(locale);
 
   return (
     <div className="min-h-screen bg-cream">
@@ -39,11 +43,11 @@ export default async function ProfilePage() {
           <p className="text-brown-400 text-sm mt-1">{tc("language")} learner</p>
         </div>
 
-        {/* Ararat climb */}
+        {/* Climb */}
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-6 mb-8">
-          <h2 className="text-lg font-semibold text-brown-800 mb-4">Climb Ararat {"\uD83C\uDFD4\uFE0F"}</h2>
+          <h2 className="text-lg font-semibold text-brown-800 mb-4">{CLIMB_NAMES[locale] ?? CLIMB_NAMES.hy}</h2>
           <div className="flex flex-col gap-1">
-            {[...ARARAT_LEVELS].reverse().map((level) => {
+            {[...climbLevels].reverse().map((level) => {
               const isActive = progress.current.level === level.level;
               const isReached = totalXP >= level.minXP;
               return (
@@ -71,7 +75,7 @@ export default async function ProfilePage() {
         {/* Badges */}
         <h2 className="text-lg font-semibold text-brown-800 mb-4">Badges</h2>
         <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-          {BADGES.map((badge) => {
+          {badges.map((badge) => {
             const earnedAt = earnedMap.get(badge.slug);
             const isEarned = !!earnedAt;
             return (
