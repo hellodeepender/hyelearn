@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { useTranslations } from "@/lib/use-translations";
@@ -9,6 +9,8 @@ import { useTranslations } from "@/lib/use-translations";
 export default function LoginPage() {
   const tc = useTranslations("common");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const confirmed = searchParams.get("confirmed") === "true";
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,6 +72,9 @@ export default function LoginPage() {
         </div>
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {confirmed && (
+              <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3">Email confirmed! Please sign in.</div>
+            )}
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{error}</div>
             )}
