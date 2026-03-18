@@ -42,18 +42,24 @@ function getThemeGuidance(unitTitle: string, languageName: string): string {
 // ── Main handler ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "teacher" && profile?.role !== "admin") {
-    return NextResponse.json({ error: "Teachers only" }, { status: 403 });
+  const body = await request.json() as {
+    templateType: string; lessonTitle: string; lessonDescription?: string;
+    unitTitle?: string; levelTitle?: string; lessonId?: string; unitId?: string; locale?: string; key?: string;
+  };
+
+  // Auth: SEED_API_KEY or authenticated teacher
+  const isKeyAuth = process.env.SEED_API_KEY && body.key === process.env.SEED_API_KEY;
+  if (!isKeyAuth) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    if (profile?.role !== "teacher" && profile?.role !== "admin") {
+      return NextResponse.json({ error: "Teachers only" }, { status: 403 });
+    }
   }
 
-  const { templateType, lessonTitle, lessonDescription, unitTitle, levelTitle, lessonId, unitId, locale: clientLocale } = await request.json() as {
-    templateType: string; lessonTitle: string; lessonDescription?: string;
-    unitTitle?: string; levelTitle?: string; lessonId?: string; unitId?: string; locale?: string;
-  };
+  const { templateType, lessonTitle, lessonDescription, unitTitle, levelTitle, lessonId, unitId, locale: clientLocale } = body;
 
   // Locale detection: client param > header > default
   const headersList = await headers();
