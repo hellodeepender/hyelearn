@@ -44,7 +44,10 @@ export async function GET(request: NextRequest) {
   }
 
   const text = request.nextUrl.searchParams.get("text")?.trim();
-  console.log("[tts] TTS request for:", text);
+  const locale = request.nextUrl.searchParams.get("locale") || "hy";
+  const VOICE_MAP: Record<string, string> = { hy: "nune", el: "eleni" };
+  const voice = VOICE_MAP[locale] || "nune";
+  console.log("[tts] TTS request for:", text, "locale:", locale, "voice:", voice);
 
   try {
     if (!text || text.length > 200) {
@@ -52,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     const cacheKey = getCacheKey(text);
-    const storagePath = `words/${cacheKey}.mp3`;
+    const storagePath = `words/${locale}/${cacheKey}.mp3`;
     const db = getDb();
 
     // Ensure bucket exists before any storage operations
@@ -78,7 +81,7 @@ export async function GET(request: NextRequest) {
     const timeout = setTimeout(() => controller.abort(), 15000);
 
     const ttsRes = await fetch(
-      "https://api.narakeet.com/text-to-speech/mp3?voice=nune",
+      `https://api.narakeet.com/text-to-speech/mp3?voice=${voice}`,
       {
         method: "POST",
         headers: {

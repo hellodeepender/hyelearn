@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getWordAudioUrl } from "@/lib/audio";
+import { useCurrentLocale } from "@/lib/locale-context";
 
 interface Props {
   word: string;
@@ -17,6 +18,7 @@ if (typeof window !== "undefined") {
 }
 
 export default function AudioButton({ word, autoPlay }: Props) {
+  const locale = useCurrentLocale();
   const [playing, setPlaying] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
@@ -34,7 +36,7 @@ export default function AudioButton({ word, autoPlay }: Props) {
 
   const play = useCallback(() => {
     if (playing || !word) return;
-    const audio = new Audio(getWordAudioUrl(word));
+    const audio = new Audio(getWordAudioUrl(word, locale));
     audioRef.current = audio;
     setPlaying(true);
     audio.addEventListener("ended", () => setPlaying(false));
