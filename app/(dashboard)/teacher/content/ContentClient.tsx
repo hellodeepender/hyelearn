@@ -246,12 +246,12 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           emoji: item.emoji ?? "", category: item.category ?? "general",
         })));
       }
-      // Extended content types from API
+      // Extended content types from API (snake_case keys)
       if (Array.isArray(data.phrases)) setPhraseRows(data.phrases);
-      if (data.readingPassage) setReadingPassage(data.readingPassage);
-      if (data.grammarNote) setGrammarNote(data.grammarNote);
-      if (data.compositionPrompt) setCompositionPrompt(data.compositionPrompt);
-      if (Array.isArray(data.discussionQuestions)) setDiscussionQuestions(data.discussionQuestions);
+      if (data.reading_passage) setReadingPassage(data.reading_passage);
+      if (data.grammar_note) setGrammarNote(data.grammar_note);
+      if (data.composition_prompt) setCompositionPrompt(data.composition_prompt);
+      if (Array.isArray(data.discussion_questions)) setDiscussionQuestions(data.discussion_questions);
       setContentStatus("ai");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Auto-fill failed");
