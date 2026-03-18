@@ -8,90 +8,52 @@ export interface Badge {
   category: "milestone" | "achievement" | "streak";
 }
 
-export const BADGES: Badge[] = [
-  {
-    slug: "pomegranate",
-    name: "Pomegranate",
-    nameTarget: "\u0546\u0578\u0582\u057C",
-    description: "Completed your first lesson",
-    emoji: "\uD83C\uDF4E",
-    condition: "first_lesson",
-    category: "milestone",
-  },
-  {
-    slug: "khachkar",
-    name: "Khachkar",
-    nameTarget: "\u053D\u0561\u0579\u0584\u0561\u0580",
-    description: "Completed the Armenian Alphabet",
-    emoji: "\u271D\uFE0F",
-    condition: "alphabet_complete",
-    category: "milestone",
-  },
-  {
-    slug: "duduk",
-    name: "Duduk",
-    nameTarget: "\u0534\u0578\u0582\u0564\u0578\u0582\u056F",
-    description: "Completed 10 lessons",
-    emoji: "\uD83C\uDFB5",
-    condition: "lessons_10",
-    category: "milestone",
-  },
-  {
-    slug: "ararat",
-    name: "Mount Ararat",
-    nameTarget: "\u0531\u0580\u0561\u0580\u0561\u057F",
-    description: "Scored 100% on a quiz",
-    emoji: "\uD83C\uDFD4\uFE0F",
-    condition: "perfect_quiz",
-    category: "achievement",
-  },
-  {
-    slug: "garni",
-    name: "Garni Temple",
-    nameTarget: "\u0533\u0561\u057C\u0576\u056B",
-    description: "Completed all of Kindergarten",
-    emoji: "\uD83C\uDFDB\uFE0F",
-    condition: "kindergarten_complete",
-    category: "milestone",
-  },
-  {
-    slug: "tatev",
-    name: "Tatev Monastery",
-    nameTarget: "\u054F\u0561\u0569\u0587",
-    description: "Completed an entire grade level",
-    emoji: "\u26EA",
-    condition: "grade_complete",
-    category: "milestone",
-  },
-  {
-    slug: "streak_7",
-    name: "Week Warrior",
-    nameTarget: "",
-    description: "7-day learning streak",
-    emoji: "\uD83D\uDD25",
-    condition: "streak_7",
-    category: "streak",
-  },
-  {
-    slug: "streak_30",
-    name: "Monthly Master",
-    nameTarget: "",
-    description: "30-day learning streak",
-    emoji: "\uD83D\uDCAA",
-    condition: "streak_30",
-    category: "streak",
-  },
-  {
-    slug: "streak_100",
-    name: "Century Champion",
-    nameTarget: "",
-    description: "100-day learning streak",
-    emoji: "\uD83D\uDC51",
-    condition: "streak_100",
-    category: "streak",
-  },
+// ── Armenian badges (Ararat-themed) ──────────────────────────
+export const BADGES_HY: Badge[] = [
+  { slug: "pomegranate", name: "Pomegranate", nameTarget: "\u0546\u0578\u0582\u057C", description: "Completed your first lesson", emoji: "\uD83C\uDF4E", condition: "first_lesson", category: "milestone" },
+  { slug: "khachkar", name: "Khachkar", nameTarget: "\u053D\u0561\u0579\u0584\u0561\u0580", description: "Completed the Armenian Alphabet", emoji: "\u271D\uFE0F", condition: "alphabet_complete", category: "milestone" },
+  { slug: "duduk", name: "Duduk", nameTarget: "\u0534\u0578\u0582\u0564\u0578\u0582\u056F", description: "Completed 10 lessons", emoji: "\uD83C\uDFB5", condition: "lessons_10", category: "milestone" },
+  { slug: "ararat", name: "Mount Ararat", nameTarget: "\u0531\u0580\u0561\u0580\u0561\u057F", description: "Scored 100% on a quiz", emoji: "\uD83C\uDFD4\uFE0F", condition: "perfect_quiz", category: "achievement" },
+  { slug: "garni", name: "Garni Temple", nameTarget: "\u0533\u0561\u057C\u0576\u056B", description: "Completed all of Kindergarten", emoji: "\uD83C\uDFDB\uFE0F", condition: "kindergarten_complete", category: "milestone" },
+  { slug: "tatev", name: "Tatev Monastery", nameTarget: "\u054F\u0561\u0569\u0587", description: "Completed an entire grade level", emoji: "\u26EA", condition: "grade_complete", category: "milestone" },
+  { slug: "streak_7", name: "Week Warrior", nameTarget: "", description: "7-day learning streak", emoji: "\uD83D\uDD25", condition: "streak_7", category: "streak" },
+  { slug: "streak_30", name: "Monthly Master", nameTarget: "", description: "30-day learning streak", emoji: "\uD83D\uDCAA", condition: "streak_30", category: "streak" },
+  { slug: "streak_100", name: "Century Champion", nameTarget: "", description: "100-day learning streak", emoji: "\uD83D\uDC51", condition: "streak_100", category: "streak" },
 ];
 
-export function getBadgeBySlug(slug: string): Badge | undefined {
-  return BADGES.find((b) => b.slug === slug);
+// ── Greek badges (Olympus-themed) ────────────────────────────
+export const BADGES_EL: Badge[] = [
+  { slug: "olive_branch", name: "Olive Branch", nameTarget: "\u039A\u03BB\u03B1\u03B4\u03AF \u0395\u03BB\u03B9\u03AC\u03C2", description: "Completed your first lesson", emoji: "\uD83E\uDED2", condition: "first_lesson", category: "milestone" },
+  { slug: "alpha_omega", name: "Alpha to Omega", nameTarget: "\u0391\u03C0\u03CC \u0391 \u03C9\u03C2 \u03A9", description: "Completed the Greek Alphabet", emoji: "\uD83C\uDFFA", condition: "alphabet_complete", category: "milestone" },
+  { slug: "lyre", name: "Lyre of Apollo", nameTarget: "\u039B\u03CD\u03C1\u03B1", description: "Completed 10 lessons", emoji: "\uD83C\uDFB6", condition: "lessons_10", category: "milestone" },
+  { slug: "olympus", name: "Mount Olympus", nameTarget: "\u038C\u03BB\u03C5\u03BC\u03C0\u03BF\u03C2", description: "Scored 100% on a quiz", emoji: "\u26F0\uFE0F", condition: "perfect_quiz", category: "achievement" },
+  { slug: "parthenon", name: "Parthenon", nameTarget: "\u03A0\u03B1\u03C1\u03B8\u03B5\u03BD\u03CE\u03BD\u03B1\u03C2", description: "Completed all of Kindergarten", emoji: "\uD83C\uDFDB\uFE0F", condition: "kindergarten_complete", category: "milestone" },
+  { slug: "delphi", name: "Oracle of Delphi", nameTarget: "\u0394\u03B5\u03BB\u03C6\u03BF\u03AF", description: "Completed an entire grade level", emoji: "\uD83D\uDD2E", condition: "grade_complete", category: "milestone" },
+  { slug: "streak_7", name: "Week Warrior", nameTarget: "\u0395\u03B2\u03B4\u03BF\u03BC\u03B1\u03B4\u03B9\u03B1\u03AF\u03BF\u03C2 \u03A0\u03BF\u03BB\u03B5\u03BC\u03B9\u03C3\u03C4\u03AE\u03C2", description: "7-day learning streak", emoji: "\uD83D\uDD25", condition: "streak_7", category: "streak" },
+  { slug: "streak_30", name: "Monthly Master", nameTarget: "\u039C\u03B7\u03BD\u03B9\u03B1\u03AF\u03BF\u03C2 \u039C\u03AC\u03C3\u03C4\u03BF\u03C1\u03B1\u03C2", description: "30-day learning streak", emoji: "\uD83D\uDCAA", condition: "streak_30", category: "streak" },
+  { slug: "streak_100", name: "Century Champion", nameTarget: "\u03A0\u03C1\u03C9\u03C4\u03B1\u03B8\u03BB\u03B7\u03C4\u03AE\u03C2", description: "100-day learning streak", emoji: "\uD83D\uDC51", condition: "streak_100", category: "streak" },
+];
+
+// ── Backward compat ──────────────────────────────────────────
+export const BADGES = BADGES_HY;
+
+// ── Locale-aware accessors ───────────────────────────────────
+const BADGE_MAP: Record<string, Badge[]> = { hy: BADGES_HY, el: BADGES_EL };
+
+export function getBadges(locale: string): Badge[] {
+  return BADGE_MAP[locale] ?? BADGES_HY;
+}
+
+export function getBadgeBySlug(slug: string, locale?: string): Badge | undefined {
+  const badges = locale ? getBadges(locale) : BADGES_HY;
+  // Match by slug first
+  const bySlug = badges.find((b) => b.slug === slug);
+  if (bySlug) return bySlug;
+  // Fall back: match by condition (cross-locale slug lookup)
+  const source = locale === "el" ? BADGES_HY : BADGES_EL;
+  const sourceBadge = source.find((b) => b.slug === slug);
+  if (sourceBadge) {
+    return badges.find((b) => b.condition === sourceBadge.condition);
+  }
+  return undefined;
 }
