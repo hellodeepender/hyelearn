@@ -20,13 +20,7 @@ export default async function CurriculumPage() {
 
   const locale = await getLocale();
   const levels = await getLevelsWithProgress(supabase, user.id, locale);
-// TEMP DEBUG
-const { data: debugLevels, error: debugError } = await supabase
-  .from("curriculum_levels")
-  .select("id, slug, locale")
-  .eq("is_active", true)
-  .eq("locale", "el");
-console.log("CURRICULUM_DEBUG", JSON.stringify({ locale, levelsCount: levels.length, debugLevels: debugLevels?.length, debugError }));
+
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
