@@ -77,7 +77,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
   const statusStyles = {
     default: young ? "border-brown-200 bg-amber-50/30 hover:border-brown-300" : "border-brown-200 bg-warm-white hover:border-brown-300",
     selected: "border-gold bg-gold/10 ring-2 ring-gold/30",
-    matched: "border-brown-300 bg-brown-50 text-brown-500",
+    matched: "border-gold bg-gold/10 text-brown-600",
     correct: "border-green-500 bg-green-50 ring-2 ring-green-200",
     wrong: "border-red-500 bg-red-50 ring-2 ring-red-200",
     unmatched: "border-brown-100 bg-brown-50 opacity-50",
