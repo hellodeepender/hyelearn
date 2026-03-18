@@ -56,7 +56,8 @@ function emitMatching(
   results: GeneratedExercise[],
   sortOrder: number,
 ) {
-  for (const p of pairs.slice(0, 3)) {
+  const valid = pairs.filter((p) => p.left_hy && p.right_hy);
+  for (const p of valid.slice(0, 3)) {
     results.push({
       exercise_type: "matching",
       exercise_data: { type: "matching", id: `m${sortOrder}`, ...p, sort_order: sortOrder },
@@ -74,8 +75,6 @@ function blankWord(text: string): [string, string] {
   return [blanked, pick.w];
 }
 
-/** Generic reading comprehension title pool for wrong answers */
-const GENERIC_TITLES = ["A day at school", "My favorite food", "The weather today", "A trip to the market", "Animals in nature", "My family", "Sports and games", "At the park", "The seasons", "Counting things"];
 
 // =============================================================================
 // ALPHABET TEMPLATE (unchanged)
@@ -370,24 +369,6 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
       sort_order: s++,
     });
 
-    // Comprehension: "What is this passage about?"
-    const correctTitle = d.title as string;
-    const wrongTitles = shuffle(GENERIC_TITLES.filter((t) => t.toLowerCase() !== correctTitle.toLowerCase())).slice(0, 2);
-    if (wrongTitles.length >= 2) {
-      results.push({
-        exercise_type: "multiple_choice",
-        exercise_data: {
-          type: "multiple_choice", id: String(s), emoji: "",
-          question_hy: "", question_en: "What is this passage about?",
-          options: make3Options({ hy: correctTitle, en: correctTitle }, wrongTitles.map((t) => ({ hy: t, en: t }))),
-          hint_hy: "", hint_en: "Think about what you just read",
-          explanation_hy: correctTitle, explanation_en: `The passage is about "${correctTitle}"`,
-          sort_order: s,
-        },
-        sort_order: s++,
-      });
-    }
-
     // Comprehension: find a vocabulary word in the passage
     if (words.length >= 3) {
       const passageText = (d.text as string).toLowerCase();
@@ -657,7 +638,11 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
   }
 
   // --- Matching (1 exercise, 3 pairs) ---
-  const matchableItems = shuffle([...words, ...phrases].filter((i) => i.item_data.target_lang && i.item_data.english));
+  const matchableItems = shuffle([...words, ...phrases].filter((i) => {
+    const tl = i.item_data.target_lang as string;
+    const en = i.item_data.english as string;
+    return tl && tl.trim() !== "" && en && en.trim() !== "";
+  }));
   const matchItems = matchableItems.slice(0, 3);
   if (matchItems.length >= 2) {
     emitMatching(
