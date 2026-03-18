@@ -20,7 +20,7 @@ export default async function CurriculumPage() {
 
   const locale = await getLocale();
   const levels = await getLevelsWithProgress(supabase, user.id, locale);
-
+console.log("CURRICULUM_DEBUG", JSON.stringify({ locale, levelsCount: levels.length }));
   return (
     <div className="min-h-screen bg-cream">
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
