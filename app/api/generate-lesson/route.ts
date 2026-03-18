@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   // Fetch lesson and template type
   const { data: lesson, error: lessonErr } = await db
     .from("curriculum_lessons")
-    .select("id, template_type, unit_id")
+    .select("id, template_type, unit_id, curriculum_units!inner(curriculum_levels!inner(locale))")
     .eq("id", lesson_id)
     .single();
 
@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
   }
 
   const templateType = lesson.template_type ?? "vocabulary";
+  const locale = ((lesson.curriculum_units as unknown as { curriculum_levels: { locale: string } })?.curriculum_levels?.locale) ?? "hy";
 
   // For review/quiz: aggregate content from ALL practice lessons in the unit
   let items;
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Generate exercises from template
-  const generated = generateLessonContent(templateType, items);
+  const generated = generateLessonContent(templateType, items, locale);
 
   // Validate
   const validation = validateLesson(items, generated, templateType);

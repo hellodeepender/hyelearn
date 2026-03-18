@@ -46,8 +46,8 @@ function make3Options(correct: { hy: string; en: string }, wrongs: { hy: string;
 }
 
 /** Standard feedback: "target (transliteration) means english" */
-function armFeedback(arm: string, eng: string): string {
-  return `${arm} (${transliterate(arm)}) means ${eng}`;
+function armFeedback(arm: string, eng: string, locale: string = "hy"): string {
+  return `${arm} (${transliterate(arm, locale)}) means ${eng}`;
 }
 
 /** Emit 3 matching pairs as individual rows sharing the same sort_order */
@@ -80,7 +80,7 @@ function blankWord(text: string): [string, string] {
 // ALPHABET TEMPLATE (unchanged)
 // =============================================================================
 
-function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
+function generateAlphabet(items: ContentItem[], locale: string): GeneratedExercise[] {
   const letters = items.filter((i) => i.item_type === "letter").sort((a, b) => a.sort_order - b.sort_order);
   if (letters.length < 3) return [];
 
@@ -95,10 +95,10 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
         type: "learn_card",
         letter: `${d.letter_upper} ${d.letter_lower}`,
         letter_name: d.letter_name as string,
-        transliteration: (d.transliteration as string) || transliterate(d.letter_name as string),
+        transliteration: (d.transliteration as string) || transliterate(d.letter_name as string, locale),
         sound: d.sound as string,
         example_word: d.example_word_target as string,
-        example_translation: transliterate(d.example_word_target as string),
+        example_translation: transliterate(d.example_word_target as string, locale),
         emoji: d.emoji as string,
         sort_order: s,
       },
@@ -152,11 +152,11 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
     exercise_data: {
       type: "multiple_choice", id: String(s),
       emoji: wl.emoji as string,
-      question_hy: wlArm, question_en: `Which letter does ${wlArm} (${transliterate(wlArm)}) start with?`,
+      question_hy: wlArm, question_en: `Which letter does ${wlArm} (${transliterate(wlArm, locale)}) start with?`,
       options: make3Options(charPool[0], pickWrong(charPool, 0)),
-      hint_hy: "", hint_en: `${wlArm} (${transliterate(wlArm)}) starts with ${wl.transliteration}`,
+      hint_hy: "", hint_en: `${wlArm} (${transliterate(wlArm, locale)}) starts with ${wl.transliteration}`,
       explanation_hy: `${wlArm} - ${wl.letter_upper}`,
-      explanation_en: `${wlArm} (${transliterate(wlArm)}) starts with ${wl.letter_name} (${wl.letter_upper})`,
+      explanation_en: `${wlArm} (${transliterate(wlArm, locale)}) starts with ${wl.letter_name} (${wl.letter_upper})`,
       sort_order: s,
     },
     sort_order: s++,
@@ -197,7 +197,7 @@ function generateAlphabet(items: ContentItem[]): GeneratedExercise[] {
 // VOCABULARY TEMPLATE (extended with phrases, passages, grammar, etc.)
 // =============================================================================
 
-function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
+function generateVocabulary(items: ContentItem[], locale: string): GeneratedExercise[] {
   const words = items.filter((i) => i.item_type === "word").sort((a, b) => a.sort_order - b.sort_order);
   const phrases = items.filter((i) => i.item_type === "phrase").sort((a, b) => a.sort_order - b.sort_order);
   const readingPassage = items.find((i) => i.item_type === "reading_passage");
@@ -240,7 +240,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
           options: make3Options(armPool[i], pickWrong(armPool, i)),
           hint_hy: "", hint_en: "Choose the word for this picture",
           explanation_hy: d.target_lang as string,
-          explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string)}`,
+          explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string, locale)}`,
           sort_order: s,
         },
         sort_order: s++,
@@ -258,7 +258,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
           options: make3Options(engPool[i], pickWrong(engPool, i)),
           hint_hy: "", hint_en: `Think about: ${d.english}`,
           explanation_hy: `${d.target_lang} = ${d.english}`,
-          explanation_en: armFeedback(d.target_lang as string, d.english as string),
+          explanation_en: armFeedback(d.target_lang as string, d.english as string, locale),
           sort_order: s,
         },
         sort_order: s++,
@@ -275,9 +275,9 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
         emoji: (rd.emoji as string) ?? "",
         question_hy: rd.english as string, question_en: "How do you say this?",
         options: make3Options(armPool[ri], pickWrong(armPool, ri)),
-        hint_hy: "", hint_en: armFeedback(rd.target_lang as string, rd.english as string),
+        hint_hy: "", hint_en: armFeedback(rd.target_lang as string, rd.english as string, locale),
         explanation_hy: rd.target_lang as string,
-        explanation_en: armFeedback(rd.target_lang as string, rd.english as string),
+        explanation_en: armFeedback(rd.target_lang as string, rd.english as string, locale),
         sort_order: s,
       },
       sort_order: s++,
@@ -287,7 +287,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     emitMatching(
       words.slice(0, 3).map((w) => ({
         left_hy: w.item_data.target_lang as string,
-        left_en: transliterate(w.item_data.target_lang as string),
+        left_en: transliterate(w.item_data.target_lang as string, locale),
         right_hy: w.item_data.english as string,
         right_en: w.item_data.english as string,
       })),
@@ -306,9 +306,9 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
         answer_hy: fb.target_lang as string, answer_en: fb.english as string,
         distractors_hy: words.slice(1, 3).map((w) => w.item_data.target_lang as string),
         distractors_en: words.slice(1, 3).map((w) => w.item_data.english as string),
-        hint_hy: "", hint_en: armFeedback(fb.target_lang as string, fb.english as string),
+        hint_hy: "", hint_en: armFeedback(fb.target_lang as string, fb.english as string, locale),
         explanation_hy: `${fb.target_lang} = ${fb.english}`,
-        explanation_en: armFeedback(fb.target_lang as string, fb.english as string),
+        explanation_en: armFeedback(fb.target_lang as string, fb.english as string, locale),
         sort_order: s,
       },
       sort_order: s++,
@@ -444,7 +444,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
 // QUIZ TEMPLATE: 9 exercises, no learn cards, no feedback
 // =============================================================================
 
-function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercise[] {
+function generateReview(items: ContentItem[], isQuiz: boolean, locale: string): GeneratedExercise[] {
   const letters = items.filter((i) => i.item_type === "letter");
   const words = items.filter((i) => i.item_type === "word");
   const phrases = items.filter((i) => i.item_type === "phrase");
@@ -464,10 +464,10 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
             type: "learn_card",
             letter: `${d.letter_upper} ${d.letter_lower}`,
             letter_name: d.letter_name as string,
-            transliteration: (d.transliteration as string) || transliterate(d.letter_name as string),
+            transliteration: (d.transliteration as string) || transliterate(d.letter_name as string, locale),
             sound: d.sound as string,
             example_word: d.example_word_target as string,
-            example_translation: transliterate(d.example_word_target as string),
+            example_translation: transliterate(d.example_word_target as string, locale),
             emoji: d.emoji as string,
             sort_order: s,
           },
@@ -538,7 +538,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           options: make3Options(armPool[idx], pickWrong(armPool, idx)),
           hint_hy: "", hint_en: h("Choose the word for this picture"),
           explanation_hy: d.target_lang as string,
-          explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string)}`,
+          explanation_en: `${d.emoji} ${armFeedback(d.target_lang as string, d.english as string, locale)}`,
           showCorrectAnswer: showCorrect, sort_order: s,
         },
         sort_order: s++,
@@ -575,7 +575,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           options: make3Options(engPool[idx], pickWrong(engPool, idx)),
           hint_hy: "", hint_en: h(`Think about: ${d.english}`),
           explanation_hy: `${d.target_lang} = ${d.english}`,
-          explanation_en: armFeedback(d.target_lang as string, d.english as string),
+          explanation_en: armFeedback(d.target_lang as string, d.english as string, locale),
           showCorrectAnswer: showCorrect, sort_order: s,
         },
         sort_order: s++,
@@ -613,7 +613,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           options: make3Options(armPool[idx], pickWrong(armPool, idx)),
           hint_hy: "", hint_en: "",
           explanation_hy: d.target_lang as string,
-          explanation_en: armFeedback(d.target_lang as string, d.english as string),
+          explanation_en: armFeedback(d.target_lang as string, d.english as string, locale),
           showCorrectAnswer: false, sort_order: s,
         },
         sort_order: s++,
@@ -627,11 +627,11 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         exercise_data: {
           type: "multiple_choice", id: String(s),
           emoji: d.emoji as string,
-          question_hy: arm, question_en: `Which letter does ${arm} (${transliterate(arm)}) start with?`,
+          question_hy: arm, question_en: `Which letter does ${arm} (${transliterate(arm, locale)}) start with?`,
           options: make3Options(charPool[idx], pickWrong(charPool, idx)),
           hint_hy: "", hint_en: "",
           explanation_hy: `${arm} - ${d.letter_upper}`,
-          explanation_en: `${arm} (${transliterate(arm)}) starts with ${d.letter_name} (${d.letter_upper})`,
+          explanation_en: `${arm} (${transliterate(arm, locale)}) starts with ${d.letter_name} (${d.letter_upper})`,
           showCorrectAnswer: false, sort_order: s,
         },
         sort_order: s++,
@@ -652,7 +652,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         const d = item.item_data;
         return {
           left_hy: d.target_lang as string,
-          left_en: transliterate(d.target_lang as string),
+          left_en: transliterate(d.target_lang as string, locale),
           right_hy: d.english as string,
           right_en: d.english as string,
         };
@@ -711,9 +711,9 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
           answer_hy: d.target_lang as string, answer_en: d.english as string,
           distractors_hy: others.slice(0, 2).map((o) => o.item_data.target_lang as string),
           distractors_en: others.slice(0, 2).map((o) => o.item_data.english as string),
-          hint_hy: "", hint_en: h(armFeedback(d.target_lang as string, d.english as string)),
+          hint_hy: "", hint_en: h(armFeedback(d.target_lang as string, d.english as string, locale)),
           explanation_hy: `${d.target_lang} = ${d.english}`,
-          explanation_en: armFeedback(d.target_lang as string, d.english as string),
+          explanation_en: armFeedback(d.target_lang as string, d.english as string, locale),
           sort_order: s,
         },
         sort_order: s++,
@@ -740,17 +740,18 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
 export function generateLessonContent(
   templateType: string,
   contentItems: ContentItem[],
+  locale: string = "hy",
 ): GeneratedExercise[] {
   switch (templateType) {
     case "alphabet":
-      return generateAlphabet(contentItems);
+      return generateAlphabet(contentItems, locale);
     case "vocabulary":
-      return generateVocabulary(contentItems);
+      return generateVocabulary(contentItems, locale);
     case "review":
-      return generateReview(contentItems, false);
+      return generateReview(contentItems, false, locale);
     case "quiz":
-      return generateReview(contentItems, true);
+      return generateReview(contentItems, true, locale);
     default:
-      return generateVocabulary(contentItems);
+      return generateVocabulary(contentItems, locale);
   }
 }
