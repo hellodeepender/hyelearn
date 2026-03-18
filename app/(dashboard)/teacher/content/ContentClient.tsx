@@ -247,11 +247,13 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
         })));
       }
       // Extended content types from API (snake_case keys)
+      console.log("BEFORE SET:", JSON.stringify({ rp: data.reading_passage, gn: data.grammar_note, cp: data.composition_prompt }));
       if (Array.isArray(data.phrases)) setPhraseRows(data.phrases);
       if (data.reading_passage) setReadingPassage(data.reading_passage);
       if (data.grammar_note) setGrammarNote(data.grammar_note);
       if (data.composition_prompt) setCompositionPrompt(data.composition_prompt);
       if (Array.isArray(data.discussion_questions)) setDiscussionQuestions(data.discussion_questions);
+      console.log("SETTERS CALLED");
       setContentStatus("ai");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Auto-fill failed");
