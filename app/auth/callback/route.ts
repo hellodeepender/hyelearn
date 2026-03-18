@@ -14,6 +14,13 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.exchangeCodeForSession(code);
 
+    console.log("CALLBACK_DEBUG", JSON.stringify({
+      userId: user?.id,
+      locale: user?.user_metadata?.locale,
+      allMeta: user?.user_metadata,
+      appMeta: user?.app_metadata,
+    }));
+
     if (user) {
       const locale = user.user_metadata?.locale || "hy";
       const domain = LOCALE_DOMAINS[locale] || "https://hyelearn.com";
