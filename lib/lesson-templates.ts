@@ -57,13 +57,13 @@ function emitMatching(
   sortOrder: number,
 ) {
   const valid = pairs.filter((p) => p.left_hy && p.right_hy);
-  for (const p of valid.slice(0, 3)) {
+  valid.slice(0, 3).forEach((p, idx) => {
     results.push({
       exercise_type: "matching",
-      exercise_data: { type: "matching", id: `m${sortOrder}`, ...p, sort_order: sortOrder },
+      exercise_data: { type: "matching", id: `m${sortOrder}-${idx}`, ...p, sort_order: sortOrder },
       sort_order: sortOrder,
     });
-  }
+  });
 }
 
 /** Replace a random word in a phrase with ___ and return [blanked, removed] */

@@ -23,13 +23,31 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
   const rightItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
 
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
+  // Maps leftOriginalIndex → rightOriginalIndex
   const [matches, setMatches] = useState<Map<number, number>>(new Map());
   const [results, setResults] = useState<Map<number, boolean> | null>(null);
   const done = results !== null;
 
   function handleLeftClick(index: number) {
     if (done) return;
-    setSelectedLeft(selectedLeft === index ? null : index);
+    const originalIndex = leftItems[index].index;
+
+    if (selectedLeft === index) {
+      // Deselect
+      setSelectedLeft(null);
+      return;
+    }
+
+    // If this left item is already matched, unmatch it first
+    if (matches.has(originalIndex)) {
+      setMatches((prev) => {
+        const next = new Map(prev);
+        next.delete(originalIndex);
+        return next;
+      });
+    }
+
+    setSelectedLeft(index);
   }
 
   function handleRightClick(rightIndex: number) {
@@ -38,10 +56,20 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
     const rightOriginalIndex = rightItems[rightIndex].index;
 
     const next = new Map(matches);
+
+    // If this right item is already matched to a different left, remove that old match
+    for (const [leftIdx, rightIdx] of next) {
+      if (rightIdx === rightOriginalIndex && leftIdx !== leftOriginalIndex) {
+        next.delete(leftIdx);
+        break;
+      }
+    }
+
     next.set(leftOriginalIndex, rightOriginalIndex);
     setMatches(next);
     setSelectedLeft(null);
 
+    // Auto-check when all pairs are matched
     if (next.size === exercises.length) {
       const res = new Map<number, boolean>();
       let allCorrect = true;
@@ -97,7 +125,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
             const status = selectedLeft === i ? "selected" : getLeftStatus(item.index);
             return (
               <button
-                key={item.id}
+                key={`left-${item.index}`}
                 onClick={() => handleLeftClick(i)}
                 disabled={done}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
@@ -116,7 +144,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
             const status = getRightStatus(item.index);
             return (
               <button
-                key={item.id}
+                key={`right-${item.index}`}
                 onClick={() => handleRightClick(i)}
                 disabled={done || selectedLeft === null}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
