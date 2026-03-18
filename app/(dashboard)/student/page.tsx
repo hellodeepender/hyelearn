@@ -6,7 +6,7 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
-import { BADGES } from "@/lib/badges";
+import { getBadges } from "@/lib/badges";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale, getLocale } from "@/lib/server-locale";
 
@@ -139,7 +139,8 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { brandName } = await getServerLocale();
 
   // XP & badges — check for newly earned badges on every dashboard load (idempotent)
-  const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0);
+  const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0, locale);
+  const badges = getBadges(locale);
   const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (sk) {
     const db = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -262,7 +263,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
           </div>
           <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
-            {BADGES.slice(0, 6).map((badge) => {
+            {badges.slice(0, 6).map((badge) => {
               const isEarned = earnedBadgeSlugs.has(badge.slug);
               return (
                 <div key={badge.slug} className="flex flex-col items-center shrink-0 w-20 snap-start">
