@@ -10,7 +10,7 @@ export const XP = {
   STREAK_DAY: 2,
 } as const;
 
-// --- Ararat climb levels ---
+// --- Climb levels ---
 export interface AraratLevel {
   level: number;
   name: string;
@@ -19,7 +19,8 @@ export interface AraratLevel {
   maxXP: number;
 }
 
-export const ARARAT_LEVELS: AraratLevel[] = [
+// Armenian: Climb Ararat
+export const LEVELS_HY: AraratLevel[] = [
   { level: 1, name: "Base Camp", emoji: "\u26FA", minXP: 0, maxXP: 49 },
   { level: 2, name: "Foothills", emoji: "\uD83C\uDF3F", minXP: 50, maxXP: 149 },
   { level: 3, name: "Mountain Path", emoji: "\uD83E\uDDF1", minXP: 150, maxXP: 299 },
@@ -29,17 +30,45 @@ export const ARARAT_LEVELS: AraratLevel[] = [
   { level: 7, name: "Summit", emoji: "\uD83D\uDC51", minXP: 1200, maxXP: Infinity },
 ];
 
-export function getCurrentLevel(totalXP: number): AraratLevel {
-  for (let i = ARARAT_LEVELS.length - 1; i >= 0; i--) {
-    if (totalXP >= ARARAT_LEVELS[i].minXP) return ARARAT_LEVELS[i];
-  }
-  return ARARAT_LEVELS[0];
+// Greek: Climb Olympus
+export const LEVELS_EL: AraratLevel[] = [
+  { level: 1, name: "\u039B\u03B9\u03C4\u03CC\u03C7\u03C9\u03C1\u03BF", emoji: "\u26FA", minXP: 0, maxXP: 49 },
+  { level: 2, name: "Forest Trail", emoji: "\uD83C\uDF33", minXP: 50, maxXP: 149 },
+  { level: 3, name: "Prionia Spring", emoji: "\uD83D\uDCA7", minXP: 150, maxXP: 299 },
+  { level: 4, name: "Refuge A", emoji: "\uD83C\uDFE0", minXP: 300, maxXP: 499 },
+  { level: 5, name: "Throne of Zeus", emoji: "\u26A1", minXP: 500, maxXP: 799 },
+  { level: 6, name: "Mytikas Ridge", emoji: "\u26F0\uFE0F", minXP: 800, maxXP: 1199 },
+  { level: 7, name: "Mytikas Summit", emoji: "\uD83D\uDC51", minXP: 1200, maxXP: Infinity },
+];
+
+// Backward compat
+export const ARARAT_LEVELS = LEVELS_HY;
+
+// Locale-aware accessors
+const LEVELS_MAP: Record<string, AraratLevel[]> = { hy: LEVELS_HY, el: LEVELS_EL };
+
+export function getClimbLevels(locale: string): AraratLevel[] {
+  return LEVELS_MAP[locale] ?? LEVELS_HY;
 }
 
-export function getProgressToNextLevel(totalXP: number) {
-  const current = getCurrentLevel(totalXP);
-  const nextIdx = ARARAT_LEVELS.findIndex((l) => l.level === current.level) + 1;
-  const next = nextIdx < ARARAT_LEVELS.length ? ARARAT_LEVELS[nextIdx] : null;
+export const CLIMB_NAMES: Record<string, string> = {
+  hy: "Climb Ararat \uD83C\uDFD4\uFE0F",
+  el: "Climb Olympus \u26F0\uFE0F",
+};
+
+export function getCurrentLevel(totalXP: number, locale?: string): AraratLevel {
+  const levels = locale ? getClimbLevels(locale) : LEVELS_HY;
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (totalXP >= levels[i].minXP) return levels[i];
+  }
+  return levels[0];
+}
+
+export function getProgressToNextLevel(totalXP: number, locale?: string) {
+  const levels = locale ? getClimbLevels(locale) : LEVELS_HY;
+  const current = getCurrentLevel(totalXP, locale);
+  const nextIdx = levels.findIndex((l) => l.level === current.level) + 1;
+  const next = nextIdx < levels.length ? levels[nextIdx] : null;
   if (!next) return { current, next: null, percentage: 100, xpInLevel: 0, xpNeeded: 0 };
   const xpInLevel = totalXP - current.minXP;
   const xpNeeded = next.minXP - current.minXP;
