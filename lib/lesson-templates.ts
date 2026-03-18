@@ -34,16 +34,22 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-/** Pick N random items from pool, excluding index correctIdx */
+/** Pick N random items from pool, excluding index correctIdx. Adjusts count to available items. */
 function pickWrong<T>(pool: T[], correctIdx: number, count = 2): T[] {
-  return shuffle(pool.filter((_, i) => i !== correctIdx)).slice(0, count);
+  const available = pool.filter((_, i) => i !== correctIdx);
+  return shuffle(available).slice(0, Math.min(count, available.length));
 }
 
-/** Build a shuffled 3-option array: 1 correct + 2 wrong */
-function make3Options(correct: { hy: string; en: string }, wrongs: { hy: string; en: string }[]) {
-  const all = [{ ...correct, correct: true }, ...wrongs.slice(0, 2).map((w) => ({ ...w, correct: false }))];
-  return shuffle(all).map((o, j) => ({ id: ["a", "b", "c"][j] as string, text_hy: o.hy, text_en: o.en, correct: o.correct }));
+/** Build a shuffled option array: 1 correct + up to 2 wrong */
+function makeOptions(correct: { hy: string; en: string }, wrongs: { hy: string; en: string }[]) {
+  const ids = ["a", "b", "c"];
+  const wrongSlice = wrongs.slice(0, 2);
+  const all = [{ ...correct, correct: true }, ...wrongSlice.map((w) => ({ ...w, correct: false }))];
+  return shuffle(all).map((o, j) => ({ id: ids[j] as string, text_hy: o.hy, text_en: o.en, correct: o.correct }));
 }
+
+/** Alias for backward compatibility */
+const make3Options = makeOptions;
 
 /** Standard feedback: "target (transliteration) means english" */
 function armFeedback(arm: string, eng: string, locale: string = "hy"): string {
@@ -82,7 +88,7 @@ function blankWord(text: string): [string, string] {
 
 function generateAlphabet(items: ContentItem[], locale: string): GeneratedExercise[] {
   const letters = items.filter((i) => i.item_type === "letter").sort((a, b) => a.sort_order - b.sort_order);
-  if (letters.length < 3) return [];
+  if (letters.length < 2) return [];
 
   const results: GeneratedExercise[] = [];
   let s = 1;
@@ -509,8 +515,8 @@ function generateReview(items: ContentItem[], isQuiz: boolean, locale: string): 
   }
 
   // --- Build option pools ---
-  const canLetters = letters.length >= 3;
-  const canWords = words.length >= 3;
+  const canLetters = letters.length >= 2;
+  const canWords = words.length >= 2;
   const charPool = letters.map((l) => ({
     hy: `${l.item_data.letter_upper} ${l.item_data.letter_lower}`,
     en: l.item_data.transliteration as string,
