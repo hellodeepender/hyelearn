@@ -1,4 +1,4 @@
-export type Locale = "hy" | "el";
+export type Locale = "hy" | "el" | "en";
 
 export const DEFAULT_LOCALE: Locale = "hy";
 
@@ -85,6 +85,33 @@ export const DOMAIN_MAP: Record<string, DomainConfig> = {
       surface: "#F5F9FC",
       border: "#D4E4F0",
       heroOverlay: "#1B3A54",
+    },
+  },
+  "diasporalearn.org": {
+    locale: "en",
+    brandName: "DiasporaLearn",
+    nativeName: "English",
+    englishName: "Heritage Languages",
+    fontFamily: "'Noto Sans', sans-serif",
+    dir: "ltr",
+    supportEmail: "support@diasporalearn.org",
+    noreplyEmail: "noreply@diasporalearn.org",
+    url: "https://diasporalearn.org",
+    theme: {
+      primary: "#C8A951",
+      primaryDark: "#B8962E",
+      primaryLight: "rgba(200,169,81,0.1)",
+      text900: "#1C1408",
+      text800: "#3D2E1C",
+      text600: "#6B5A45",
+      text500: "#8B7A64",
+      text400: "#A89880",
+      text300: "#C4B8A4",
+      bg: "#FAF6EE",
+      bgAlt: "rgba(245,239,224,0.4)",
+      surface: "#FAF6EE",
+      border: "#E8DFCE",
+      heroOverlay: "#3D2E1C",
     },
   },
 };
