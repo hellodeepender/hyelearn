@@ -362,7 +362,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     results.push({
       exercise_type: "learn_card",
       exercise_data: {
-        type: "learn_card", visual: "",
+        type: "learn_card", card_type: "passage", visual: "",
         primary_text: d.title as string, secondary_text: d.text as string,
         sort_order: s,
       },
@@ -399,8 +399,9 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     results.push({
       exercise_type: "learn_card",
       exercise_data: {
-        type: "learn_card", visual: "",
+        type: "learn_card", card_type: "grammar", visual: "",
         primary_text: d.topic as string, secondary_text: d.explanation as string,
+        examples: Array.isArray(d.examples) ? d.examples : [],
         sort_order: s,
       },
       sort_order: s++,
@@ -413,7 +414,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     results.push({
       exercise_type: "learn_card",
       exercise_data: {
-        type: "learn_card", visual: "",
+        type: "learn_card", card_type: "composition", visual: "",
         primary_text: d.prompt as string, secondary_text: d.instructions as string,
         sort_order: s,
       },
@@ -427,7 +428,7 @@ function generateVocabulary(items: ContentItem[]): GeneratedExercise[] {
     results.push({
       exercise_type: "learn_card",
       exercise_data: {
-        type: "learn_card", visual: "",
+        type: "learn_card", card_type: "discussion", visual: "",
         primary_text: d.question as string, secondary_text: d.question_eng as string,
         sort_order: s,
       },
@@ -486,7 +487,7 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         results.push({
           exercise_type: "learn_card",
           exercise_data: {
-            type: "learn_card", visual: "",
+            type: "learn_card", card_type: "passage", visual: "",
             primary_text: d.title as string, secondary_text: d.text as string,
             sort_order: s,
           },
@@ -496,8 +497,9 @@ function generateReview(items: ContentItem[], isQuiz: boolean): GeneratedExercis
         results.push({
           exercise_type: "learn_card",
           exercise_data: {
-            type: "learn_card", visual: "",
+            type: "learn_card", card_type: "grammar", visual: "",
             primary_text: d.topic as string, secondary_text: d.explanation as string,
+            examples: Array.isArray(d.examples) ? d.examples : [],
             sort_order: s,
           },
           sort_order: s++,

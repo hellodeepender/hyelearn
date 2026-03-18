@@ -309,6 +309,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     visual?: string; primary_text?: string; secondary_text?: string;
     letter?: string; letter_name?: string; transliteration?: string;
     sound?: string; example_word?: string; example_translation?: string; emoji?: string;
+    card_type?: string; examples?: string[];
   } : null;
 
   return (
@@ -344,6 +345,34 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 exampleTranslation={card.example_translation ?? ""}
                 emoji={card.emoji ?? card.visual ?? ""}
               />
+            ) : card.card_type === "passage" ? (
+              <div className="text-center space-y-4 py-4">
+                <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>{card.primary_text}</p>
+                <div className={`text-left text-brown-600 leading-relaxed ${young ? "text-lg" : "text-base"}`} style={{ lineHeight: 1.8 }}>
+                  {card.secondary_text}
+                </div>
+              </div>
+            ) : card.card_type === "grammar" ? (
+              <div className="space-y-4 py-4">
+                <p className={`font-bold text-brown-800 text-center ${young ? "text-2xl" : "text-xl"}`}>{card.primary_text}</p>
+                <p className="text-brown-500 text-sm leading-relaxed">{card.secondary_text}</p>
+                {card.examples && card.examples.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-brown-100">
+                    <p className="text-xs font-medium text-brown-400 uppercase">Examples</p>
+                    {card.examples.map((ex, i) => (
+                      <p key={i} className={`text-brown-700 font-medium ${young ? "text-lg" : "text-base"}`}>{ex}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : card.card_type === "composition" ? (
+              <div className="text-center space-y-4 py-4">
+                <p className="text-xs font-medium text-brown-400 uppercase">Writing Prompt</p>
+                <blockquote className={`italic text-brown-800 border-l-4 border-gold pl-4 text-left ${young ? "text-xl" : "text-lg"}`}>
+                  {card.primary_text}
+                </blockquote>
+                <p className="text-sm text-brown-500">{card.secondary_text}</p>
+              </div>
             ) : (
               <LearnCard
                 visual={card.visual ?? ""}
