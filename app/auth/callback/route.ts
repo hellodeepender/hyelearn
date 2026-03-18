@@ -12,14 +12,10 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.exchangeCodeForSession(code);
+    await supabase.auth.exchangeCodeForSession(code);
 
-    console.log("CALLBACK_DEBUG", JSON.stringify({
-      userId: user?.id,
-      locale: user?.user_metadata?.locale,
-      allMeta: user?.user_metadata,
-      appMeta: user?.app_metadata,
-    }));
+    // Fetch user separately since exchangeCodeForSession may not return user data
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
       const locale = user.user_metadata?.locale || "hy";
