@@ -84,9 +84,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .from("curriculum_units")
     .select("id, slug, level_id, sort_order, curriculum_levels!inner(slug, sort_order)")
     .eq("is_active", true)
-    .eq("locale", locale)
-    .order("sort_order", { referencedTable: "curriculum_levels" })
-    .order("sort_order");
+    .eq("locale", locale);
+  const sortedUnits = (allUnits ?? []).sort((a, b) => {
+    const aLevel = (a.curriculum_levels as unknown as { sort_order: number }).sort_order;
+    const bLevel = (b.curriculum_levels as unknown as { sort_order: number }).sort_order;
+    if (aLevel !== bLevel) return aLevel - bLevel;
+    return a.sort_order - b.sort_order;
+  });
   const { data: allLessons } = await supabase
     .from("curriculum_lessons")
     .select("id, slug, title, unit_id, sort_order")
@@ -95,8 +99,8 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .order("sort_order");
 
   const freeTier = !profile?.subscription_tier || profile.subscription_tier === "free";
-  if (allUnits && allLessons) {
-    for (const unit of allUnits) {
+  if (sortedUnits.length > 0 && allLessons) {
+    for (const unit of sortedUnits) {
       const levelSlug = (unit.curriculum_levels as unknown as { slug: string }).slug;
       const unitLessons = allLessons.filter((l) => l.unit_id === unit.id);
       for (const lesson of unitLessons) {
