@@ -1,13 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
+
+const STRIPE_LINKS = {
+  once_5: "https://buy.stripe.com/test_28E5kwaOV003fYUaVQ53O00",
+  once_10: "https://buy.stripe.com/test_00w5kw5uBaEH284gga53O02",
+  once_25: "https://buy.stripe.com/test_4gM7sEaOV9ADfYU1lg53O03",
+  once_50: "https://buy.stripe.com/test_aFa00caOV3cf140gga53O04",
+  monthly_3: "https://buy.stripe.com/test_28E00c0ah003cMIaVQ53O06",
+  monthly_5: "https://buy.stripe.com/test_14A28k1el3cf8ws9RM53O05",
+  monthly_10: "https://buy.stripe.com/test_28EcMYg9fdQT5kg1lg53O01",
+  custom: "https://buy.stripe.com/test_9B65kwaOV4gj6ok8NI53O07",
+};
 
 export default function SupportPage() {
   const tc = useTranslations("common");
   const { brandName, supportEmail, locale } = useLocale();
   const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
+  const searchParams = useSearchParams();
+  const donated = searchParams.get("donated") === "true";
 
   return (
     <div className="min-h-screen bg-cream">
@@ -27,6 +41,14 @@ export default function SupportPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-16">
+        {/* Thank-you banner */}
+        {donated && (
+          <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6 text-center">
+            <p className="font-semibold text-lg">Thank you for your generous support! {"\uD83D\uDC99"}</p>
+            <p className="text-sm text-green-600 mt-1">You&apos;re helping keep heritage language education free for families worldwide.</p>
+          </div>
+        )}
+
         {/* Hero */}
         <div className="text-center mb-16">
           <div className="text-5xl mb-4">{"\u2764\uFE0F"}</div>
@@ -66,21 +88,26 @@ export default function SupportPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 gap-6 mb-4">
           {/* One-time */}
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
             <h3 className="text-lg font-semibold text-brown-800 mb-4">One-time donation</h3>
             <div className="grid grid-cols-2 gap-3">
-              {["$5", "$10", "$25", "$50"].map((amount) => (
-                <a key={amount} href={`mailto:${supportEmail}?subject=I'd like to donate ${amount} to ${brandName}`}
+              {([
+                { label: "$5", href: STRIPE_LINKS.once_5 },
+                { label: "$10", href: STRIPE_LINKS.once_10 },
+                { label: "$25", href: STRIPE_LINKS.once_25 },
+                { label: "$50", href: STRIPE_LINKS.once_50 },
+              ]).map((btn) => (
+                <a key={btn.label} href={btn.href} target="_blank" rel="noopener noreferrer"
                   className="border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
-                  {amount}
+                  {btn.label}
                 </a>
               ))}
             </div>
-            <a href={`mailto:${supportEmail}?subject=I'd like to support ${brandName}`}
+            <a href={STRIPE_LINKS.custom} target="_blank" rel="noopener noreferrer"
               className="block mt-3 border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
-              Custom amount
+              Custom Amount
             </a>
           </div>
 
@@ -88,12 +115,12 @@ export default function SupportPage() {
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
             <h3 className="text-lg font-semibold text-brown-800 mb-4">Monthly support</h3>
             <div className="space-y-3">
-              {[
-                { amount: "$3/month", desc: "Help cover hosting costs" },
-                { amount: "$5/month", desc: "Fund new lesson development" },
-                { amount: "$10/month", desc: "Help us add new languages" },
-              ].map((tier) => (
-                <a key={tier.amount} href={`mailto:${supportEmail}?subject=I'd like to support ${brandName} with ${tier.amount}`}
+              {([
+                { amount: "$3/month", desc: "Help cover hosting costs", href: STRIPE_LINKS.monthly_3 },
+                { amount: "$5/month", desc: "Fund new lesson development", href: STRIPE_LINKS.monthly_5 },
+                { amount: "$10/month", desc: "Help us add new languages", href: STRIPE_LINKS.monthly_10 },
+              ]).map((tier) => (
+                <a key={tier.amount} href={tier.href} target="_blank" rel="noopener noreferrer"
                   className="block border-2 border-brown-200 hover:border-gold rounded-lg p-4 transition-colors">
                   <span className="font-semibold text-brown-800">{tier.amount}</span>
                   <span className="text-sm text-brown-500 ml-2">{tier.desc}</span>
@@ -102,6 +129,8 @@ export default function SupportPage() {
             </div>
           </div>
         </div>
+
+        <p className="text-xs text-brown-400 text-center mb-16">Payments are processed securely by Stripe. You&apos;ll receive an email receipt.</p>
 
         {/* For Schools */}
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-8">
