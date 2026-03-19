@@ -1,9 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
-import { canAccessCurriculum } from "@/lib/access";
 import { getLocale } from "@/lib/server-locale";
 import Header from "@/components/ui/Header";
-import Paywall from "@/components/ui/Paywall";
 import LessonPractice from "./LessonPractice";
 
 export default async function LessonPage({
@@ -32,17 +30,6 @@ export default async function LessonPage({
     .single();
   if (!lesson) notFound();
 
-  // Access control — free tier only gets lesson 1 of each unit
-  const access = await canAccessCurriculum(supabase, user.id, lesson.sort_order);
-  if (!access.allowed) {
-    return (
-      <div className="min-h-screen bg-cream">
-        <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
-        <Paywall type="curriculum" />
-      </div>
-    );
-  }
-
   const { data: exercises } = await supabase
     .from("curated_exercises")
     .select("exercise_type, exercise_data, sort_order")
@@ -63,13 +50,9 @@ export default async function LessonPage({
   const locale = await getLocale();
   const backUrl = `/student/curriculum/${levelSlug}/${unitSlug}`;
 
-  // Gate next lesson: check if student can access it
   let nextLessonUrl: string | undefined;
   if (nextLesson) {
-    const nextAccess = await canAccessCurriculum(supabase, user.id, nextLesson.sort_order);
-    nextLessonUrl = nextAccess.allowed
-      ? `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}`
-      : undefined;
+    nextLessonUrl = `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}`;
   }
 
   // If no next lesson in this unit, find the next unit's first lesson

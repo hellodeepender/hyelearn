@@ -1,51 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
 
-export default function PricingPage() {
+export default function SupportPage() {
   const tc = useTranslations("common");
   const { brandName, supportEmail, locale } = useLocale();
-  const [yearly, setYearly] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
-
-  async function handleSubscribe() {
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interval: yearly ? "yearly" : "monthly" }),
-      });
-
-      const data = await res.json();
-
-      if (res.status === 401) {
-        window.location.href = "/signup";
-        return;
-      }
-
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
-        setLoading(false);
-        return;
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      setError("Network error. Please try again.");
-      setLoading(false);
-    }
-  }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -64,101 +26,122 @@ export default function PricingPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-brown-800 mb-3">Simple, transparent pricing</h1>
-          <p className="text-brown-500 text-lg mb-8">Start free, upgrade when you are ready</p>
+      <main className="max-w-4xl mx-auto px-6 py-16">
+        {/* Hero */}
+        <div className="text-center mb-16">
+          <div className="text-5xl mb-4">{"\u2764\uFE0F"}</div>
+          <h1 className="text-4xl font-bold text-brown-800 mb-3">Free for Everyone</h1>
+          <p className="text-brown-500 text-lg max-w-2xl mx-auto">
+            We believe every diaspora child deserves access to their heritage language. Our complete K-5 {languageDesc} curriculum is free &mdash; no limits, no paywalls.
+          </p>
+          <Link href="/signup" className="inline-block mt-6 bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+            Start Learning Free
+          </Link>
+        </div>
 
-          <div className="inline-flex bg-warm-white border border-brown-200 rounded-lg p-1">
-            <button
-              onClick={() => setYearly(false)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${!yearly ? "bg-gold text-white" : "text-brown-600"}`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setYearly(true)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${yearly ? "bg-gold text-white" : "text-brown-600"}`}
-            >
-              Yearly <span className="text-xs ml-1 opacity-80">Save 33%</span>
-            </button>
+        {/* What you get */}
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-16">
+          <h2 className="text-xl font-bold text-brown-800 mb-4 text-center">Everything included, always free</h2>
+          <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+            {[
+              "Complete K-5 curriculum",
+              "All exercises and practice",
+              "Progress tracking & badges",
+              "Cultural rewards system",
+              "Audio pronunciation",
+              "Works on any device",
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm text-brown-600">
+                <span className="text-green-600">{"\u2713"}</span> {f}
+              </div>
+            ))}
           </div>
         </div>
 
-        {error && (
-          <div className="max-w-md mx-auto mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 text-center">
-            {error}
-          </div>
-        )}
+        {/* Support our mission */}
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-bold text-brown-800 mb-3">Support Our Mission</h2>
+          <p className="text-brown-500 max-w-xl mx-auto">
+            Your support helps us create more lessons, add new languages, and keep the platform free for families worldwide.
+          </p>
+        </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 mb-16">
+          {/* One-time */}
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-brown-800">Free</h3>
-            <p className="text-4xl font-bold text-brown-800 mt-4">$0</p>
-            <p className="text-sm text-brown-400 mt-1">Forever free</p>
-            <ul className="mt-6 space-y-3 text-sm text-brown-600">
-              <li>{"\u2713"} First lesson of every level</li>
-              <li>{"\u2713"} Limited practice sessions</li>
-              <li>{"\u2713"} Basic progress tracking</li>
-            </ul>
-            <Link href="/signup" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
-              Get Started
-            </Link>
-          </div>
-
-          <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">
-              Most Popular
-            </span>
-            <h3 className="text-lg font-semibold text-brown-800">Family</h3>
-            <p className="text-4xl font-bold text-brown-800 mt-4">
-              ${yearly ? "6.67" : "9.99"}
-              <span className="text-lg font-normal text-brown-400">/mo</span>
-            </p>
-            <p className="text-sm text-brown-400 mt-1">
-              {yearly ? "$79.99 billed yearly" : "$9.99 billed monthly"}
-            </p>
-            <ul className="mt-6 space-y-3 text-sm text-brown-600">
-              <li>{"\u2713"} Full curriculum access</li>
-              <li>{"\u2713"} Unlimited practice</li>
-              <li>{"\u2713"} Progress tracking & certificates</li>
-              <li>{"\u2713"} Up to 3 student profiles</li>
-              <li>{"\u2713"} Priority support</li>
-            </ul>
-            <button
-              onClick={handleSubscribe}
-              disabled={loading}
-              className="block w-full mt-8 text-center bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-medium transition-colors"
-            >
-              {loading ? "Loading..." : "Get Full Access"}
-            </button>
-          </div>
-
-          <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-brown-800">School</h3>
-            <p className="text-4xl font-bold text-brown-800 mt-4">Custom</p>
-            <p className="text-sm text-brown-400 mt-1">Contact for pricing</p>
-            <ul className="mt-6 space-y-3 text-sm text-brown-600">
-              <li>{"\u2713"} Everything in Family</li>
-              <li>{"\u2713"} Unlimited students</li>
-              <li>{"\u2713"} Teacher dashboards</li>
-              <li>{"\u2713"} Student progress reports</li>
-              <li>{"\u2713"} Bulk account management</li>
-              <li>{"\u2713"} Admin analytics</li>
-            </ul>
-            <a href={`mailto:${supportEmail}`} className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
-              Contact Us
+            <h3 className="text-lg font-semibold text-brown-800 mb-4">One-time donation</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {["$5", "$10", "$25", "$50"].map((amount) => (
+                <a key={amount} href={`mailto:${supportEmail}?subject=I'd like to donate ${amount} to ${brandName}`}
+                  className="border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
+                  {amount}
+                </a>
+              ))}
+            </div>
+            <a href={`mailto:${supportEmail}?subject=I'd like to support ${brandName}`}
+              className="block mt-3 border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
+              Custom amount
             </a>
           </div>
+
+          {/* Monthly */}
+          <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
+            <h3 className="text-lg font-semibold text-brown-800 mb-4">Monthly support</h3>
+            <div className="space-y-3">
+              {[
+                { amount: "$3/month", desc: "Help cover hosting costs" },
+                { amount: "$5/month", desc: "Fund new lesson development" },
+                { amount: "$10/month", desc: "Help us add new languages" },
+              ].map((tier) => (
+                <a key={tier.amount} href={`mailto:${supportEmail}?subject=I'd like to support ${brandName} with ${tier.amount}`}
+                  className="block border-2 border-brown-200 hover:border-gold rounded-lg p-4 transition-colors">
+                  <span className="font-semibold text-brown-800">{tier.amount}</span>
+                  <span className="text-sm text-brown-500 ml-2">{tier.desc}</span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-20 max-w-2xl mx-auto">
+        {/* For Schools */}
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-8">
+          <h2 className="text-xl font-bold text-brown-800 mb-2">For Schools</h2>
+          <p className="text-brown-500 mb-4">
+            Need classroom features? Teacher dashboards, class management, and progress reports for your {languageDesc} program.
+          </p>
+          <ul className="space-y-2 text-sm text-brown-600 mb-6">
+            <li>{"\u2713"} Unlimited students</li>
+            <li>{"\u2713"} Teacher dashboards</li>
+            <li>{"\u2713"} Class management & join codes</li>
+            <li>{"\u2713"} Student progress reports</li>
+            <li>{"\u2713"} Admin analytics</li>
+          </ul>
+          <a href={`mailto:${supportEmail}?subject=School inquiry for ${brandName}`}
+            className="inline-block bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Contact Us for School Pricing
+          </a>
+        </div>
+
+        {/* For Organizations */}
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-16">
+          <h2 className="text-xl font-bold text-brown-800 mb-2">For Organizations & Grants</h2>
+          <p className="text-brown-500 mb-4">
+            We partner with diaspora organizations, churches, and cultural foundations to expand heritage language education.
+          </p>
+          <a href={`mailto:${supportEmail}?subject=Partnership inquiry for ${brandName}`}
+            className="inline-block border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-6 py-3 rounded-lg font-medium transition-colors">
+            Get in Touch
+          </a>
+        </div>
+
+        {/* FAQ */}
+        <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold text-brown-800 text-center mb-8">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {[
               { q: `Is this ${languageDesc}?`, a: `Yes. All content uses ${languageDesc} \u2014 the same standard taught in ${tc("language")} day schools across the diaspora.` },
               { q: "What ages is this for?", a: "Kindergarten through Grade 5, with more levels coming soon." },
-              { q: "How is the curriculum created?", a: `Our curriculum is built and reviewed by ${tc("language")} language educators. Each lesson is carefully structured to build on the previous one.` },
+              { q: "Is it really completely free?", a: "Yes! The entire K-5 curriculum is free for all families. No trial period, no hidden limits. We rely on donations and school partnerships to keep it running." },
               { q: "Is it safe for kids?", a: "Absolutely. No ads, no social features, no external links. Your child only sees learning content." },
             ].map((faq) => (
               <div key={faq.q} className="bg-warm-white border border-brown-100 rounded-xl p-5">
@@ -174,7 +157,7 @@ export default function PricingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brown-400">
           <p>&copy; {new Date().getFullYear()} {brandName}</p>
           <div className="flex gap-6">
-            <Link href="/pricing" className="hover:text-brown-600">Pricing</Link>
+            <Link href="/pricing" className="hover:text-brown-600">Support</Link>
             <a href={`mailto:${supportEmail}`} className="hover:text-brown-600">Contact</a>
           </div>
         </div>

@@ -103,21 +103,14 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .eq("locale", locale)
     .order("sort_order");
 
-  const freeTier = !profile?.subscription_tier || profile.subscription_tier === "free";
   if (sortedUnits.length > 0 && allLessons) {
     for (const unit of sortedUnits) {
       const levelSlug = (unit.curriculum_levels as unknown as { slug: string }).slug;
       const unitLessons = allLessons.filter((l) => l.unit_id === unit.id);
       for (const lesson of unitLessons) {
         if (!passedLessonIds.has(lesson.id)) {
-          // Free tier can only access lesson 1 of each unit
-          if (freeTier && lesson.sort_order > 1) {
-            nextLessonUrl = "/pricing";
-            nextLessonTitle = null;
-          } else {
-            nextLessonUrl = `/student/curriculum/${levelSlug}/${unit.slug}/${lesson.slug}`;
-            nextLessonTitle = lesson.title;
-          }
+          nextLessonUrl = `/student/curriculum/${levelSlug}/${unit.slug}/${lesson.slug}`;
+          nextLessonTitle = lesson.title;
           break;
         }
       }
@@ -144,7 +137,6 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const allComplete = totalCurriculumLessons > 0 && completedCurriculumLessons >= totalCurriculumLessons;
   const neverStarted = completedCurriculumLessons === 0 && !didLessonToday;
   const firstName = profile?.full_name?.split(" ")[0] ?? "Student";
-  const isFree = !profile?.subscription_tier || profile.subscription_tier === "free";
 
   // Locale
   const tc = await getTranslations("common");
@@ -172,13 +164,6 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
       <main className="max-w-6xl mx-auto px-6 py-10">
         <StudentNav subscriptionTier={profile?.subscription_tier} />
 
-        {showSubscriptionSuccess && (
-          <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6">
-            <p className="font-medium">Welcome to {brandName} Full Access!</p>
-            <p className="text-sm text-green-600 mt-0.5">You now have access to all lessons and unlimited practice.</p>
-          </div>
-        )}
-
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
         <p className="text-brown-500 mb-8">Continue your {tc("language")} learning journey.</p>
 
@@ -202,7 +187,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
                 </div>
                 {nextLessonUrl && (
                   <Link href={nextLessonUrl} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                    {nextLessonUrl === "/pricing" ? "Upgrade to Continue" : "Keep Going"}
+                    Keep Going
                   </Link>
                 )}
               </div>
@@ -226,29 +211,12 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
                   {streak > 0 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak! Keep it going!</p>}
                 </div>
                 <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                  {nextLessonUrl === "/pricing" ? "Upgrade to Continue" : "Continue Lesson"}
+                  Continue Lesson
                 </Link>
               </div>
             )}
           </div>
         </section>
-
-        {/* Upgrade banner for free tier */}
-        {isFree && (
-          <section className="mb-8">
-            <div className="bg-gradient-to-r from-gold/10 to-amber-50 border border-gold/20 rounded-2xl p-5 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-brown-800">Unlock all lessons across K-5</p>
-                <p className="text-sm text-brown-500 mt-0.5">You&apos;re on the free plan. Upgrade for full access.</p>
-              </div>
-              <div className="text-right shrink-0 ml-4">
-                <Link href="/pricing" className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors inline-block">
-                  Upgrade
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Progress */}
         <section className="mb-8">

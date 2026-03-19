@@ -258,8 +258,9 @@ export default async function LandingPage() {
             <h2 className="text-3xl font-bold text-brown-800 mb-3">{t("pricingTitle")}</h2>
             <p className="text-brown-500">{t("pricingSubtitle")}</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">100% Free</span>
               <h3 className="text-lg font-semibold text-brown-800">{t("planFreeTitle")}</h3>
               <p className="text-4xl font-bold text-brown-800 mt-4">{t("planFreePrice")}</p>
               <p className="text-sm text-brown-400 mt-1">{t("planFreePeriod")}</p>
@@ -267,15 +268,15 @@ export default async function LandingPage() {
                 <li>{"\u2713"} {t("planFreeFeature1")}</li>
                 <li>{"\u2713"} {t("planFreeFeature2")}</li>
                 <li>{"\u2713"} {t("planFreeFeature3")}</li>
+                <li>{"\u2713"} {t("planFreeFeature4")}</li>
               </ul>
-              <Link href="/signup" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
+              <Link href="/signup" className="block mt-8 text-center bg-gold hover:bg-gold-dark text-white py-3 rounded-lg font-medium transition-colors">
                 {tc("startFree")}
               </Link>
             </div>
-            <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">{t("mostPopular")}</span>
+            <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
               <h3 className="text-lg font-semibold text-brown-800">{t("planPaidTitle")}</h3>
-              <p className="text-4xl font-bold text-brown-800 mt-4">{t("planPaidPrice")}<span className="text-lg font-normal text-brown-400">/mo</span></p>
+              <p className="text-4xl font-bold text-brown-800 mt-4">{t("planPaidPrice")}</p>
               <p className="text-sm text-brown-400 mt-1">{t("planPaidPeriod")}</p>
               <ul className="mt-6 space-y-3 text-sm text-brown-600">
                 <li>{"\u2713"} {t("planPaidFeature1")}</li>
@@ -283,24 +284,15 @@ export default async function LandingPage() {
                 <li>{"\u2713"} {t("planPaidFeature3")}</li>
                 <li>{"\u2713"} {t("planPaidFeature4")}</li>
               </ul>
-              <Link href="/signup" className="block mt-8 text-center bg-gold hover:bg-gold-dark text-white py-3 rounded-lg font-medium transition-colors">
-                {t("getFullAccess")}
+              <Link href="/pricing" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
+                {t("planPaidTitle")}
               </Link>
             </div>
-            <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
-              <h3 className="text-lg font-semibold text-brown-800">{t("planSchoolTitle")}</h3>
-              <p className="text-4xl font-bold text-brown-800 mt-4">{t("planSchoolPrice")}</p>
-              <p className="text-sm text-brown-400 mt-1">{t("planSchoolPeriod")}</p>
-              <ul className="mt-6 space-y-3 text-sm text-brown-600">
-                <li>{"\u2713"} {t("planSchoolFeature1")}</li>
-                <li>{"\u2713"} {t("planSchoolFeature2")}</li>
-                <li>{"\u2713"} {t("planSchoolFeature3")}</li>
-                <li>{"\u2713"} {t("planSchoolFeature4")}</li>
-              </ul>
-              <Link href="/contact" className="block mt-8 text-center border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium transition-colors">
-                {t("contactUs")}
-              </Link>
-            </div>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/contact" className="text-sm text-brown-500 hover:text-brown-700">
+              {t("planSchoolTitle")}: {t("contactUs")} &rarr;
+            </Link>
           </div>
         </section>
 

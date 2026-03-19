@@ -43,11 +43,7 @@ export async function canAccessCurriculum(
   userId: string,
   lessonSortOrder: number
 ): Promise<{ allowed: boolean; reason?: string }> {
-  const sub = await getUserSubscription(db, userId);
-  if (!sub || !isSubscriptionActive(sub)) {
-    if (lessonSortOrder <= 1) return { allowed: true };
-    return { allowed: false, reason: "upgrade" };
-  }
+  // All curriculum content is now free
   return { allowed: true };
 }
 

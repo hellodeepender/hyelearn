@@ -13,9 +13,8 @@ interface Props {
   subscriptionTier?: string;
 }
 
-export default function StudentNav({ subscriptionTier }: Props) {
+export default function StudentNav({ subscriptionTier: _tier }: Props = {}) {
   const pathname = usePathname();
-  const isFree = !subscriptionTier || subscriptionTier === "free";
 
   return (
     <nav className="flex gap-1 bg-warm-white border border-brown-100 rounded-xl p-1 mb-8">
@@ -39,11 +38,6 @@ export default function StudentNav({ subscriptionTier }: Props) {
           </Link>
         );
       })}
-      {isFree && (
-        <Link href="/pricing" className="ml-auto flex items-center px-3 py-2 rounded-lg text-xs font-medium text-gold hover:text-gold-dark transition-colors">
-          Upgrade
-        </Link>
-      )}
     </nav>
   );
 }
