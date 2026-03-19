@@ -45,21 +45,24 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
       <Header userName={profile?.full_name ?? "Student"} userRole={profile?.role ?? "student"} />
 
       {viewMode === "map" ? (
-        <>
+        <main className="max-w-4xl mx-auto px-6 py-10">
           <StudentNav subscriptionTier={profile?.subscription_tier} />
-          <div className="max-w-4xl mx-auto px-6 pt-4">
-            <ViewToggle viewMode={viewMode} baseHref="/student/curriculum" />
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/student" className="flex items-center gap-1 text-sm text-brown-500 hover:text-brown-700">
+              <span>{"\u2190"}</span> Dashboard
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-brown-400">{totalCompleted}/{totalLessons} completed</span>
+              <ViewToggle viewMode={viewMode} baseHref="/student/curriculum" />
+            </div>
           </div>
           <MapPath
             nodes={mapNodes}
             locale={locale}
             summitLabel={summitLabel}
             subtitle="All Grades"
-            headerStats={`${totalCompleted}/${totalLessons} completed`}
-            backHref="/student"
-            backLabel="Dashboard"
           />
-        </>
+        </main>
       ) : (
         <main className="max-w-4xl mx-auto px-6 py-10">
           <StudentNav subscriptionTier={profile?.subscription_tier} />
