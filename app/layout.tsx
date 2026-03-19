@@ -5,6 +5,7 @@ import { LocaleProvider } from "@/lib/locale-context";
 import CookieBanner from "@/components/ui/CookieBanner";
 import AuthHashHandler from "@/components/ui/AuthHashHandler";
 import GoogleAnalytics from "@/components/ui/GoogleAnalytics";
+import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
 import "./globals.css";
 
 const notoSansArmenian = Noto_Sans_Armenian({
@@ -131,6 +132,12 @@ export default async function RootLayout({
   return (
     <html lang="en" dir={domainConfig.dir}>
       <head>
+        <link rel="manifest" href="/api/manifest" />
+        <meta name="theme-color" content={t.primary} />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content={domainConfig.brandName} />
+        <link rel="apple-touch-icon" href={`/icons/icon-${domainConfig.locale}-192.png`} />
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
             --theme-primary: ${t.primary};
@@ -154,6 +161,7 @@ export default async function RootLayout({
         <LocaleProvider domainConfig={domainConfig}>
           <GoogleAnalytics />
           <AuthHashHandler />
+          <ServiceWorkerRegister />
           {children}
           <CookieBanner />
         </LocaleProvider>

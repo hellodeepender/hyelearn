@@ -19,7 +19,7 @@ interface GrammarNote { topic: string; explanation: string; examples: string[] }
 interface CompositionPrompt { prompt: string; instructions: string; min_sentences: number }
 interface DiscussionQuestion { question: string; question_eng: string }
 
-interface Props { levels: Level[]; units: Unit[]; lessons: Lesson[]; userId: string }
+interface Props { levels: Level[]; units: Unit[]; lessons: Lesson[]; userId: string; userRole?: string }
 
 const EMPTY_LETTER: LetterRow = { letter_upper: "", letter_lower: "", letter_name: "", transliteration: "", sound: "", example_word_target: "", example_word_eng: "", emoji: "" };
 const EMPTY_WORD: WordRow = { target_lang: "", english: "", emoji: "", category: "general" };
@@ -44,8 +44,9 @@ function gradeFromLevel(title: string): string {
   return m ? m[0] : "1";
 }
 
-export default function ContentClient({ levels, units, lessons, userId }: Props) {
+export default function ContentClient({ levels, units, lessons, userId, userRole }: Props) {
   const { englishName } = useLocale();
+  const isAdmin = userRole === "admin";
 
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedUnit, setSelectedUnit] = useState("");
@@ -367,6 +368,11 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
       </div>
 
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">{error}</div>}
+      {!isAdmin && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 mb-4">
+          <strong>View only</strong> — This curriculum is managed by the admin team. You can browse content but changes are restricted. Contact your admin to request edits.
+        </div>
+      )}
       {result && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg p-3 mb-4">
           {result.action === "generate"
@@ -419,7 +425,7 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
             <p className="text-sm text-brown-500 mb-4">
               This {lesson?.template_type} automatically uses content from all practice lessons in this unit. Click Generate to create exercises.
             </p>
-            <button onClick={handleGenerate} disabled={generating}
+            <button onClick={handleGenerate} disabled={generating || !isAdmin}
               className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium">
               {generating ? "Generating..." : "Generate Exercises"}
             </button>
@@ -427,12 +433,6 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
         </div>
       )}
 
-      {/* Official content warning */}
-      {selectedLesson && !loading && contentStatus === "loaded" && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 mb-4">
-          This lesson contains official curriculum content. Contact admin to make changes.
-        </div>
-      )}
 
       {/* Content form (non-review/quiz) */}
       {selectedLesson && !loading && !isReviewOrQuiz && (
@@ -594,11 +594,11 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
           </div>
 
           <div className="flex gap-3">
-            <button onClick={handleSave} disabled={saving}
+            <button onClick={handleSave} disabled={saving || !isAdmin}
               className="bg-gold hover:bg-gold-dark disabled:opacity-50 text-white px-5 py-2.5 rounded-lg text-sm font-medium">
               {saving ? "Saving..." : "Save Content"}
             </button>
-            <button onClick={handleGenerate} disabled={generating}
+            <button onClick={handleGenerate} disabled={generating || !isAdmin}
               className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg text-sm font-medium">
               {generating ? "Generating..." : "Generate Lesson"}
             </button>

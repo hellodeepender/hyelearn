@@ -143,7 +143,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
 
   // Locale
   const tc = await getTranslations("common");
-  const { brandName } = await getServerLocale();
+  const { brandName, supportEmail } = await getServerLocale();
 
   // XP & badges — check for newly earned badges on every dashboard load (idempotent)
   const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0, locale);
@@ -324,8 +324,11 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
 
       {/* Footer */}
       <footer className="mt-10 py-6 px-6 border-t border-brown-100">
-        <div className="max-w-6xl mx-auto text-center text-xs text-brown-400">
-          {brandName} &middot; Made with love for diaspora communities
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-2 text-xs text-brown-400">
+          <a href={`mailto:${supportEmail}?subject=Feedback for ${brandName}`} className="text-gold hover:text-gold-dark font-medium text-sm transition-colors">
+            Send Feedback
+          </a>
+          <span>{brandName} &middot; Made with love for diaspora communities</span>
         </div>
       </footer>
     </div>

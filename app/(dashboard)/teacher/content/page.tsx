@@ -23,6 +23,7 @@ export default async function ContentPage() {
         units={units ?? []}
         lessons={lessons ?? []}
         userId={user.id}
+        userRole={profile?.role ?? "teacher"}
       />
     </div>
   );

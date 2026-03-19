@@ -58,6 +58,7 @@ export default async function TeacherDashboard() {
 
   const activeLevels = levelStats.filter((l) => l.hasContent || l.units > 0);
   const emptyLevels = levelStats.filter((l) => !l.hasContent && l.units === 0);
+  const isAdmin = profile?.role === "admin";
   const firstName = profile?.full_name?.split(" ")[0] ?? "Teacher";
 
   return (
@@ -91,9 +92,11 @@ export default async function TeacherDashboard() {
               <Link href="/teacher/content" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 Content Editor
               </Link>
-              <Link href="/teacher/bulk-generate" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                Bulk Generate
-              </Link>
+              {isAdmin && (
+                <Link href="/teacher/bulk-generate" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  Bulk Generate
+                </Link>
+              )}
             </div>
           </div>
 

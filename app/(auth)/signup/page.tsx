@@ -6,6 +6,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
+import { trackEvent } from "@/components/ui/GoogleAnalytics";
 
 export default function SignupPage() {
   const tc = useTranslations("common");
@@ -42,6 +43,7 @@ export default function SignupPage() {
 
     // If user exists but email not confirmed, or new user needing confirmation
     if (data.user && !data.session) {
+      trackEvent("sign_up", { method: "email", locale: locale.locale });
       setConfirmationSent(true);
       setLoading(false);
       return;
@@ -49,10 +51,12 @@ export default function SignupPage() {
 
     // If session exists (email confirmation disabled), redirect
     if (data.session) {
+      trackEvent("sign_up", { method: "email", locale: locale.locale });
       router.push("/student");
       return;
     }
 
+    trackEvent("sign_up", { method: "email", locale: locale.locale });
     setConfirmationSent(true);
     setLoading(false);
   }

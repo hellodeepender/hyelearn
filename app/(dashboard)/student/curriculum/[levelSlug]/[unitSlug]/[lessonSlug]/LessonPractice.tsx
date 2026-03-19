@@ -15,6 +15,7 @@ import TrueFalse from "@/components/exercises/TrueFalse";
 import LearnCard from "@/components/exercises/LearnCard";
 import AlphabetLearnCard from "@/components/exercises/AlphabetLearnCard";
 import { getBadgeBySlug } from "@/lib/badges";
+import { trackEvent } from "@/components/ui/GoogleAnalytics";
 
 interface ExerciseEntry { type: string; data: unknown }
 interface Step { kind: "learn" | "exercise"; entry: ExerciseEntry }
@@ -91,6 +92,10 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   const [saveError, setSaveError] = useState(false);
   const didSave = useRef(false);
 
+  useEffect(() => {
+    trackEvent("lesson_start", { lesson_id: lessonId, lesson_title: lessonTitle, locale, grade: gradeValue });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   function advance() {
     setShowNext(false);
     if (currentStep + 1 >= totalSteps) {
@@ -125,6 +130,10 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
       }
       const data = await res.json();
       setResult({ passed: data.passed ?? localPassed, pct: data.pct ?? localPct });
+      trackEvent("lesson_complete", {
+        lesson_id: lessonId, lesson_title: lessonTitle, locale, grade: gradeValue,
+        score: localPct, passed: String(data.passed ?? localPassed),
+      });
       if (data.xpEarned || data.newBadges?.length || data.leveledUp) {
         setRewards({ xpEarned: data.xpEarned ?? 0, newBadges: data.newBadges ?? [], leveledUp: data.leveledUp ?? false });
       }
