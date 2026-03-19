@@ -82,9 +82,10 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   let nextLessonTitle: string | null = null;
   const { data: allUnits } = await supabase
     .from("curriculum_units")
-    .select("id, slug, level_id, sort_order, curriculum_levels!inner(slug)")
+    .select("id, slug, level_id, sort_order, curriculum_levels!inner(slug, sort_order)")
     .eq("is_active", true)
     .eq("locale", locale)
+    .order("sort_order", { referencedTable: "curriculum_levels" })
     .order("sort_order");
   const { data: allLessons } = await supabase
     .from("curriculum_lessons")
