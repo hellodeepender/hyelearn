@@ -26,9 +26,16 @@ function Img({ src, alt, className, priority }: { src: string; alt: string; clas
 export default async function LandingPage() {
   await checkAuth();
 
+  const { locale } = await getServerLocale();
+
+  // diasporalearn.org shows the portfolio page
+  if (locale === "en") {
+    const { default: PortfolioPage } = await import("@/app/portfolio/page");
+    return <PortfolioPage />;
+  }
+
   const t = await getTranslations("landing");
   const tc = await getTranslations("common");
-  const { locale } = await getServerLocale();
 
   const jsonLd = {
     "@context": "https://schema.org",
