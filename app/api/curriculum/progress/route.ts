@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
 import { processLessonRewards } from "@/lib/xp";
+import { getDomainConfig } from "@/config/domains";
 
 export async function POST(request: NextRequest) {
   const authClient = await createServerClient();
@@ -68,8 +69,10 @@ export async function POST(request: NextRequest) {
   // Process rewards (XP + badges) — best-effort, don't block the response
   let rewards = { xpEarned: 0, newBadges: [] as string[], newTotal: 0, leveledUp: false };
   try {
+    const hostname = request.headers.get("host") || "hyelearn.com";
+    const { locale: reqLocale } = getDomainConfig(hostname);
     rewards = await processLessonRewards(
-      db, user.id, lesson_id, templateType, data.passed, pct, clientStreak ?? 0,
+      db, user.id, lesson_id, templateType, data.passed, pct, clientStreak ?? 0, reqLocale,
     );
   } catch (err) {
     console.error("[progress] Rewards error:", err);

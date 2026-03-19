@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { BADGES } from "./badges";
+import { BADGES, getBadges } from "./badges";
 
 // --- XP values ---
 export const XP = {
@@ -122,11 +122,12 @@ export async function processLessonRewards(
   passed: boolean,
   pct: number,
   streak: number,
+  locale?: string,
 ): Promise<{ xpEarned: number; newBadges: string[]; newTotal: number; leveledUp: boolean }> {
   let xpEarned = 0;
   const oldProfile = await db.from("profiles").select("total_xp").eq("id", studentId).single();
   const oldTotal = oldProfile?.data?.total_xp ?? 0;
-  const oldLevel = getCurrentLevel(oldTotal);
+  const oldLevel = getCurrentLevel(oldTotal, locale);
 
   // Base XP
   if (lessonType === "quiz" && passed) {
@@ -163,11 +164,11 @@ export async function processLessonRewards(
   }
 
   // Check badges
-  const newBadges = await checkAndAwardBadges(db, studentId, streak);
+  const newBadges = await checkAndAwardBadges(db, studentId, streak, locale);
 
   const newProfile = await db.from("profiles").select("total_xp").eq("id", studentId).single();
   const newTotal = newProfile?.data?.total_xp ?? oldTotal + xpEarned;
-  const newLevel = getCurrentLevel(newTotal);
+  const newLevel = getCurrentLevel(newTotal, locale);
   const leveledUp = newLevel.level > oldLevel.level;
 
   return { xpEarned, newBadges, newTotal, leveledUp };
@@ -178,6 +179,7 @@ export async function checkAndAwardBadges(
   db: SupabaseClient,
   studentId: string,
   streak: number,
+  locale?: string,
 ): Promise<string[]> {
   // Get existing badges
   const { data: existing } = await db
@@ -201,7 +203,8 @@ export async function checkAndAwardBadges(
     newBadges.push(slug);
   }
 
-  for (const badge of BADGES) {
+  const badgeSet = locale ? getBadges(locale) : BADGES;
+  for (const badge of badgeSet) {
     if (earned.has(badge.slug)) continue;
 
     switch (badge.condition) {

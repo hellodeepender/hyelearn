@@ -6,9 +6,10 @@ import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
-import { getBadges } from "@/lib/badges";
+import { getBadges, getBadgeBySlug } from "@/lib/badges";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale, getLocale } from "@/lib/server-locale";
+import BadgeCelebration from "@/components/ui/BadgeCelebration";
 
 export default async function StudentDashboard({ searchParams }: { searchParams: Promise<{ subscription?: string }> }) {
   const params = await searchParams;
@@ -148,13 +149,18 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   // XP & badges — check for newly earned badges on every dashboard load (idempotent)
   const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0, locale);
   const badges = getBadges(locale);
+  let newlyEarnedBadges: string[] = [];
   const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (sk) {
     const db = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } });
-    await checkAndAwardBadges(db, user.id, streak).catch(() => {});
+    newlyEarnedBadges = await checkAndAwardBadges(db, user.id, streak, locale).catch(() => [] as string[]) ?? [];
   }
   const { data: earnedBadges } = await supabase.from("student_badges").select("badge_slug").eq("student_id", user.id);
   const earnedBadgeSlugs = new Set((earnedBadges ?? []).map((b) => b.badge_slug));
+  const celebrationBadges = newlyEarnedBadges
+    .map((slug) => getBadgeBySlug(slug, locale))
+    .filter(Boolean)
+    .map((b) => ({ slug: b!.slug, name: b!.name, emoji: b!.emoji, description: b!.description }));
 
   return (
     <div className="min-h-screen bg-cream">
@@ -321,6 +327,8 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
           </Link>
         </section>
       </main>
+
+      <BadgeCelebration badges={celebrationBadges} />
 
       {/* Footer */}
       <footer className="mt-10 py-6 px-6 border-t border-brown-100">
