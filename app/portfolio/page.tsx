@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { DM_Serif_Display, DM_Sans } from "next/font/google";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "DiasporaLearn — Heritage Language Learning Platforms",
+  description: "Interactive K-5 learning platforms for diaspora communities. Armenian, Greek, and more.",
+};
 
 const serif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-dm-serif" });
 const sans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
@@ -11,8 +17,8 @@ const products = [
     letterColor: "#C8A951",
     language: "Western Armenian",
     url: "https://hyelearn.com",
-    description: "The first interactive K-5 Western Armenian curriculum. Built for Armenian day schools and diaspora families. Alphabet, vocabulary, grammar, and cultural content \u2014 all with native audio pronunciation.",
-    grades: "K\u20135",
+    description: "The first interactive K-5 Western Armenian curriculum. Built for Armenian day schools and diaspora families. Alphabet, vocabulary, grammar, and cultural content — all with native audio pronunciation.",
+    grades: "K–5",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
   },
@@ -22,8 +28,8 @@ const products = [
     letterColor: "#2271B3",
     language: "Modern Greek",
     url: "https://mathaino.net",
-    description: "Interactive Greek language learning for K-5 students. Greek alphabet, vocabulary, reading comprehension, and cultural awareness \u2014 designed for Greek schools and families in the diaspora.",
-    grades: "K\u20135",
+    description: "Interactive Greek language learning for K-5 students. Greek alphabet, vocabulary, reading comprehension, and cultural awareness — designed for Greek schools and families in the diaspora.",
+    grades: "K–5",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
   },
@@ -38,8 +44,7 @@ export default function PortfolioPage() {
       <header className="border-b border-[#E5E5E5]">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center">
           <span style={{ fontFamily: "var(--font-dm-serif)" }} className="text-xl">
-            <span className="text-[#2271B3] font-normal">D</span>
-            <span className="text-[#333]">iasporaLearn</span>
+            <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
           </span>
         </div>
       </header>
@@ -52,10 +57,10 @@ export default function PortfolioPage() {
               Heritage languages deserve modern tools
             </h1>
             <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
-              We build interactive learning platforms for diaspora communities. Structured K-5 curricula, native audio, culturally meaningful content \u2014 all in just 5 minutes a day.
+              We build interactive learning platforms for diaspora communities. Structured K-5 curricula, native audio, culturally meaningful content — all in just 5 minutes a day.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              {["K\u20135 curriculum", "Interactive lessons", "Built for diaspora families"].map((badge) => (
+              {["K–5 curriculum", "Interactive lessons", "Built for diaspora families"].map((badge) => (
                 <span key={badge} className="px-4 py-1.5 bg-white border border-[#E5E5E5] rounded-full text-sm text-[#555]">
                   {badge}
                 </span>
@@ -117,7 +122,7 @@ export default function PortfolioPage() {
               One platform, many languages
             </h2>
             <p className="text-[#555] leading-relaxed mb-8">
-              DiasporaLearn is built on a shared, scalable architecture. The same exercise engine, rewards system, and teacher tools power every language \u2014 with culturally adapted content, native audio, and locale-specific theming for each community.
+              DiasporaLearn is built on a shared, scalable architecture. The same exercise engine, rewards system, and teacher tools power every language — with culturally adapted content, native audio, and locale-specific theming for each community.
             </p>
             <p className="text-sm text-[#999] mb-6">Coming soon</p>
             <div className="flex flex-wrap justify-center gap-2">
