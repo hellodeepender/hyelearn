@@ -84,11 +84,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     .from("curriculum_units")
     .select("id, slug, level_id, sort_order, curriculum_levels!inner(slug)")
     .eq("is_active", true)
+    .eq("locale", locale)
     .order("sort_order");
   const { data: allLessons } = await supabase
     .from("curriculum_lessons")
     .select("id, slug, title, unit_id, sort_order")
     .eq("is_active", true)
+    .eq("locale", locale)
     .order("sort_order");
 
   const freeTier = !profile?.subscription_tier || profile.subscription_tier === "free";
