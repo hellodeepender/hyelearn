@@ -427,6 +427,13 @@ export default function ContentClient({ levels, units, lessons, userId }: Props)
         </div>
       )}
 
+      {/* Official content warning */}
+      {selectedLesson && !loading && contentStatus === "loaded" && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 mb-4">
+          This lesson contains official curriculum content. Contact admin to make changes.
+        </div>
+      )}
+
       {/* Content form (non-review/quiz) */}
       {selectedLesson && !loading && !isReviewOrQuiz && (
         <div className="space-y-6">

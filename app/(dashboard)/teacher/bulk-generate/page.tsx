@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale } from "@/lib/locale-context";
+import { createClient } from "@/lib/supabase";
 
 interface Detail {
   level: string; unit: string; lesson: string; status: string; items: number;
@@ -10,7 +12,23 @@ interface Detail {
 
 export default function BulkGeneratePage() {
   const { englishName } = useLocale();
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
   const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    async function checkAdmin() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
+      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      if (profile?.role !== "admin") { router.push("/teacher"); return; }
+      setAuthorized(true);
+    }
+    checkAdmin();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!authorized) return null;
   const [result, setResult] = useState<{ total: number; completed: number; failed: number; details: Detail[] } | null>(null);
   const [error, setError] = useState("");
 
