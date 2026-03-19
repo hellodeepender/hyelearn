@@ -28,6 +28,7 @@ interface Props {
   exercises: ExerciseEntry[];
   backUrl: string;
   nextLessonUrl?: string;
+  nextUnitUrl?: string;
   gradeValue: string;
   locale: string;
 }
@@ -76,7 +77,7 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
   return steps;
 }
 
-export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, gradeValue, locale }: Props) {
+export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, nextUnitUrl, gradeValue, locale }: Props) {
   const young = gradeValue === "K" || gradeValue === "1";
   const learnCount = exercises.filter((e) => e.type === "learn_card").length;
 
@@ -90,6 +91,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
   const [rewards, setRewards] = useState<{ xpEarned: number; newBadges: string[]; leveledUp: boolean } | null>(null);
   const [saveError, setSaveError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const didSave = useRef(false);
 
   useEffect(() => {
@@ -112,6 +114,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
 
   // --- Save progress ---
   const saveProgress = useCallback(async () => {
+    setSaving(true);
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
@@ -140,6 +143,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     } catch {
       setSaveError(true);
       setResult({ passed: localPassed, pct: localPct });
+    } finally {
+      setSaving(false);
     }
   }, [answers, lessonId, passingScore]);
 
@@ -173,6 +178,20 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
 
   // --- Complete ---
   if (done) {
+    // Show loading while saving progress
+    if (saving || (!result && !saveError && answers.length > 0)) {
+      return (
+        <main className="max-w-2xl mx-auto px-6 py-12 text-center">
+          <div className="flex justify-center gap-2 mb-4">
+            {["\u2728", "\u2B50", "\u2728"].map((e, i) => (
+              <span key={i} className="text-3xl animate-bounce" style={{ animationDelay: `${i * 0.15}s` }}>{e}</span>
+            ))}
+          </div>
+          <p className="text-brown-600 font-medium">Saving your progress...</p>
+        </main>
+      );
+    }
+
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
@@ -227,12 +246,23 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 Continue to Quiz
               </Link>
             )}
+            {!nextLessonUrl && nextUnitUrl && (
+              <Link href={nextUnitUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                Continue to next unit
+              </Link>
+            )}
+            {!nextLessonUrl && !nextUnitUrl && !nextLessonUrl && (
+              <Link href="/student/curriculum" className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                Back to Curriculum
+              </Link>
+            )}
             {pct < 100 && (
               <button onClick={handleRetry} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium">
                 Practice the ones you missed
               </button>
             )}
             <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600 mt-1">Back to Unit</Link>
+            <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
           </div>
         </main>
       );
@@ -285,10 +315,21 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                   {isQuiz ? "Continue to next unit" : "Continue to next lesson"}
                 </Link>
               )}
+              {!nextLessonUrl && nextUnitUrl && (
+                <Link href={nextUnitUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                  Continue to next unit
+                </Link>
+              )}
+              {!nextLessonUrl && !nextUnitUrl && (
+                <Link href="/student/curriculum" className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                  Back to Curriculum
+                </Link>
+              )}
               <button onClick={handleRetry} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium">
                 {stars < 3 ? "Try for 3 stars" : "Practice again"}
               </button>
               <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600 mt-1">Back to Unit</Link>
+              <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
             </div>
           </>
         ) : (
@@ -304,6 +345,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 Practice Again
               </button>
               <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600">Back to Unit</Link>
+              <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
             </div>
           </>
         )}

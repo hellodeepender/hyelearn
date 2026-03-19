@@ -60,7 +60,9 @@ export default async function LessonPage({
     .limit(1)
     .single();
 
+  const locale = await getLocale();
   const backUrl = `/student/curriculum/${levelSlug}/${unitSlug}`;
+
   // Gate next lesson: check if student can access it
   let nextLessonUrl: string | undefined;
   if (nextLesson) {
@@ -68,6 +70,33 @@ export default async function LessonPage({
     nextLessonUrl = nextAccess.allowed
       ? `/student/curriculum/${levelSlug}/${unitSlug}/${nextLesson.slug}`
       : undefined;
+  }
+
+  // If no next lesson in this unit, find the next unit's first lesson
+  let nextUnitUrl: string | undefined;
+  if (!nextLesson) {
+    const { data: currentUnit } = await supabase
+      .from("curriculum_units")
+      .select("sort_order")
+      .eq("id", unit.id)
+      .single();
+
+    if (currentUnit) {
+      const { data: nextUnit } = await supabase
+        .from("curriculum_units")
+        .select("slug")
+        .eq("level_id", level.id)
+        .eq("is_active", true)
+        .eq("locale", locale)
+        .gt("sort_order", currentUnit.sort_order)
+        .order("sort_order")
+        .limit(1)
+        .single();
+
+      if (nextUnit) {
+        nextUnitUrl = `/student/curriculum/${levelSlug}/${nextUnit.slug}`;
+      }
+    }
   }
 
   return (
@@ -81,8 +110,9 @@ export default async function LessonPage({
         exercises={(exercises ?? []).map((e) => ({ type: e.exercise_type, data: e.exercise_data }))}
         backUrl={backUrl}
         nextLessonUrl={nextLessonUrl}
+        nextUnitUrl={nextUnitUrl}
         gradeValue={level.grade_value}
-        locale={await getLocale()}
+        locale={locale}
       />
     </div>
   );
