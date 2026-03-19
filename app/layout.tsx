@@ -21,6 +21,14 @@ const notoSans = Noto_Sans({
 export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getServerLocale();
 
+  if (locale === "en") {
+    return {
+      metadataBase: new URL("https://diasporalearn.org"),
+      title: "DiasporaLearn — Heritage Language Learning Platforms",
+      description: "Interactive K-5 learning platforms for diaspora communities. Armenian, Greek, and more.",
+    };
+  }
+
   if (locale === "el") {
     return {
       metadataBase: new URL("https://mathaino.net"),

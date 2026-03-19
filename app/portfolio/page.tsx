@@ -57,7 +57,7 @@ export default function PortfolioPage() {
               Heritage languages deserve modern tools
             </h1>
             <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
-              We build interactive learning platforms for diaspora communities. Structured K-5 curricula, native audio, culturally meaningful content — all in just 5 minutes a day.
+              We build interactive learning platforms for diaspora communities. Structured K-5 curriculum, native audio, culturally meaningful content — all in just 5 minutes a day.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {["K–5 curriculum", "Interactive lessons", "Built for diaspora families"].map((badge) => (
