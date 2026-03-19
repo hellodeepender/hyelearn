@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type {
   ExerciseType,
@@ -14,7 +14,6 @@ import FillBlank from "@/components/exercises/FillBlank";
 import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
-import Paywall from "@/components/ui/Paywall";
 import { useLocale } from "@/lib/locale-context";
 
 // --- Config data ---
@@ -87,7 +86,7 @@ function getTopics(grade: string, language: string): Record<string, string[]> {
   return t.standard;
 }
 
-export default function PracticeClient({ userId, gradeLevel, userRole, subscriptionTier }: Props) {
+export default function PracticeClient({ userId, gradeLevel, userRole }: Props) {
   const { locale, englishName } = useLocale();
   const [grade, setGrade] = useState(String(gradeLevel));
   const [subject, setSubject] = useState("");
@@ -102,6 +101,14 @@ export default function PracticeClient({ userId, gradeLevel, userRole, subscript
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/practice-remaining")
+      .then(r => r.json())
+      .then(d => setRemaining(d.remaining))
+      .catch(() => {});
+  }, []);
 
   const young = isYoung(grade);
   const topics = getTopics(grade, englishName);
@@ -190,41 +197,21 @@ export default function PracticeClient({ userId, gradeLevel, userRole, subscript
 
   const dashboardUrl = userRole === "teacher" || userRole === "admin" ? "/teacher" : "/student";
 
-  // --- Rate limited — show paywall ---
+  // --- Rate limited ---
   if (rateLimited) {
-    return <Paywall type="ai" />;
-  }
-
-  // --- Free tier — show upgrade prompt ---
-  const isFree = !subscriptionTier || subscriptionTier === "free";
-  if (isFree && phase === "config") {
     return (
-      <main className="max-w-2xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-brown-800">Practice</h1>
-            <p className="text-brown-500 text-sm mt-1">AI-powered exercises for every topic.</p>
-          </div>
-          <Link
-            href={dashboardUrl}
-            className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Back
-          </Link>
-        </div>
-        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 text-center">
-          <div className="text-5xl mb-4">{"\uD83D\uDD12"}</div>
-          <h2 className="text-xl font-bold text-brown-800 mb-2">Extra Practice is a premium feature</h2>
+      <main className="max-w-2xl mx-auto px-6 py-10 text-center">
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
+          <div className="text-5xl mb-4">{"\u23F0"}</div>
+          <h2 className="text-xl font-bold text-brown-800 mb-2">Daily practice limit reached</h2>
           <p className="text-brown-500 text-sm mb-6 max-w-md mx-auto">
-            Upgrade to Full Access for unlimited subjects, AI-powered practice, and the complete K-5 curriculum.
+            You&apos;ve used all your practice sessions for today. Come back tomorrow for more!
+            In the meantime, you can review lessons in the curriculum.
           </p>
-          <Link
-            href="/pricing"
-            className="inline-block bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-gold/20"
-          >
-            Upgrade &mdash; $9.99/month
-          </Link>
-          <div className="mt-4">
+          <div className="flex flex-col gap-3">
+            <Link href="/student/curriculum" className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              Go to Curriculum
+            </Link>
             <Link href={dashboardUrl} className="text-sm text-brown-400 hover:text-brown-600">
               Back to Dashboard
             </Link>
@@ -242,7 +229,12 @@ export default function PracticeClient({ userId, gradeLevel, userRole, subscript
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-brown-800">Practice</h1>
-            <p className="text-brown-500 text-sm mt-1">Choose a topic and exercise type to practice.</p>
+            <p className="text-brown-500 text-sm mt-1">
+              Choose a topic and exercise type to practice.
+              {remaining !== null && (
+                <span className="text-brown-400 ml-1">({remaining} session{remaining !== 1 ? "s" : ""} left today)</span>
+              )}
+            </p>
           </div>
           <Link
             href={dashboardUrl}

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   const access = await canUseAIPractice(db, user.id);
   if (!access.allowed) {
     return NextResponse.json({
-      error: "You have reached your daily AI practice limit. Upgrade to the Family plan for unlimited AI practice.",
+      error: "You've used all 5 practice sessions for today. Come back tomorrow!",
       remaining: 0,
     }, { status: 403 });
   }

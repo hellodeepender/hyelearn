@@ -51,10 +51,8 @@ export async function canUseAIPractice(
   db: SupabaseClient,
   userId: string
 ): Promise<{ allowed: boolean; remaining?: number; reason?: string }> {
-  const sub = await getUserSubscription(db, userId);
-  const limit = sub?.plan?.ai_sessions_limit ?? 3;
-
-  if (limit === -1) return { allowed: true, remaining: -1 };
+  // All users get 5 AI practice sessions per day
+  const limit = 5;
 
   const today = new Date().toISOString().split("T")[0];
   const { data: usage } = await db
