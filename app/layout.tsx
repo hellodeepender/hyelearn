@@ -4,6 +4,7 @@ import { getServerLocale } from "@/lib/server-locale";
 import { LocaleProvider } from "@/lib/locale-context";
 import CookieBanner from "@/components/ui/CookieBanner";
 import AuthHashHandler from "@/components/ui/AuthHashHandler";
+import GoogleAnalytics from "@/components/ui/GoogleAnalytics";
 import "./globals.css";
 
 const notoSansArmenian = Noto_Sans_Armenian({
@@ -151,6 +152,7 @@ export default async function RootLayout({
       </head>
       <body className={`${fontClass} antialiased`}>
         <LocaleProvider domainConfig={domainConfig}>
+          <GoogleAnalytics />
           <AuthHashHandler />
           {children}
           <CookieBanner />
