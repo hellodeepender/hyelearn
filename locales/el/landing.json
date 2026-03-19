@@ -125,5 +125,6 @@
   "schemaOrgDesc": "Interactive Greek learning platform for K-5 students",
   "schemaCourseName": "Greek for Kids (K-5)",
   "schemaCourseDesc": "Complete Greek language curriculum from Kindergarten through Grade 5",
-  "schemaLanguages": "en,el"
+  "schemaLanguages": "en,el",
+  "footerFamily": "Part of the DiasporaLearn family"
 }

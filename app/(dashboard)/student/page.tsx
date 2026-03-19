@@ -309,6 +309,15 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             Send Feedback
           </a>
           <span>{brandName} &middot; Made with love for diaspora communities</span>
+          <div className="flex gap-3 mt-1">
+            <a href="https://diasporalearn.org" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">DiasporaLearn</a>
+            <span>&middot;</span>
+            {locale === "el" ? (
+              <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">HyeLearn (Armenian)</a>
+            ) : (
+              <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">Mathaino (Greek)</a>
+            )}
+          </div>
         </div>
       </footer>
     </div>

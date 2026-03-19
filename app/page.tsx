@@ -353,6 +353,18 @@ export default async function LandingPage() {
               <Link href="/cookies" className="hover:text-brown-300">{t("cookies")}</Link>
             </div>
           </div>
+          <div className="flex flex-wrap justify-center gap-4 text-xs text-brown-500 mt-2 mb-4">
+            <span>Part of the</span>
+            <a href="https://diasporalearn.org" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">DiasporaLearn</a>
+            <span>family</span>
+            <span className="text-brown-700">&middot;</span>
+            <span>Also available:</span>
+            {locale === "el" ? (
+              <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">HyeLearn (Armenian)</a>
+            ) : (
+              <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">Mathaino (Greek)</a>
+            )}
+          </div>
           <div className="border-t border-brown-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-brown-500 text-xs">{t("footerTagline")}</p>
             <p className="text-brown-500 text-xs">&copy; {new Date().getFullYear()} {t("footerCopyright")}</p>

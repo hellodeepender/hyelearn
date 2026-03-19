@@ -42,10 +42,14 @@ export default function PortfolioPage() {
     <div className={`${serif.variable} ${sans.variable} min-h-screen bg-[#FAFAFA]`} style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
       {/* Header */}
       <header className="border-b border-[#E5E5E5]">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <span style={{ fontFamily: "var(--font-dm-serif)" }} className="text-xl">
             <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
           </span>
+          <nav className="flex gap-6 text-sm text-[#777]">
+            <a href="#support" className="hover:text-[#333]">Support Us</a>
+            <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
+          </nav>
         </div>
       </header>
 
@@ -135,6 +139,47 @@ export default function PortfolioPage() {
           </div>
         </section>
 
+        {/* Support */}
+        <section id="support" className="py-20 px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] mb-4">
+              Support our mission
+            </h2>
+            <p className="text-[#555] leading-relaxed mb-4">
+              Our curriculum is 100% free for every family. Your donation helps us create more lessons, add new languages, and keep heritage language education accessible worldwide.
+            </p>
+            <p className="text-sm text-[#999] mb-8">
+              Payments processed securely by Stripe.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
+              {([
+                { label: "$5", href: "https://buy.stripe.com/test_28E5kwaOV003fYUaVQ53O00" },
+                { label: "$10", href: "https://buy.stripe.com/test_00w5kw5uBaEH284gga53O02" },
+                { label: "$25", href: "https://buy.stripe.com/test_4gM7sEaOV9ADfYU1lg53O03" },
+                { label: "$50", href: "https://buy.stripe.com/test_aFa00caOV3cf140gga53O04" },
+                { label: "Custom", href: "https://buy.stripe.com/test_9B65kwaOV4gj6ok8NI53O07" },
+              ]).map((btn) => (
+                <a key={btn.label} href={btn.href} target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-white border border-[#E5E5E5] rounded-lg text-[#333] font-medium hover:border-[#2271B3] hover:text-[#2271B3] transition-colors">
+                  {btn.label}
+                </a>
+              ))}
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              {([
+                { label: "$3/month", href: "https://buy.stripe.com/test_28E00c0ah003cMIaVQ53O06" },
+                { label: "$5/month", href: "https://buy.stripe.com/test_14A28k1el3cf8ws9RM53O05" },
+                { label: "$10/month", href: "https://buy.stripe.com/test_28EcMYg9fdQT5kg1lg53O01" },
+              ]).map((btn) => (
+                <a key={btn.label} href={btn.href} target="_blank" rel="noopener noreferrer"
+                  className="px-5 py-2 bg-[#2271B3] text-white rounded-lg text-sm font-medium hover:bg-[#1A5A8F] transition-colors">
+                  {btn.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-20 px-6">
           <div className="max-w-2xl mx-auto text-center">
@@ -156,12 +201,20 @@ export default function PortfolioPage() {
 
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-[#E5E5E5]">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[#999]">
-          <span style={{ fontFamily: "var(--font-dm-serif)" }}>
-            <span className="text-[#2271B3]">D</span>iasporaLearn
-          </span>
-          <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
-          <p>&copy; {new Date().getFullYear()} DiasporaLearn</p>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[#999] mb-4">
+            <span style={{ fontFamily: "var(--font-dm-serif)" }}>
+              <span className="text-[#2271B3]">D</span>iasporaLearn
+            </span>
+            <div className="flex flex-wrap justify-center gap-4">
+              <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">HyeLearn (Armenian)</a>
+              <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Mathaino (Greek)</a>
+              <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
+            </div>
+          </div>
+          <div className="border-t border-[#E5E5E5] pt-4 text-center text-xs text-[#bbb]">
+            <p>&copy; {new Date().getFullYear()} DiasporaLearn. Free heritage language education for diaspora communities worldwide.</p>
+          </div>
         </div>
       </footer>
     </div>
