@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getIconSet } from "./MapIcons";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
@@ -44,20 +44,19 @@ const THEME: Record<string, { primary: string; accent: string; summitEmoji: stri
   hy: { primary: "#C8A951", accent: "#C8A951", summitEmoji: "\uD83C\uDFD4\uFE0F" },
 };
 
-const W = 380;
+const W = 680;
 
 export default function MapPath({ nodes, locale, summitLabel, subtitle, headerStats, backHref, backLabel }: Props) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<MapNode | null>(null);
   const icons = getIconSet(locale);
   const theme = THEME[locale] ?? THEME.hy;
   const N = nodes.length;
-  const H = Math.max(920, N * 85 + 200);
-  const startY = H - 80;
-  const endY = 100;
+  const H = Math.max(500, N * 110 + 120);
+  const startY = H - 60;
+  const endY = 80;
   const centerX = W / 2;
-  const amplitude = W * 0.24;
+  const amplitude = W * 0.15;
 
   // Generate node positions
   const positions = nodes.map((_, i) => {
@@ -77,39 +76,21 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle, headerSt
       }, "")
     : "";
 
-  // Midpoints for dots
+  // Midpoint dots
   const midpoints = positions.slice(0, -1).map((p, i) => ({
     x: (p.x + positions[i + 1].x) / 2,
     y: (p.y + positions[i + 1].y) / 2,
   }));
 
-  // Auto-scroll to current node
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    const currentIdx = nodes.findIndex((n) => {
-      const s = getStatus(n);
-      return s === "current" || s === "in_progress";
-    });
-    if (currentIdx >= 0) {
-      const pos = positions[currentIdx];
-      const containerH = scrollRef.current.clientHeight;
-      scrollRef.current.scrollTop = (pos.y / H) * scrollRef.current.scrollHeight - containerH / 2;
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleNodeClick = useCallback((node: MapNode) => {
     const status = getStatus(node);
     if (status === "locked") return;
     trackEvent("map_node_click", { node_title: node.title, node_status: status, locale });
-    setSelected(node);
-  }, [locale]);
-
-  const handleGo = useCallback(() => {
-    if (selected) router.push(selected.href);
-  }, [selected, router]);
+    router.push(node.href);
+  }, [locale, router]);
 
   return (
-    <div className="relative max-w-[420px] mx-auto">
+    <div className="relative max-w-4xl mx-auto">
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-3">
         {backHref ? (
@@ -121,34 +102,27 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle, headerSt
         {headerStats && <span className="text-xs text-brown-400 font-medium">{headerStats}</span>}
       </div>
 
-      {/* Map scroll container */}
-      <div
-        ref={scrollRef}
-        className="overflow-y-auto overflow-x-hidden rounded-2xl"
-        style={{ height: "calc(100vh - 180px)" }}
-      >
+      {/* Map container */}
+      <div ref={scrollRef} className="rounded-2xl">
         <div
           className="relative"
           style={{
-            width: W,
+            width: "100%",
             height: H,
             margin: "0 auto",
-            backgroundImage: `url(/images/bg-map-${locale}.jpg)`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
           }}
         >
-          {/* Gradient fallback (shows behind if image missing) */}
-          <div className="absolute inset-0" style={{ background: GRADIENTS[locale] ?? GRADIENTS.hy, zIndex: 0 }} />
+          {/* Gradient fallback */}
+          <div className="absolute inset-0 rounded-2xl" style={{ background: GRADIENTS[locale] ?? GRADIENTS.hy, zIndex: 0 }} />
           {/* Image overlay if present */}
-          <div className="absolute inset-0" style={{ backgroundImage: `url(/images/bg-map-${locale}.jpg)`, backgroundSize: "cover", backgroundPosition: "center", zIndex: 1 }} />
+          <div className="absolute inset-0 rounded-2xl" style={{ backgroundImage: `url(/images/bg-map-${locale}.jpg)`, backgroundSize: "cover", backgroundPosition: "center", zIndex: 1 }} />
           {/* Top overlay */}
-          <div className="absolute inset-x-0 top-0 h-1/3" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%)", zIndex: 2 }} />
+          <div className="absolute inset-x-0 top-0 h-1/3 rounded-t-2xl" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%)", zIndex: 2 }} />
           {/* Bottom overlay */}
-          <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.2) 0%, transparent 100%)", zIndex: 2 }} />
+          <div className="absolute inset-x-0 bottom-0 h-1/4 rounded-b-2xl" style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.2) 0%, transparent 100%)", zIndex: 2 }} />
 
           {/* SVG layer */}
-          <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="absolute inset-0" style={{ zIndex: 3, fontFamily: "inherit" }}>
+          <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} className="absolute inset-0" style={{ zIndex: 3, fontFamily: "inherit" }}>
             {/* Summit label */}
             <g transform={`translate(${W / 2}, 42)`}>
               <rect x="-70" y="-14" width="140" height="28" rx="14" fill="rgba(255,255,255,0.85)" />
@@ -185,17 +159,17 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle, headerSt
                 >
                   {/* Progress ring for in_progress */}
                   {status === "in_progress" && (
-                    <circle cx="0" cy="0" r="36" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="4" />
+                    <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="4" />
                   )}
                   {status === "in_progress" && (
-                    <circle cx="0" cy="0" r="36" fill="none" stroke={theme.accent} strokeWidth="4"
-                      strokeDasharray={`${pct * 226} ${226 - pct * 226}`}
-                      strokeDashoffset="56.5" strokeLinecap="round"
+                    <circle cx="0" cy="0" r="40" fill="none" stroke={theme.accent} strokeWidth="4"
+                      strokeDasharray={`${pct * 251} ${251 - pct * 251}`}
+                      strokeDashoffset="62.8" strokeLinecap="round"
                     />
                   )}
 
                   {/* Node card */}
-                  <rect x="-30" y="-30" width="60" height="60" rx="14"
+                  <rect x="-32" y="-32" width="64" height="64" rx="14"
                     fill={status === "locked" ? "rgba(255,255,255,0.55)" : "white"}
                     stroke={status === "completed" ? "#2D8B4E" : status === "locked" ? "#999" : theme.accent}
                     strokeWidth="3"
@@ -203,50 +177,50 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle, headerSt
 
                   {/* Icon inside */}
                   {status === "locked" ? (
-                    <g transform="translate(-8, -8)">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2">
+                    <g transform="translate(-9, -9)">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" />
                         <path d="M7 11V7a5 5 0 0110 0v4" />
                       </svg>
                     </g>
                   ) : status === "completed" ? (
-                    <g transform="translate(-10, -10)" color="#2D8B4E">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <g transform="translate(-11, -11)" color="#2D8B4E">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </g>
                   ) : (
-                    <g transform="translate(-12, -12)" color={theme.accent}>
-                      <Icon size={24} />
+                    <g transform="translate(-14, -14)" color={theme.accent}>
+                      <Icon size={28} />
                     </g>
                   )}
 
                   {/* Star badge for completed */}
                   {status === "completed" && (
-                    <g transform="translate(18, -26)">
+                    <g transform="translate(20, -28)">
                       <circle r="10" fill="#FFD700" stroke="white" strokeWidth="2" />
                       <text x="0" y="4" textAnchor="middle" fontSize="11">{"\u2B50"}</text>
                     </g>
                   )}
 
-                  {/* Label below */}
-                  {status !== "locked" && (
-                    <g transform="translate(0, 48)">
-                      <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="700" fill="white"
-                        style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.3)" }}>
-                        {node.title}
-                      </text>
-                      <text x="0" y="14" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)"
-                        style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
-                        {node.completedLessons}/{node.totalLessons} lessons
-                      </text>
-                    </g>
-                  )}
+                  {/* Label below — shown for all nodes */}
+                  <g transform="translate(0, 50)">
+                    <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="700"
+                      fill={status === "locked" ? "rgba(255,255,255,0.5)" : "white"}
+                      style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.3)" }}>
+                      {node.title}
+                    </text>
+                    <text x="0" y="14" textAnchor="middle" fontSize="10"
+                      fill={status === "locked" ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.8)"}
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
+                      {node.completedLessons}/{node.totalLessons} lessons
+                    </text>
+                  </g>
 
                   {/* Pulse for current */}
                   {status === "current" && (
-                    <circle cx="0" cy="0" r="30" fill="none" stroke={theme.accent} strokeWidth="2" opacity="0.5">
-                      <animate attributeName="r" from="30" to="42" dur="1.5s" repeatCount="indefinite" />
+                    <circle cx="0" cy="0" r="32" fill="none" stroke={theme.accent} strokeWidth="2" opacity="0.5">
+                      <animate attributeName="r" from="32" to="46" dur="1.5s" repeatCount="indefinite" />
                       <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" repeatCount="indefinite" />
                     </circle>
                   )}
@@ -256,41 +230,6 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle, headerSt
           </svg>
         </div>
       </div>
-
-      {/* Bottom detail sheet */}
-      {selected && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setSelected(null)} />
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl p-6 max-w-[420px] mx-auto"
-            style={{ animation: "slideUp 0.25s ease-out" }}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-gray-800">{selected.title}</h3>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            </div>
-            <p className="text-sm text-gray-500 mb-3">
-              {selected.completedLessons}/{selected.totalLessons} lessons completed
-            </p>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
-              <div className="h-full rounded-full transition-all" style={{
-                width: `${selected.totalLessons > 0 ? (selected.completedLessons / selected.totalLessons) * 100 : 0}%`,
-                backgroundColor: theme.accent,
-              }} />
-            </div>
-            <button onClick={handleGo}
-              className="w-full py-3 rounded-xl text-white font-semibold text-base transition-colors"
-              style={{ backgroundColor: theme.accent }}>
-              {getStatus(selected) === "completed" ? "Review" : "Continue"}
-            </button>
-          </div>
-        </>
-      )}
-
-      <style jsx global>{`
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
