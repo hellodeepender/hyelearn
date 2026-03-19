@@ -18,10 +18,14 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp").eq("id", user.id).single();
+  const locale = await getLocale();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
   if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
 
-  const locale = await getLocale();
+  // Auto-sync locale to match the current domain
+  if (profile && profile.locale !== locale) {
+    await supabase.from("profiles").update({ locale }).eq("id", user.id);
+  }
   const levels = await getLevelsWithProgress(supabase, user.id, locale);
   const currentLevel = levels.find((l) => l.unlocked && l.completedLessons < l.totalLessons) ?? levels[0];
   const totalCurriculumLessons = levels.reduce((s, l) => s + l.totalLessons, 0);

@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   // Get all students
   const { data: students } = await db
     .from("profiles")
-    .select("id, total_xp")
+    .select("id, total_xp, locale")
     .eq("role", "student");
 
   if (!students || students.length === 0) {
@@ -32,14 +32,16 @@ export async function POST(request: NextRequest) {
   const results = [];
 
   for (const student of students) {
-    // Determine locale from the curriculum content this student has completed
-    const { data: progressWithLocale } = await db
-      .from("student_progress")
-      .select("curriculum_lessons!inner(locale)")
-      .eq("student_id", student.id)
-      .limit(1);
-
-    const locale = (progressWithLocale?.[0]?.curriculum_lessons as unknown as { locale: string })?.locale || "hy";
+    // Use profile locale if set, otherwise infer from completed curriculum content
+    let locale = student.locale;
+    if (!locale) {
+      const { data: progressWithLocale } = await db
+        .from("student_progress")
+        .select("curriculum_lessons!inner(locale)")
+        .eq("student_id", student.id)
+        .limit(1);
+      locale = (progressWithLocale?.[0]?.curriculum_lessons as unknown as { locale: string })?.locale || "hy";
+    }
 
     // Delete any wrongly-awarded badges and re-award fresh
     await db.from("student_badges").delete().eq("student_id", student.id);

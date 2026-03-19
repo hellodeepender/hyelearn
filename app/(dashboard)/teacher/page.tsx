@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { getLocale } from "@/lib/server-locale";
 import Header from "@/components/ui/Header";
 import CreateClassForm from "./CreateClassForm";
 
@@ -9,8 +10,14 @@ export default async function TeacherDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const locale = await getLocale();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, locale").eq("id", user.id).single();
   if (profile?.role === "student") redirect("/student");
+
+  // Auto-sync locale to match the current domain
+  if (profile && profile.locale !== locale) {
+    await supabase.from("profiles").update({ locale }).eq("id", user.id);
+  }
 
   // Classes
   const { data: classes } = await supabase
