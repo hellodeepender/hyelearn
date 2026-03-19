@@ -50,11 +50,9 @@ export async function GET(request: NextRequest) {
         const latestUser = users[0];
         const locale = latestUser.user_metadata?.locale || "hy";
         const domain = LOCALE_DOMAINS[locale] || "https://hyelearn.com";
-        console.log("DIASPORA_REDIRECT", JSON.stringify({ userId: latestUser.id, locale, domain }));
         return NextResponse.redirect(`${domain}/auth/callback?code=${code}`);
       }
-    } catch (e) {
-      console.error("ADMIN_LOOKUP_ERROR", e);
+    } catch {
     }
   }
 
