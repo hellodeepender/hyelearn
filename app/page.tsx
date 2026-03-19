@@ -89,7 +89,7 @@ export default async function LandingPage() {
         {/* ============ HERO ============ */}
         <section className="relative pt-16 min-h-[600px] md:min-h-[700px] flex items-center">
           <div className="absolute inset-0 bg-brown-800">
-            <Img src="/images/hero-ararat.jpg" alt={t("heroImageAlt")} priority className="opacity-40" />
+            <Img src={locale === "el" ? "/images/hero-greece-el.jpg" : "/images/hero-ararat.jpg"} alt={t("heroImageAlt")} priority className="opacity-40" />
           </div>
           <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
@@ -139,7 +139,7 @@ export default async function LandingPage() {
             {/* Feature 1 */}
             <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-brown-100">
-                <Img src="/images/screenshot-lesson.jpg" alt={t("feature1ImageAlt")} />
+                <Img src={locale === "el" ? "/images/screenshot-lesson-el.jpg" : "/images/screenshot-lesson.jpg"} alt={t("feature1ImageAlt")} />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-brown-800 mb-3">{t("feature1Title")}</h3>
@@ -150,7 +150,7 @@ export default async function LandingPage() {
             {/* Feature 2 */}
             <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
               <div className="md:order-2 relative aspect-[4/3] rounded-2xl overflow-hidden bg-brown-100">
-                <Img src="/images/screenshot-dashboard.jpg" alt={t("feature2ImageAlt")} />
+                <Img src={locale === "el" ? "/images/screenshot-dashboard-el.jpg" : "/images/screenshot-dashboard.jpg"} alt={t("feature2ImageAlt")} />
               </div>
               <div className="md:order-1">
                 <h3 className="text-2xl font-bold text-brown-800 mb-3">{t("feature2Title")}</h3>
@@ -161,7 +161,7 @@ export default async function LandingPage() {
             {/* Feature 3 */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-brown-100">
-                <Img src="/images/kids-tablet.jpg" alt={t("feature3ImageAlt")} />
+                <Img src={locale === "el" ? "/images/kids-tablet-el.jpg" : "/images/kids-tablet.jpg"} alt={t("feature3ImageAlt")} />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-brown-800 mb-3">{t("feature3Title")}</h3>
@@ -331,7 +331,7 @@ export default async function LandingPage() {
         {/* ============ FINAL CTA ============ */}
         <section className="relative py-24 px-6">
           <div className="absolute inset-0 bg-brown-800">
-            <Img src="/images/alphabet-monument.jpg" alt={t("ctaImageAlt")} className="opacity-30" />
+            <Img src={locale === "el" ? "/images/greek-parthenon-el.jpg" : "/images/alphabet-monument.jpg"} alt={t("ctaImageAlt")} className="opacity-30" />
           </div>
           <div className="relative z-10 max-w-2xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-cream mb-4">{t("ctaTitle")}</h2>
