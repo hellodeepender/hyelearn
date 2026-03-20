@@ -6,6 +6,7 @@ import CookieBanner from "@/components/ui/CookieBanner";
 import AuthHashHandler from "@/components/ui/AuthHashHandler";
 import GoogleAnalytics from "@/components/ui/GoogleAnalytics";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
+import NativeApp from "@/components/ui/NativeApp";
 import "./globals.css";
 
 const notoSansArmenian = Noto_Sans_Armenian({
@@ -162,6 +163,7 @@ export default async function RootLayout({
           <GoogleAnalytics />
           <AuthHashHandler />
           <ServiceWorkerRegister />
+          <NativeApp />
           {children}
           <CookieBanner />
         </LocaleProvider>
