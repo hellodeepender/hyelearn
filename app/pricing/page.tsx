@@ -6,14 +6,14 @@ import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
 
 const STRIPE_LINKS = {
-  once_5: "https://buy.stripe.com/test_28E5kwaOV003fYUaVQ53O00",
-  once_10: "https://buy.stripe.com/test_00w5kw5uBaEH284gga53O02",
-  once_25: "https://buy.stripe.com/test_4gM7sEaOV9ADfYU1lg53O03",
-  once_50: "https://buy.stripe.com/test_aFa00caOV3cf140gga53O04",
-  monthly_3: "https://buy.stripe.com/test_28E00c0ah003cMIaVQ53O06",
-  monthly_5: "https://buy.stripe.com/test_14A28k1el3cf8ws9RM53O05",
-  monthly_10: "https://buy.stripe.com/test_28EcMYg9fdQT5kg1lg53O01",
-  custom: "https://buy.stripe.com/test_9B65kwaOV4gj6ok8NI53O07",
+  once_5: "https://buy.stripe.com/aFa8wOfUVd37gBf69kbfO04",
+  once_10: "https://buy.stripe.com/cNi9ASeQR3sxckZ55gbfO07",
+  once_25: "https://buy.stripe.com/4gMcN4389bZ3fxbdBMbfO05",
+  once_50: "https://buy.stripe.com/eVq28q2451kp0ChcxIbfO03",
+  monthly_3: "https://buy.stripe.com/4gM14mbEF8MR1GldBMbfO06",
+  monthly_5: "https://buy.stripe.com/14AeVccIJ5AF1Gl0P0bfO02",
+  monthly_10: "https://buy.stripe.com/00w00i8staUZacR2X8bfO00",
+  custom: "https://buy.stripe.com/dRmfZg1019QV4Sx2X8bfO01",
 };
 
 export default function SupportPage() {
