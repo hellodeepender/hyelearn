@@ -5,8 +5,9 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
-import { getProgressToNextLevel, checkAndAwardBadges } from "@/lib/xp";
+import { checkAndAwardBadges } from "@/lib/xp";
 import { getBadges, getBadgeBySlug } from "@/lib/badges";
+import { getEnglishTitle } from "@/lib/grade-labels";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale, getLocale } from "@/lib/server-locale";
 import BadgeCelebration from "@/components/ui/BadgeCelebration";
@@ -142,8 +143,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const tc = await getTranslations("common");
   const { brandName, supportEmail } = await getServerLocale();
 
-  // XP & badges — check for newly earned badges on every dashboard load (idempotent)
-  const araratProgress = getProgressToNextLevel(profile?.total_xp ?? 0, locale);
+  // Badges — check for newly earned badges on every dashboard load (idempotent)
   const badges = getBadges(locale);
   let newlyEarnedBadges: string[] = [];
   const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -153,10 +153,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   }
   const { data: earnedBadges } = await supabase.from("student_badges").select("badge_slug").eq("student_id", user.id);
   const earnedBadgeSlugs = new Set((earnedBadges ?? []).map((b) => b.badge_slug));
+  const earnedBadgeList = badges.filter((b) => earnedBadgeSlugs.has(b.slug));
   const celebrationBadges = newlyEarnedBadges
     .map((slug) => getBadgeBySlug(slug, locale))
     .filter(Boolean)
-    .map((b) => ({ slug: b!.slug, name: b!.name, emoji: b!.emoji, description: b!.description }));
+    .map((b) => ({ slug: b!.slug, name: b!.name, emoji: b!.emoji, description: b!.description, culturalNote: b!.culturalNote }));
+
+  const nextLessonLabel = nextLessonTitle ? getEnglishTitle(nextLessonTitle, locale) ?? nextLessonTitle : null;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -167,137 +170,81 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
         <p className="text-brown-500 mb-8">Continue your {tc("language")} learning journey.</p>
 
-        {/* Contextual message */}
+        {/* Continue Learning — primary CTA */}
         <section className="mb-8">
           <div className="bg-warm-white border border-brown-100 rounded-2xl p-6">
             {allComplete ? (
               <div className="text-center">
-                <div className="text-4xl mb-2">{"\u2B50"}</div>
-                <p className="font-semibold text-brown-800">You&apos;re a star!</p>
-                <p className="text-sm text-brown-500 mt-1">You&apos;ve completed all available lessons. Check back for new content!</p>
-                {streak > 1 && <p className="text-sm text-gold font-medium mt-2">{streak}-day streak!</p>}
-              </div>
-            ) : didLessonToday ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl mb-1">{"\u2705"}</div>
-                  <p className="font-semibold text-brown-800">Great job today!</p>
-                  {todayLessonTitle && <p className="text-sm text-brown-500 mt-0.5">You completed {todayLessonTitle}!</p>}
-                  {streak > 1 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak!</p>}
-                </div>
-                {nextLessonUrl && (
-                  <Link href={nextLessonUrl} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                    Keep Going
+                <p className="font-semibold text-brown-800">You&apos;ve completed all available lessons!</p>
+                <p className="text-sm text-brown-500 mt-1">Check back for new content, or try extra practice.</p>
+                <div className="flex justify-center gap-3 mt-4">
+                  <Link href="/practice" className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    Extra Practice
                   </Link>
-                )}
-              </div>
-            ) : neverStarted ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-brown-400 uppercase mb-1">Your daily 5 minutes</p>
-                  <p className="font-semibold text-brown-800">Let&apos;s get started!</p>
-                  <p className="text-sm text-brown-500 mt-0.5">Begin your {tc("language")} learning journey</p>
+                  <Link href="/student/curriculum" className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-6 py-3 rounded-lg font-medium transition-colors">
+                    Review Curriculum
+                  </Link>
                 </div>
-                <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                  Start Learning
-                </Link>
               </div>
             ) : (
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-brown-400 uppercase mb-1">Your daily 5 minutes</p>
-                  <p className="font-semibold text-brown-800">Ready to learn?</p>
-                  <p className="text-sm text-brown-500 mt-0.5">Continue where you left off</p>
-                  {streak > 0 && <p className="text-xs text-gold font-medium mt-1">{streak}-day streak! Keep it going!</p>}
+                  {nextLessonLabel && <p className="text-sm text-brown-500 mt-0.5">Next: {nextLessonLabel}</p>}
+                  {streak > 0 && <p className="text-xs text-gold font-medium mt-1">{streak >= 3 ? "\uD83D\uDD25 " : ""}{streak}-day streak!</p>}
                 </div>
-                <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm">
-                  Continue Lesson
+                <Link href={nextLessonUrl ?? "/student/curriculum"} className="bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors shadow-sm">
+                  {neverStarted ? "Start Learning" : "Continue"}
                 </Link>
               </div>
             )}
           </div>
         </section>
 
-        {/* Progress */}
+        {/* Progress — compact */}
         <section className="mb-8">
-          <h2 className="text-lg font-semibold text-brown-800 mb-4">My Progress</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-              <h3 className="text-sm font-medium text-brown-500 mb-1">Lessons</h3>
-              <p className="text-3xl font-bold text-gold">{completedCurriculumLessons}</p>
-            </div>
-            <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-              <h3 className="text-sm font-medium text-brown-500 mb-1">Streak</h3>
-              <p className="text-3xl font-bold text-gold">{streak >= 3 ? "\uD83D\uDD25 " : ""}{streak} day{streak !== 1 ? "s" : ""}</p>
-            </div>
-            <div className="bg-warm-white border border-brown-100 rounded-xl p-5">
-              <h3 className="text-sm font-medium text-brown-500 mb-1">{araratProgress.current.emoji} Level</h3>
-              <p className="text-lg font-bold text-gold">{araratProgress.current.name}</p>
-              <div className="w-full h-1.5 bg-brown-100 rounded-full mt-2 overflow-hidden">
-                <div className="h-full bg-gold rounded-full transition-all" style={{ width: `${araratProgress.percentage}%` }} />
+          <div className="flex items-center gap-4 bg-warm-white border border-brown-100 rounded-xl px-5 py-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 text-sm text-brown-600 mb-2">
+                <span className="font-medium">{completedCurriculumLessons}/{totalCurriculumLessons} lessons</span>
+                <span className="text-brown-300">&middot;</span>
+                <span>{streak} day streak</span>
               </div>
-              <p className="text-xs text-brown-400 mt-1">{profile?.total_xp ?? 0} XP</p>
+              <div className="h-2 bg-brown-100 rounded-full overflow-hidden">
+                <div className="h-full bg-gold rounded-full transition-all" style={{ width: `${totalCurriculumLessons > 0 ? Math.round((completedCurriculumLessons / totalCurriculumLessons) * 100) : 0}%` }} />
+              </div>
             </div>
+            <Link href="/student/curriculum" className="text-sm text-gold hover:text-gold-dark font-medium shrink-0">
+              Curriculum &rarr;
+            </Link>
           </div>
         </section>
 
-        {/* Badges */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-brown-800">My Badges</h2>
-            <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
-          </div>
-          <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
-            {badges.slice(0, 6).map((badge) => {
-              const isEarned = earnedBadgeSlugs.has(badge.slug);
-              return (
+        {/* Badges — earned only */}
+        {earnedBadgeList.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-brown-800">My Badges</h2>
+              <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
+            </div>
+            <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
+              {earnedBadgeList.map((badge) => (
                 <div key={badge.slug} className="flex flex-col items-center shrink-0 w-20 snap-start">
-                  <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl ${isEarned ? "bg-gold/10 border-2 border-gold/30 shadow-sm" : "bg-brown-50 border-2 border-brown-100"}`}>
-                    {isEarned ? badge.emoji : "\uD83D\uDD12"}
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl bg-gold/10 border-2 border-gold/30 shadow-sm">
+                    {badge.emoji}
                   </div>
-                  <p className={`text-sm font-medium mt-2 text-center leading-tight line-clamp-2 ${isEarned ? "text-brown-700" : "text-brown-300"}`}>{badge.name}</p>
+                  <p className="text-sm font-medium mt-2 text-center leading-tight line-clamp-2 text-brown-700">{badge.name}</p>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Curriculum */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-brown-800">Curriculum</h2>
-            <Link href="/student/curriculum" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
-          </div>
-          {currentLevel && (
-            <div className="bg-warm-white border border-brown-100 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold text-brown-800">{currentLevel.title}</h3>
-                  <p className="text-sm text-brown-400">{currentLevel.description}</p>
-                </div>
-                <Link href="/student/curriculum" className="bg-gold hover:bg-gold-dark text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors">
-                  Continue
-                </Link>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-brown-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-gold rounded-full" style={{ width: `${totalCurriculumLessons > 0 ? Math.round((completedCurriculumLessons / totalCurriculumLessons) * 100) : 0}%` }} />
-                </div>
-                <span className="text-xs text-brown-400 shrink-0">{completedCurriculumLessons}/{totalCurriculumLessons}</span>
-              </div>
+              ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
-        {/* Extra Practice */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-brown-800">Extra Practice</h2>
-          </div>
-          <Link href="/practice" className="inline-block border-2 border-brown-200 hover:border-brown-300 text-brown-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors">
-            Start Extra Practice
+        {/* Extra Practice — compact link */}
+        <div className="text-center">
+          <Link href="/practice" className="text-sm text-brown-500 hover:text-brown-700 font-medium">
+            Extra Practice &rarr;
           </Link>
-        </section>
+        </div>
       </main>
 
       <BadgeCelebration badges={celebrationBadges} />

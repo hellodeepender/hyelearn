@@ -6,6 +6,7 @@ import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getLessonsWithProgress } from "@/lib/curriculum";
 import { getLocale } from "@/lib/server-locale";
+import { getEnglishTitle } from "@/lib/grade-labels";
 
 export default async function UnitPage({ params }: { params: Promise<{ levelSlug: string; unitSlug: string }> }) {
   const { levelSlug, unitSlug } = await params;
@@ -74,7 +75,10 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-brown-800">{lesson.title}</h3>
+                    <h3 className="font-medium text-brown-800">
+                      {lesson.title}
+                      {getEnglishTitle(lesson.title, locale) && <span className="text-xs text-brown-400 font-normal ml-2">({getEnglishTitle(lesson.title, locale)})</span>}
+                    </h3>
                     <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${typeBadge}`}>
                       {lesson.lesson_type === "quiz" ? "Quiz" : lesson.lesson_type === "final_test" ? "Final" : "Practice"}
                     </span>

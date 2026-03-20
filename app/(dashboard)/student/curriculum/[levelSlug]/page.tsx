@@ -6,6 +6,7 @@ import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getUnitsWithProgress } from "@/lib/curriculum";
 import { getLocale } from "@/lib/server-locale";
+import { getEnglishTitle } from "@/lib/grade-labels";
 import MapPath from "@/components/curriculum/MapPath";
 
 export default async function LevelPage({
@@ -98,6 +99,7 @@ export default async function LevelPage({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-brown-800">{unit.title}</h3>
+                    {getEnglishTitle(unit.title, locale) && <p className="text-xs text-brown-400">{getEnglishTitle(unit.title, locale)}</p>}
                     {unit.description && <p className="text-xs text-brown-400 mt-0.5">{unit.description}</p>}
                     <div className="mt-2 flex items-center gap-3">
                       <div className="flex-1 h-1.5 bg-brown-100 rounded-full overflow-hidden">

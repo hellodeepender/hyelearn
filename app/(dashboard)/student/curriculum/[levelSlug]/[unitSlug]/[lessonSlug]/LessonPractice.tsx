@@ -182,10 +182,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     if (saving || (!result && !saveError && answers.length > 0)) {
       return (
         <main className="max-w-2xl mx-auto px-6 py-12 text-center">
-          <div className="flex justify-center gap-2 mb-4">
-            {["\u2728", "\u2B50", "\u2728"].map((e, i) => (
-              <span key={i} className="text-3xl animate-bounce" style={{ animationDelay: `${i * 0.15}s` }}>{e}</span>
-            ))}
+          <div className="flex justify-center mb-4">
+            <div className="w-8 h-8 border-3 border-brown-200 border-t-gold rounded-full animate-spin" />
           </div>
           <p className="text-brown-600 font-medium">Saving your progress...</p>
         </main>

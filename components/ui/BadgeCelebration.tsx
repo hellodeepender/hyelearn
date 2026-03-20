@@ -7,9 +7,15 @@ interface BadgeInfo {
   name: string;
   emoji: string;
   description: string;
+  culturalNote?: string;
 }
 
-export default function BadgeCelebration({ badges }: { badges: BadgeInfo[] }) {
+interface Props {
+  badges: BadgeInfo[];
+  gradeValue?: string;
+}
+
+export default function BadgeCelebration({ badges, gradeValue }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(badges.length > 0);
 
@@ -22,6 +28,7 @@ export default function BadgeCelebration({ badges }: { badges: BadgeInfo[] }) {
 
   const badge = badges[currentIndex];
   const isLast = currentIndex >= badges.length - 1;
+  const isYoung = !gradeValue || gradeValue === "K" || gradeValue === "0" || gradeValue === "1" || gradeValue === "2";
 
   function handleNext() {
     if (isLast) {
@@ -41,19 +48,27 @@ export default function BadgeCelebration({ badges }: { badges: BadgeInfo[] }) {
           @keyframes sparkle { 0%, 100% { opacity: 0.3; transform: scale(0.8) } 50% { opacity: 1; transform: scale(1.2) } }
         `}</style>
 
-        <div className="flex justify-center gap-3 mb-2">
-          {["\u2728", "\uD83C\uDF89", "\u2728"].map((e, i) => (
-            <span key={i} className="text-2xl" style={{ animation: `sparkle 1.5s ease infinite ${i * 0.3}s` }}>{e}</span>
-          ))}
-        </div>
+        {isYoung && (
+          <div className="flex justify-center gap-3 mb-2">
+            {["\u2728", "\uD83C\uDF89", "\u2728"].map((e, i) => (
+              <span key={i} className="text-2xl" style={{ animation: `sparkle 1.5s ease infinite ${i * 0.3}s` }}>{e}</span>
+            ))}
+          </div>
+        )}
 
-        <div className="text-6xl mb-3" style={{ animation: "badgeBounce 0.6s ease" }}>
+        <div className={`text-6xl mb-3 ${isYoung ? "" : "mt-2"}`} style={isYoung ? { animation: "badgeBounce 0.6s ease" } : undefined}>
           {badge.emoji}
         </div>
 
-        <h2 className="text-xl font-bold text-brown-800 mb-1">Badge Unlocked!</h2>
+        <h2 className="text-xl font-bold text-brown-800 mb-1">
+          {isYoung ? "Badge Unlocked!" : "Achievement Unlocked"}
+        </h2>
         <p className="text-lg font-semibold text-gold mb-1">{badge.name}</p>
-        <p className="text-sm text-brown-500 mb-6">{badge.description}</p>
+        <p className="text-sm text-brown-500 mb-2">{badge.description}</p>
+
+        {badge.culturalNote && (
+          <p className="text-xs text-brown-400 italic mb-4 px-2">{badge.culturalNote}</p>
+        )}
 
         {badges.length > 1 && (
           <p className="text-xs text-brown-400 mb-3">{currentIndex + 1} of {badges.length}</p>
@@ -61,7 +76,7 @@ export default function BadgeCelebration({ badges }: { badges: BadgeInfo[] }) {
 
         <button onClick={handleNext}
           className="w-full bg-gold hover:bg-gold-dark text-white py-3 rounded-xl font-semibold text-base transition-colors">
-          {isLast ? "Awesome!" : "Next Badge \u2192"}
+          {isLast ? (isYoung ? "Awesome!" : "Continue") : "Next Badge \u2192"}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getIconSet } from "./MapIcons";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
+import { getEnglishTitle } from "@/lib/grade-labels";
 
 interface MapNode {
   id: string;
@@ -178,18 +179,30 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
               )}
 
               {/* Label — shown for all nodes */}
-              <g transform="translate(0, 50)">
-                <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="700"
-                  fill={status === "locked" ? "rgba(255,255,255,0.5)" : "white"}
-                  style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.3)" }}>
-                  {node.title}
-                </text>
-                <text x="0" y="14" textAnchor="middle" fontSize="10"
-                  fill={status === "locked" ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.8)"}
-                  style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
-                  {node.completedLessons}/{node.totalLessons} lessons
-                </text>
-              </g>
+              {(() => {
+                const enTitle = getEnglishTitle(node.title, locale);
+                return (
+                  <g transform="translate(0, 50)">
+                    <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="700"
+                      fill={status === "locked" ? "rgba(255,255,255,0.5)" : "white"}
+                      style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.3)" }}>
+                      {enTitle ?? node.title}
+                    </text>
+                    {enTitle && (
+                      <text x="0" y="13" textAnchor="middle" fontSize="9"
+                        fill={status === "locked" ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.6)"}
+                        style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
+                        {node.title}
+                      </text>
+                    )}
+                    <text x="0" y={enTitle ? "26" : "14"} textAnchor="middle" fontSize="10"
+                      fill={status === "locked" ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.8)"}
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
+                      {node.completedLessons}/{node.totalLessons} lessons
+                    </text>
+                  </g>
+                );
+              })()}
 
               {/* Pulse for current */}
               {status === "current" && (

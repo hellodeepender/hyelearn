@@ -6,6 +6,7 @@ import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getLocale } from "@/lib/server-locale";
+import { getEnglishTitle } from "@/lib/grade-labels";
 import MapPath from "@/components/curriculum/MapPath";
 
 export default async function CurriculumPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
@@ -88,11 +89,11 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
                 }`}>
                   {level.unlocked ? (
                     <Link href={`/student/curriculum/${level.slug}`} className="block">
-                      <LevelContent level={level} pct={pct} isComplete={isComplete} />
+                      <LevelContent level={level} pct={pct} isComplete={isComplete} locale={locale} />
                     </Link>
                   ) : (
                     <div className="cursor-not-allowed">
-                      <LevelContent level={level} pct={pct} isComplete={isComplete} locked />
+                      <LevelContent level={level} pct={pct} isComplete={isComplete} locked locale={locale} />
                     </div>
                   )}
                 </div>
@@ -120,10 +121,11 @@ function ViewToggle({ viewMode, baseHref }: { viewMode: string; baseHref: string
   );
 }
 
-function LevelContent({ level, pct, isComplete, locked }: {
+function LevelContent({ level, pct, isComplete, locked, locale }: {
   level: { title: string; description: string | null; completedLessons: number; totalLessons: number; grade_value: string };
-  pct: number; isComplete: boolean; locked?: boolean;
+  pct: number; isComplete: boolean; locked?: boolean; locale: string;
 }) {
+  const enTitle = getEnglishTitle(level.title, locale);
   return (
     <div className="flex items-center gap-5">
       <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shrink-0 ${
@@ -133,6 +135,7 @@ function LevelContent({ level, pct, isComplete, locked }: {
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-brown-800 text-lg">{level.title}</h3>
+        {enTitle && <p className="text-xs text-brown-400">{enTitle}</p>}
         {level.description && <p className="text-sm text-brown-400 mt-0.5">{level.description}</p>}
         <div className="mt-3">
           <div className="flex justify-between text-xs text-brown-400 mb-1">
