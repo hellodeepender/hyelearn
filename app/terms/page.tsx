@@ -45,14 +45,12 @@ export default async function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-brown-800">4. Subscriptions and Payments</h2>
+            <h2 className="text-lg font-semibold text-brown-800">4. Donations and Payments</h2>
             <ul className="list-disc ml-5 space-y-1">
-              <li><strong>Free tier:</strong> Limited access to the first lesson of each unit.</li>
-              <li><strong>Family plan:</strong> $9.99/month or $79.99/year for full curriculum access.</li>
+              <li>The entire K-5 curriculum is free for all users.</li>
+              <li><strong>Donations:</strong> Voluntary donations are processed securely by Stripe. {brandName} never sees or stores your credit card information.</li>
               <li><strong>School plan:</strong> Custom pricing via agreement.</li>
-              <li>Payments are processed securely by Stripe. {brandName} never sees or stores your credit card information.</li>
-              <li><strong>Cancellation:</strong> You can cancel anytime via the Stripe customer portal. Access continues until the end of your billing period.</li>
-              <li><strong>Refunds:</strong> Contact {supportEmail} within 7 days of a charge for refund consideration.</li>
+              <li><strong>Refunds:</strong> Contact {supportEmail} within 7 days of a donation for refund consideration.</li>
             </ul>
           </section>
 

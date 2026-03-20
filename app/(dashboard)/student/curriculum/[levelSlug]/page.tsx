@@ -42,6 +42,7 @@ export default async function LevelPage({
     totalLessons: unit.totalLessons,
     unlocked: unit.unlocked,
     href: `/student/curriculum/${levelSlug}/${unit.slug}`,
+    englishTitle: getEnglishTitle(unit.title, locale) ?? undefined,
   }));
 
   const baseHref = `/student/curriculum/${levelSlug}`;

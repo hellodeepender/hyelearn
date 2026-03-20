@@ -37,6 +37,7 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
     totalLessons: level.totalLessons,
     unlocked: level.unlocked,
     href: `/student/curriculum/${level.slug}`,
+    englishTitle: getEnglishTitle(level.title, locale) ?? undefined,
   }));
 
   const summitLabel = locale === "el" ? "Mount Olympus" : "Mount Ararat";

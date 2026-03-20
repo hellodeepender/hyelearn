@@ -1,4 +1,4 @@
-const CACHE_NAME = "diasporalearn-v1";
+const CACHE_NAME = "diasporalearn-v2";
 const PRECACHE_URLS = ["/", "/login", "/signup"];
 
 self.addEventListener("install", (event) => {

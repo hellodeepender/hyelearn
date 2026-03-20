@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 export default function AccountClient({ hasStripe, planSlug }: { hasStripe: boolean; planSlug: string }) {
   const [loading, setLoading] = useState(false);
@@ -16,16 +15,6 @@ export default function AccountClient({ hasStripe, planSlug }: { hasStripe: bool
 
   return (
     <div className="space-y-4">
-      {planSlug === "free" && (
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-5">
-          <p className="text-brown-700 font-medium mb-2">Upgrade to unlock everything</p>
-          <p className="text-sm text-brown-500 mb-4">Get full curriculum access, unlimited AI practice, and certificates.</p>
-          <Link href="/pricing" className="bg-gold hover:bg-gold-dark text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors">
-            View Plans
-          </Link>
-        </div>
-      )}
-
       {hasStripe && (
         <button
           onClick={handleManageBilling}
