@@ -73,7 +73,7 @@ export default function PortfolioPage() {
               Free interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
             </p>
             <div className="max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-lg">
-              <Image src="/images/portfolio/hero-illustration.jpg" alt="DiasporaLearn — heritage language learning for kids" width={1200} height={500} className="w-full h-auto max-h-[350px] object-cover" priority />
+              <Image src="/images/portfolio/hero-illustration.png" alt="DiasporaLearn — heritage language learning for kids" width={1200} height={500} className="w-full h-auto max-h-[350px] object-cover" priority />
             </div>
           </div>
         </section>
