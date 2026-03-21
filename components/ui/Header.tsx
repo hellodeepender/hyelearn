@@ -69,11 +69,11 @@ export default function Header({ userName: initialName, userRole: initialRole }:
           <span className="text-2xl font-bold text-gold">{t("brandLetter")}</span>
           <span className="text-xl font-semibold text-brown-800">{t("brand")}</span>
         </Link>
-        <div className="flex items-center gap-4">
-          <p className="text-sm text-brown-600 hidden sm:block">
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-brown-600">
             <span className="font-medium text-brown-800">{displayName}</span>
-            <span className="text-brown-300 mx-1.5">&middot;</span>
-            <span className="capitalize">{displayRole}</span>
+            <span className="text-brown-300 mx-1.5 hidden sm:inline">&middot;</span>
+            <span className="capitalize hidden sm:inline">{displayRole}</span>
           </p>
           <button
             onClick={handleLogout}
