@@ -344,6 +344,16 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
               <button onClick={handleRetry} className={`bg-gold hover:bg-gold-dark text-white font-semibold ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
                 Practice Again
               </button>
+              {nextLessonUrl && (
+                <Link href={nextLessonUrl} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium text-center">
+                  Continue anyway
+                </Link>
+              )}
+              {!nextLessonUrl && nextUnitUrl && (
+                <Link href={nextUnitUrl} className="border-2 border-brown-200 hover:border-brown-300 text-brown-700 py-3 rounded-lg font-medium text-center">
+                  Continue anyway
+                </Link>
+              )}
               <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600">Back to Unit</Link>
               <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
             </div>

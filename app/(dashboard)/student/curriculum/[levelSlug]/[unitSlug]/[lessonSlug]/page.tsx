@@ -89,7 +89,7 @@ export default async function LessonPage({
         lessonId={lesson.id}
         lessonTitle={lesson.title}
         lessonType={lesson.template_type ?? lesson.lesson_type}
-        passingScore={lesson.passing_score}
+        passingScore={lesson.passing_score ?? 70}
         exercises={(exercises ?? []).map((e) => ({ type: e.exercise_type, data: e.exercise_data }))}
         backUrl={backUrl}
         nextLessonUrl={nextLessonUrl}
