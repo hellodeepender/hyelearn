@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getLocale, getServerLocale } from "@/lib/server-locale";
 import AudioPlayButton from "@/components/ui/AudioPlayButton";
+import DownloadPDFButton from "@/components/sunday-school/DownloadPDFButton";
 
 interface KeyPhrase {
   native: string;
@@ -107,6 +108,20 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
 
   const unitTitle = typedLesson.sunday_units?.title ?? "";
 
+  const pdfData = {
+    locale: locale as "hy" | "el",
+    lessonNumber: typedLesson.lesson_number,
+    title: typedLesson.title,
+    titleNative: typedLesson.title_native ?? "",
+    unitTitle,
+    vocabulary: (vocabulary ?? []).map((w) => ({
+      word_native: w.word_native ?? "",
+      word_transliteration: w.word_transliteration ?? "",
+      word_english: w.word_english ?? "",
+    })),
+    activityType: activity?.type ?? "discussion",
+  };
+
   return (
     <div className="min-h-screen bg-cream">
       {/* Top bar */}
@@ -117,10 +132,7 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
             Lessons
           </Link>
           <span className="text-xs text-brown-400">Lesson {typedLesson.lesson_number}</span>
-          {/* Placeholder menu */}
-          <button className="text-brown-400 hover:text-brown-600 text-xs" title="Coming soon" disabled>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-          </button>
+          <DownloadPDFButton data={pdfData} />
         </div>
       </header>
 
