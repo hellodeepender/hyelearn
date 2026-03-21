@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getLocale, getServerLocale } from "@/lib/server-locale";
+import AudioPlayButton from "@/components/ui/AudioPlayButton";
 
 interface KeyPhrase {
   native: string;
   transliteration: string;
   english: string;
+  audio_url?: string;
 }
 
 interface VocabWord {
@@ -14,6 +16,7 @@ interface VocabWord {
   word_transliteration: string;
   word_english: string;
   usage_example?: string;
+  audio_url?: string;
 }
 
 interface Opening {
@@ -21,6 +24,7 @@ interface Opening {
   prayer_transliteration?: string;
   prayer_english?: string;
   instructions?: string;
+  audio_url?: string;
 }
 
 interface Story {
@@ -38,6 +42,7 @@ interface Closing {
   prayer_native?: string;
   prayer_transliteration?: string;
   prayer_english?: string;
+  audio_url?: string;
 }
 
 interface SundayLesson {
@@ -151,7 +156,10 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
             )}
             {opening.prayer_native && (
               <div className="space-y-2">
-                <p className={`${nativeFont} font-semibold text-brown-800 leading-relaxed`}>{opening.prayer_native}</p>
+                <div className="flex items-start gap-3">
+                  <p className={`${nativeFont} font-semibold text-brown-800 leading-relaxed flex-1`}>{opening.prayer_native}</p>
+                  <AudioPlayButton url={opening.audio_url} />
+                </div>
                 {opening.prayer_transliteration && (
                   <p className="text-sm text-brown-500 italic">{opening.prayer_transliteration}</p>
                 )}
@@ -176,9 +184,14 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
                 <p className="text-xs font-medium text-brown-400 uppercase">Key Phrases</p>
                 {story.key_phrases.map((phrase, i) => (
                   <div key={i} className={`${accentBgLight} border ${accentBorder} rounded-lg p-3`}>
-                    <p className={`font-semibold text-brown-800 ${nativeFont}`}>{phrase.native}</p>
-                    <p className="text-sm text-brown-500 italic">{phrase.transliteration}</p>
-                    <p className="text-sm text-brown-400">{phrase.english}</p>
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1">
+                        <p className={`font-semibold text-brown-800 ${nativeFont}`}>{phrase.native}</p>
+                        <p className="text-sm text-brown-500 italic">{phrase.transliteration}</p>
+                        <p className="text-sm text-brown-400">{phrase.english}</p>
+                      </div>
+                      <AudioPlayButton url={phrase.audio_url} size="sm" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -198,10 +211,7 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
                       <p className="text-sm text-brown-500 italic">{word.word_transliteration}</p>
                       <p className="text-sm text-brown-400">{word.word_english}</p>
                     </div>
-                    {/* Audio placeholder */}
-                    <button className="w-9 h-9 rounded-full bg-brown-50 flex items-center justify-center text-brown-300 shrink-0 mt-1" title="Audio coming soon" disabled>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                    </button>
+                    <AudioPlayButton url={word.audio_url} />
                   </div>
                   {word.usage_example && (
                     <p className="text-xs text-brown-400 mt-2 border-t border-brown-50 pt-2">{word.usage_example}</p>
@@ -246,7 +256,10 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
         {closing && closing.prayer_native && (
           <LessonSection title="Closing Prayer" icon={"\uD83D\uDE4F"} borderColor={accentBorder}>
             <div className="space-y-2">
-              <p className={`${nativeFont} font-semibold text-brown-800 leading-relaxed`}>{closing.prayer_native}</p>
+              <div className="flex items-start gap-3">
+                <p className={`${nativeFont} font-semibold text-brown-800 leading-relaxed flex-1`}>{closing.prayer_native}</p>
+                <AudioPlayButton url={closing.audio_url} />
+              </div>
               {closing.prayer_transliteration && (
                 <p className="text-sm text-brown-500 italic">{closing.prayer_transliteration}</p>
               )}
