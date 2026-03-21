@@ -128,6 +128,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
         body: JSON.stringify({ lesson_id: lessonId, score, total }),
       });
       if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("[saveProgress] API error:", res.status, errData);
         setSaveError(true);
         setResult({ passed: localPassed, pct: localPct });
         return;
@@ -141,7 +143,8 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
       if (data.xpEarned || data.newBadges?.length || data.leveledUp) {
         setRewards({ xpEarned: data.xpEarned ?? 0, newBadges: data.newBadges ?? [], leveledUp: data.leveledUp ?? false });
       }
-    } catch {
+    } catch (err) {
+      console.error("[saveProgress] Network error:", err);
       setSaveError(true);
       setResult({ passed: localPassed, pct: localPct });
     } finally {
