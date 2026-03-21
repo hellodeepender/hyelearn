@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { DM_Serif_Display, DM_Sans } from "next/font/google";
 import type { Metadata } from "next";
 
@@ -21,6 +22,7 @@ const products = [
     grades: "K\u20135",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
+    screenshot: "/images/portfolio/screenshot-hyelearn.png",
   },
   {
     name: "Mathaino",
@@ -32,6 +34,7 @@ const products = [
     grades: "K\u20135",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
+    screenshot: "/images/portfolio/screenshot-mathaino.png",
   },
 ];
 
@@ -66,9 +69,12 @@ export default function PortfolioPage() {
             <h1 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight mb-6">
               Helping diaspora kids stay connected to their roots
             </h1>
-            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
               Free interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
             </p>
+            <div className="max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-lg">
+              <Image src="/images/portfolio/hero-illustration.jpg" alt="DiasporaLearn — heritage language learning for kids" width={1200} height={500} className="w-full h-auto max-h-[350px] object-cover" priority />
+            </div>
           </div>
         </section>
 
@@ -137,8 +143,10 @@ export default function PortfolioPage() {
                   href={p.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white border border-[#E5E5E5] rounded-2xl p-8 hover:shadow-lg hover:border-[#ccc] transition-all group"
+                  className="bg-white border border-[#E5E5E5] rounded-2xl overflow-hidden hover:shadow-lg hover:border-[#ccc] transition-all group"
                 >
+                  <Image src={p.screenshot} alt={`${p.name} screenshot`} width={600} height={300} className="w-full h-auto" />
+                  <div className="p-8">
                   <div className="flex items-center gap-4 mb-5">
                     <div
                       className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl font-bold text-white"
@@ -163,6 +171,7 @@ export default function PortfolioPage() {
                     <span className={`text-xs font-medium px-2.5 py-1 rounded ${p.statusColor}`}>
                       {p.status}
                     </span>
+                  </div>
                   </div>
                 </a>
               ))}
