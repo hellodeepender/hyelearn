@@ -134,6 +134,46 @@ export function Lavash({ size = 24 }: { size?: number }) {
   );
 }
 
+// Additional badge-specific icons
+export function OliveBranch({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 20C8 16 10 12 12 6" />
+      <path d="M7 17c-1-2 0-4 2-5s4 0 4 2" />
+      <path d="M9 13c-1-2 0-3.5 1.5-4s3 .5 3 2" />
+      <path d="M11 9c-.5-1.5.5-3 2-3s2.5 1 2 2.5" />
+      <ellipse cx="8" cy="16" rx="2.5" ry="1.5" transform="rotate(-30 8 16)" />
+      <ellipse cx="10.5" cy="12" rx="2.5" ry="1.5" transform="rotate(-25 10.5 12)" />
+      <ellipse cx="12.5" cy="8.5" rx="2" ry="1.2" transform="rotate(-20 12.5 8.5)" />
+    </svg>
+  );
+}
+
+export function Monastery({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21h18" />
+      <path d="M5 21V11l7-7 7 7v10" />
+      <path d="M9 21v-6h6v6" />
+      <line x1="12" y1="4" x2="12" y2="2" />
+      <line x1="11" y1="2.5" x2="13" y2="2.5" />
+      <path d="M8 11h8" />
+    </svg>
+  );
+}
+
+export function Oracle({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="11" r="7" />
+      <path d="M8 19h8" />
+      <path d="M9 19v2h6v-2" />
+      <path d="M10 8c1-1 3-1 4 0" />
+      <path d="M9 11c.5-2 2-3 3.5-2" />
+    </svg>
+  );
+}
+
 // Icon sets by locale
 const GREEK_ICONS = [Amphora, SpartanHelmet, LaurelWreath, OlympicTorch, GreekColumns, Lyre];
 const ARMENIAN_ICONS = [Pomegranate, Khachkar, Duduk, MountArarat, GarniTemple, Lavash];
