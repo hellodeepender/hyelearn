@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "DiasporaLearn — Heritage Language Learning Platforms",
-  description: "Interactive K-5 learning platforms for diaspora communities. Armenian, Greek, and more.",
+  description: "Free interactive K-5 learning platforms and Sunday school lessons for diaspora communities. Armenian, Greek, and more.",
 };
 
 const serif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-dm-serif" });
@@ -18,7 +18,7 @@ const products = [
     language: "Western Armenian",
     url: "https://hyelearn.com",
     description: "The first interactive K-5 Western Armenian curriculum. Built for Armenian day schools and diaspora families. Alphabet, vocabulary, grammar, and cultural content — all with native audio pronunciation.",
-    grades: "K–5",
+    grades: "K\u20135",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
   },
@@ -29,13 +29,19 @@ const products = [
     language: "Modern Greek",
     url: "https://mathaino.net",
     description: "Interactive Greek language learning for K-5 students. Greek alphabet, vocabulary, reading comprehension, and cultural awareness — designed for Greek schools and families in the diaspora.",
-    grades: "K–5",
+    grades: "K\u20135",
     status: "Live",
     statusColor: "bg-green-100 text-green-700",
   },
 ];
 
-const upcoming = ["Assyrian", "Farsi", "Hebrew", "Hindi", "Korean", "Tagalog"];
+const stats = [
+  { value: "2", label: "Languages" },
+  { value: "270+", label: "Lessons" },
+  { value: "72", label: "Sunday School Lessons" },
+  { value: "474", label: "Audio Files" },
+  { value: "100%", label: "Free" },
+];
 
 export default function PortfolioPage() {
   return (
@@ -54,26 +60,72 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* Hero */}
+        {/* 1. Hero */}
         <section className="py-24 px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h1 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight mb-6">
-              Heritage languages deserve modern tools
+              Helping diaspora kids stay connected to their roots
             </h1>
-            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
-              We build interactive learning platforms for diaspora communities. Structured K-5 curriculum, native audio, culturally meaningful content — all in just 5 minutes a day.
+            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed">
+              Free interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
             </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {["K–5 curriculum", "Interactive lessons", "Built for diaspora families"].map((badge) => (
-                <span key={badge} className="px-4 py-1.5 bg-white border border-[#E5E5E5] rounded-full text-sm text-[#555]">
-                  {badge}
-                </span>
-              ))}
+          </div>
+        </section>
+
+        {/* 2. Stats bar */}
+        <section className="pb-16 px-6">
+          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-12">
+            {stats.map((s, i) => (
+              <div key={s.label} className="flex items-center gap-8 md:gap-12">
+                {i > 0 && <div className="hidden md:block w-px h-10 bg-[#E5E5E5] -ml-8 md:-ml-12" />}
+                <div className="text-center">
+                  <p style={{ fontFamily: "var(--font-dm-serif)" }} className="text-3xl text-[#1a1a1a]">{s.value}</p>
+                  <p className="text-xs text-[#999] mt-1">{s.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 3. Sunday School */}
+        <section className="py-16 px-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-10">
+              <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
+                {"\u271D"} Sunday School
+              </h2>
+              <p className="text-center text-[#777] mb-8">Free weekly lessons for Armenian and Greek church Sunday schools</p>
+
+              <p className="text-[#555] leading-relaxed mb-4">
+                Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
+              </p>
+              <p className="text-[#555] leading-relaxed mb-8">
+                Each lesson includes an opening prayer, a teacher-led story, heritage language vocabulary with audio pronunciation, a hands-on activity, and a closing prayer. 72 lessons cover the full liturgical year from Holy Cross through Pascha and beyond.
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {["72 lessons", "Full liturgical year", "Audio pronunciation", "Printable worksheets", "No account needed"].map((badge) => (
+                  <span key={badge} className="px-3 py-1.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-full text-xs text-[#555] font-medium">
+                    {badge}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="https://hyelearn.com/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#C4384B] text-white rounded-lg font-medium text-center hover:bg-[#A02E3E] transition-colors">
+                  Armenian Sunday School &rarr;
+                </a>
+                <a href="https://mathaino.net/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
+                  Greek Sunday School &rarr;
+                </a>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Products */}
+        {/* 4. Our Platforms */}
         <section className="py-16 px-6">
           <div className="max-w-4xl mx-auto">
             <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-12">
@@ -119,66 +171,38 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Sunday School */}
-        <section className="py-16 px-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-10">
-              <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
-                {"\u271D"} Sunday School
-              </h2>
-              <p className="text-center text-[#777] mb-8">Free weekly lessons for Armenian and Greek church Sunday schools</p>
-
-              <p className="text-[#555] leading-relaxed mb-4">
-                Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
-              </p>
-              <p className="text-[#555] leading-relaxed mb-8">
-                Each lesson includes an opening prayer, a teacher-led story, heritage language vocabulary with audio pronunciation, a hands-on activity, and a closing prayer. 72 lessons cover the full liturgical year from Holy Cross through Pascha and beyond.
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                {["72 lessons", "Full liturgical year", "Audio pronunciation", "Printable worksheets", "No account needed"].map((badge) => (
-                  <span key={badge} className="px-3 py-1.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-full text-xs text-[#555] font-medium">
-                    {badge}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="https://hyelearn.com/sunday-school" target="_blank" rel="noopener noreferrer"
-                  className="px-6 py-3 bg-[#C4384B] text-white rounded-lg font-medium text-center hover:bg-[#A02E3E] transition-colors">
-                  Armenian Sunday School &rarr;
-                </a>
-                <a href="https://mathaino.net/sunday-school" target="_blank" rel="noopener noreferrer"
-                  className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
-                  Greek Sunday School &rarr;
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Mission */}
+        {/* 5. One Platform, Many Languages */}
         <section className="py-20 px-6 bg-white border-y border-[#E5E5E5]">
           <div className="max-w-3xl mx-auto text-center">
             <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] mb-6">
               One platform, many languages
             </h2>
-            <p className="text-[#555] leading-relaxed mb-8">
-              DiasporaLearn is built on a shared, scalable architecture. The same exercise engine, rewards system, and teacher tools power every language — with culturally adapted content, native audio, and locale-specific theming for each community.
+            <p className="text-[#555] leading-relaxed">
+              Built to scale — one codebase powers every language. The same exercise engine, rewards system, and teacher tools work across all communities, with culturally adapted content, native audio, and locale-specific theming. Contact us to add your community&apos;s heritage language to DiasporaLearn.
             </p>
-            <p className="text-sm text-[#999] mb-6">Coming soon</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {upcoming.map((lang) => (
-                <span key={lang} className="px-4 py-2 bg-[#FAFAFA] border border-[#E5E5E5] rounded-lg text-sm text-[#777]">
-                  {lang}
-                </span>
-              ))}
-            </div>
           </div>
         </section>
 
-        {/* Support */}
-        <section id="support" className="py-20 px-6">
+        {/* 6. Want to Bring Your Language? */}
+        <section className="py-20 px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] mb-4">
+              Want to bring your language to DiasporaLearn?
+            </h2>
+            <p className="text-[#555] mb-8">
+              We partner with language educators and diaspora organizations to build new platforms. If your community needs a modern learning tool, let&apos;s talk.
+            </p>
+            <a
+              href="mailto:hello@diasporalearn.org"
+              className="inline-block bg-[#2271B3] hover:bg-[#1A5A8F] text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            >
+              Get in touch
+            </a>
+          </div>
+        </section>
+
+        {/* 7. Support Our Mission */}
+        <section id="support" className="py-20 px-6 bg-white border-t border-[#E5E5E5]">
           <div className="max-w-3xl mx-auto text-center">
             <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] mb-4">
               Support our mission
@@ -215,24 +239,6 @@ export default function PortfolioPage() {
                 </a>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-20 px-6">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] mb-4">
-              Want to bring your language to DiasporaLearn?
-            </h2>
-            <p className="text-[#555] mb-8">
-              We partner with language educators and diaspora organizations to build new platforms. If your community needs a modern learning tool, let&apos;s talk.
-            </p>
-            <a
-              href="mailto:hello@diasporalearn.org"
-              className="inline-block bg-[#2271B3] hover:bg-[#1A5A8F] text-white px-8 py-3 rounded-lg font-medium transition-colors"
-            >
-              Get in touch
-            </a>
           </div>
         </section>
       </main>
