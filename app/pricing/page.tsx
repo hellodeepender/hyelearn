@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
+import SupportersTicker from "@/components/ui/SupportersTicker";
 
 const STRIPE_LINKS = {
   once_5: "https://buy.stripe.com/aFa8wOfUVd37gBf69kbfO04",
@@ -25,6 +26,7 @@ export default function SupportPage() {
 
   return (
     <div className="min-h-screen bg-cream">
+      <SupportersTicker />
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">

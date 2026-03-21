@@ -348,6 +348,7 @@ export default async function LandingPage() {
             <div className="flex flex-wrap justify-center gap-6 text-sm text-brown-400">
               <Link href="/" className="hover:text-brown-300">{t("home")}</Link>
               <Link href="/pricing" className="hover:text-brown-300">{tc("pricing")}</Link>
+              <Link href="/supporters" className="hover:text-brown-300">Supporters</Link>
               <Link href="/contact" className="hover:text-brown-300">{t("contact")}</Link>
               <Link href="/privacy" className="hover:text-brown-300">{t("privacy")}</Link>
               <Link href="/terms" className="hover:text-brown-300">{t("terms")}</Link>
