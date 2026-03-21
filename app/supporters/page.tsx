@@ -1,9 +1,28 @@
 import Link from "next/link";
-import { SUPPORTERS, getInitials } from "@/lib/supporters";
+import { createClient } from "@/lib/supabase-server";
+import { getInitials, SUPPORTERS as FALLBACK_SUPPORTERS } from "@/lib/supporters";
 
-export default function SupportersPage() {
+export default async function SupportersPage() {
+  const supabase = await createClient();
+
+  // Query public donations (show_name = true via RLS)
+  const { data: donations } = await supabase
+    .from("donations")
+    .select("donor_name, created_at, message")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  // Use DB data if available, fall back to hardcoded
+  const supporters = (donations && donations.length > 0)
+    ? donations.map((d) => ({
+        name: d.donor_name,
+        date: new Date(d.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+        message: d.message,
+      }))
+    : FALLBACK_SUPPORTERS.filter((s) => !s.anonymous).map((s) => ({ name: s.name, date: s.date, message: s.message }));
+
   const stats = [
-    { value: String(SUPPORTERS.length), label: "Supporters" },
+    { value: String(supporters.length), label: "Supporters" },
     { value: "2", label: "Countries" },
     { value: "2", label: "Languages" },
     { value: "269", label: "Lessons Free" },
@@ -25,7 +44,6 @@ export default function SupportersPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-16">
-        {/* Hero */}
         <div className="text-center mb-16">
           <p className="text-xs font-medium text-brown-400 uppercase tracking-wide mb-3">Our Community</p>
           <h1 className="text-4xl font-bold text-brown-800 mb-3">Wall of Gratitude</h1>
@@ -34,7 +52,6 @@ export default function SupportersPage() {
           </p>
         </div>
 
-        {/* Impact stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
           {stats.map((s) => (
             <div key={s.label} className="bg-warm-white border border-brown-100 rounded-xl p-5 text-center">
@@ -44,36 +61,28 @@ export default function SupportersPage() {
           ))}
         </div>
 
-        {/* Donor grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-          {SUPPORTERS.map((supporter, i) => {
-            const isAnon = supporter.anonymous;
-            const initials = isAnon ? "?" : getInitials(supporter.name);
-            const displayName = isAnon ? "Anonymous Supporter" : supporter.name;
-
-            return (
-              <div key={i} className="bg-warm-white border border-brown-100 rounded-xl p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                    style={{ background: "linear-gradient(135deg, #A8232A, #D4A843)" }}>
-                    {initials}
-                  </div>
-                  <div>
-                    <p className="font-medium text-brown-800">{displayName}</p>
-                    <p className="text-xs text-brown-400">{supporter.date}</p>
-                  </div>
+          {supporters.map((supporter, i) => (
+            <div key={i} className="bg-warm-white border border-brown-100 rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                  style={{ background: "linear-gradient(135deg, #A8232A, #D4A843)" }}>
+                  {getInitials(supporter.name)}
                 </div>
-                {supporter.message && (
-                  <p className="text-sm text-brown-500 italic border-l-2 border-gold/40 pl-3 mt-3">
-                    &ldquo;{supporter.message}&rdquo;
-                  </p>
-                )}
+                <div>
+                  <p className="font-medium text-brown-800">{supporter.name}</p>
+                  <p className="text-xs text-brown-400">{supporter.date}</p>
+                </div>
               </div>
-            );
-          })}
+              {supporter.message && (
+                <p className="text-sm text-brown-500 italic border-l-2 border-gold/40 pl-3 mt-3">
+                  &ldquo;{supporter.message}&rdquo;
+                </p>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* CTA */}
         <div className="rounded-2xl p-8 text-center text-white" style={{ background: "linear-gradient(135deg, #A8232A, #C4384B)" }}>
           <h2 className="text-2xl font-bold mb-2">Join Our Supporters</h2>
           <p className="text-white/80 mb-6 max-w-md mx-auto">

@@ -1,20 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
 import SupportersTicker from "@/components/ui/SupportersTicker";
 
-const STRIPE_LINKS = {
-  once_5: "https://buy.stripe.com/aFa8wOfUVd37gBf69kbfO04",
-  once_10: "https://buy.stripe.com/cNi9ASeQR3sxckZ55gbfO07",
-  once_25: "https://buy.stripe.com/4gMcN4389bZ3fxbdBMbfO05",
-  once_50: "https://buy.stripe.com/eVq28q2451kp0ChcxIbfO03",
+// Keep Payment Links as fallback for monthly recurring (Checkout Sessions don't support recurring easily without a Price ID)
+const MONTHLY_LINKS = {
   monthly_3: "https://buy.stripe.com/4gM14mbEF8MR1GldBMbfO06",
   monthly_5: "https://buy.stripe.com/14AeVccIJ5AF1Gl0P0bfO02",
   monthly_10: "https://buy.stripe.com/00w00i8staUZacR2X8bfO00",
-  custom: "https://buy.stripe.com/dRmfZg1019QV4Sx2X8bfO01",
 };
 
 export default function SupportPage() {
@@ -23,6 +20,35 @@ export default function SupportPage() {
   const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
   const searchParams = useSearchParams();
   const donated = searchParams.get("donated") === "true";
+
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState("");
+  const [donorName, setDonorName] = useState("");
+  const [showName, setShowName] = useState(true);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const amount = selectedAmount ?? (customAmount ? Number(customAmount) : 0);
+
+  async function handleDonate() {
+    if (amount < 1) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/donations/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, donorName: donorName.trim() || "Anonymous", showName, message: message.trim() }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setLoading(false);
+      }
+    } catch {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -46,8 +72,9 @@ export default function SupportPage() {
         {/* Thank-you banner */}
         {donated && (
           <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6 text-center">
-            <p className="font-semibold text-lg">Thank you for your generous support! {"\uD83D\uDC99"}</p>
-            <p className="text-sm text-green-600 mt-1">You&apos;re helping keep heritage language education free for families worldwide.</p>
+            <p className="font-semibold text-lg">Thank you for your generous support! {"\uD83D\uDE4F"}</p>
+            <p className="text-sm text-green-600 mt-1">Your donation helps keep heritage language learning free for every child.</p>
+            {showName && <p className="text-xs text-green-500 mt-1">Your name will appear on our Wall of Gratitude shortly.</p>}
           </div>
         )}
 
@@ -67,14 +94,7 @@ export default function SupportPage() {
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-16">
           <h2 className="text-xl font-bold text-brown-800 mb-4 text-center">Everything included, always free</h2>
           <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-            {[
-              "Complete K-5 curriculum",
-              "All exercises and practice",
-              "Progress tracking & badges",
-              "Cultural rewards system",
-              "Audio pronunciation",
-              "Works on any device",
-            ].map((f) => (
+            {["Complete K-5 curriculum", "All exercises and practice", "Progress tracking & badges", "Cultural rewards system", "Audio pronunciation", "Works on any device"].map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-brown-600">
                 <span className="text-green-600">{"\u2713"}</span> {f}
               </div>
@@ -90,49 +110,65 @@ export default function SupportPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-4">
-          {/* One-time */}
-          <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-brown-800 mb-4">One-time donation</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {([
-                { label: "$5", href: STRIPE_LINKS.once_5 },
-                { label: "$10", href: STRIPE_LINKS.once_10 },
-                { label: "$25", href: STRIPE_LINKS.once_25 },
-                { label: "$50", href: STRIPE_LINKS.once_50 },
-              ]).map((btn) => (
-                <a key={btn.label} href={btn.href} target="_blank" rel="noopener noreferrer"
-                  className="border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
-                  {btn.label}
-                </a>
-              ))}
-            </div>
-            <a href={STRIPE_LINKS.custom} target="_blank" rel="noopener noreferrer"
-              className="block mt-3 border-2 border-brown-200 hover:border-gold text-brown-700 hover:text-gold py-3 rounded-lg font-medium text-center transition-colors">
-              Custom Amount
-            </a>
-          </div>
+        {/* One-time donation with form */}
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-6">
+          <h3 className="text-lg font-semibold text-brown-800 mb-4">One-time donation</h3>
 
-          {/* Monthly */}
-          <div className="bg-warm-white border border-brown-100 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-brown-800 mb-4">Monthly support</h3>
-            <div className="space-y-3">
-              {([
-                { amount: "$3/month", desc: "Help cover hosting costs", href: STRIPE_LINKS.monthly_3 },
-                { amount: "$5/month", desc: "Fund new lesson development", href: STRIPE_LINKS.monthly_5 },
-                { amount: "$10/month", desc: "Help us add new languages", href: STRIPE_LINKS.monthly_10 },
-              ]).map((tier) => (
-                <a key={tier.amount} href={tier.href} target="_blank" rel="noopener noreferrer"
-                  className="block border-2 border-brown-200 hover:border-gold rounded-lg p-4 transition-colors">
-                  <span className="font-semibold text-brown-800">{tier.amount}</span>
-                  <span className="text-sm text-brown-500 ml-2">{tier.desc}</span>
-                </a>
-              ))}
-            </div>
+          {/* Amount selection */}
+          <div className="grid grid-cols-4 gap-3 mb-4">
+            {[5, 10, 25, 50].map((amt) => (
+              <button key={amt}
+                onClick={() => { setSelectedAmount(amt); setCustomAmount(""); }}
+                className={`py-3 rounded-lg font-medium text-center transition-colors ${selectedAmount === amt ? "bg-gold text-white" : "border-2 border-brown-200 text-brown-700 hover:border-gold hover:text-gold"}`}>
+                ${amt}
+              </button>
+            ))}
           </div>
+          <input type="number" min="1" placeholder="Custom amount ($)"
+            value={customAmount}
+            onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null); }}
+            className="w-full px-4 py-3 border border-brown-200 rounded-lg bg-warm-white text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 mb-6" />
+
+          {/* Donor info (shown when amount selected) */}
+          {amount >= 1 && (
+            <div className="border-t border-brown-100 pt-6 space-y-4">
+              <input type="text" placeholder="Your name (optional)"
+                value={donorName} onChange={(e) => setDonorName(e.target.value)}
+                className="w-full px-4 py-2.5 border border-brown-200 rounded-lg bg-warm-white text-sm focus:outline-none focus:ring-2 focus:ring-gold/50" />
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={showName} onChange={(e) => setShowName(e.target.checked)}
+                  className="w-4 h-4 rounded border-brown-300 text-gold focus:ring-gold" />
+                <span className="text-sm text-brown-600">Display my name on the Wall of Gratitude</span>
+              </label>
+              <input type="text" placeholder="Add a message (optional)" maxLength={200}
+                value={message} onChange={(e) => setMessage(e.target.value)}
+                className="w-full px-4 py-2.5 border border-brown-200 rounded-lg bg-warm-white text-sm focus:outline-none focus:ring-2 focus:ring-gold/50" />
+              <button onClick={handleDonate} disabled={loading || amount < 1}
+                className="w-full bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition-colors">
+                {loading ? "Redirecting to Stripe..." : `Donate $${amount} \u2192`}
+              </button>
+              <p className="text-xs text-brown-400 text-center">Payments processed securely by Stripe. You&apos;ll receive an email receipt.</p>
+            </div>
+          )}
         </div>
 
-        <p className="text-xs text-brown-400 text-center mb-16">Payments are processed securely by Stripe. You&apos;ll receive an email receipt.</p>
+        {/* Monthly (still uses Payment Links) */}
+        <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-16">
+          <h3 className="text-lg font-semibold text-brown-800 mb-4">Monthly support</h3>
+          <div className="space-y-3">
+            {([
+              { amount: "$3/month", desc: "Help cover hosting costs", href: MONTHLY_LINKS.monthly_3 },
+              { amount: "$5/month", desc: "Fund new lesson development", href: MONTHLY_LINKS.monthly_5 },
+              { amount: "$10/month", desc: "Help us add new languages", href: MONTHLY_LINKS.monthly_10 },
+            ]).map((tier) => (
+              <a key={tier.amount} href={tier.href} target="_blank" rel="noopener noreferrer"
+                className="block border-2 border-brown-200 hover:border-gold rounded-lg p-4 transition-colors">
+                <span className="font-semibold text-brown-800">{tier.amount}</span>
+                <span className="text-sm text-brown-500 ml-2">{tier.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
 
         {/* For Schools */}
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-8">
@@ -189,6 +225,7 @@ export default function SupportPage() {
           <p>&copy; {new Date().getFullYear()} {brandName}</p>
           <div className="flex gap-6">
             <Link href="/pricing" className="hover:text-brown-600">Support</Link>
+            <Link href="/supporters" className="hover:text-brown-600">Our Supporters</Link>
             <a href={`mailto:${supportEmail}`} className="hover:text-brown-600">Contact</a>
           </div>
         </div>
