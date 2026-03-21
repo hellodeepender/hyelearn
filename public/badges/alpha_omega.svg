@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="56" fill="#F0F4FF" stroke="#5BA3D9" stroke-width="2"/>
+  <text x="36" y="72" font-family="serif" font-size="52" font-weight="700" fill="#1A6AFF" opacity="0.9">Α</text>
+  <text x="62" y="78" font-family="serif" font-size="40" font-weight="700" fill="#5BA3D9" opacity="0.7">Ω</text>
+  <path d="M30 85 Q60 82 90 85" fill="none" stroke="#1A6AFF" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="42" cy="30" r="2" fill="#FFD700"/>
+  <circle cx="78" cy="28" r="1.5" fill="#FFD700" opacity="0.7"/>
+  <circle cx="55" cy="24" r="1" fill="#FFD700" opacity="0.5"/>
+  <path d="M25 45 Q28 42 31 45" fill="none" stroke="#5BA3D9" stroke-width="0.8" opacity="0.3"/>
+  <path d="M89 50 Q92 47 95 50" fill="none" stroke="#5BA3D9" stroke-width="0.8" opacity="0.3"/>
+</svg>
