@@ -8,10 +8,12 @@ import { getLevelsWithProgress } from "@/lib/curriculum";
 import { getLocale } from "@/lib/server-locale";
 import { getEnglishTitle } from "@/lib/grade-labels";
 import MapPath from "@/components/curriculum/MapPath";
+import Confetti from "@/components/ui/Confetti";
 
-export default async function CurriculumPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
+export default async function CurriculumPage({ searchParams }: { searchParams: Promise<{ view?: string; completed?: string }> }) {
   const params = await searchParams;
   const viewMode = params.view === "map" ? "map" : "list";
+  const showConfetti = params.completed === "true";
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -64,6 +66,7 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
             summitLabel={summitLabel}
             subtitle="All Grades"
           />
+          <Confetti show={showConfetti} />
         </main>
       ) : (
         <main className="max-w-4xl mx-auto px-6 py-10">
