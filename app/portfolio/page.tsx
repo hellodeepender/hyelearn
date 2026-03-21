@@ -119,6 +119,44 @@ export default function PortfolioPage() {
           </div>
         </section>
 
+        {/* Sunday School */}
+        <section className="py-16 px-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl p-10">
+              <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
+                {"\u271D"} Sunday School
+              </h2>
+              <p className="text-center text-[#777] mb-8">Free weekly lessons for Armenian and Greek church Sunday schools</p>
+
+              <p className="text-[#555] leading-relaxed mb-4">
+                Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
+              </p>
+              <p className="text-[#555] leading-relaxed mb-8">
+                Each lesson includes an opening prayer, a teacher-led story, heritage language vocabulary with audio pronunciation, a hands-on activity, and a closing prayer. 72 lessons cover the full liturgical year from Holy Cross through Pascha and beyond.
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {["72 lessons", "Full liturgical year", "Audio pronunciation", "Printable worksheets", "No account needed"].map((badge) => (
+                  <span key={badge} className="px-3 py-1.5 bg-[#FAFAFA] border border-[#E5E5E5] rounded-full text-xs text-[#555] font-medium">
+                    {badge}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="https://hyelearn.com/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#C8A951] text-white rounded-lg font-medium text-center hover:bg-[#B89941] transition-colors">
+                  Armenian Sunday School &rarr;
+                </a>
+                <a href="https://mathaino.net/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
+                  Greek Sunday School &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Mission */}
         <section className="py-20 px-6 bg-white border-y border-[#E5E5E5]">
           <div className="max-w-3xl mx-auto text-center">
