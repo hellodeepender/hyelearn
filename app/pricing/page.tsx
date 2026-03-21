@@ -17,7 +17,10 @@ const MONTHLY_LINKS = {
 export default function SupportPage() {
   const tc = useTranslations("common");
   const { brandName, supportEmail, locale } = useLocale();
-  const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
+  const isParentSite = locale === "en";
+  const languageDesc = isParentSite ? "Armenian and Greek" : locale === "hy" ? "Western Armenian" : tc("language");
+  const headerBrand = isParentSite ? "DiasporaLearn" : tc("brand");
+  const headerLetter = isParentSite ? "D" : tc("brandLetter");
   const searchParams = useSearchParams();
   const donated = searchParams.get("donated") === "true";
 
@@ -56,8 +59,8 @@ export default function SupportPage() {
       <header className="bg-warm-white border-b border-brown-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
-            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
+            <span className="text-2xl font-bold text-gold">{headerLetter}</span>
+            <span className="text-xl font-semibold text-brown-800">{headerBrand}</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-brown-600 hover:text-brown-800">{tc("logIn")}</Link>
