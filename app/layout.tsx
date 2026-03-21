@@ -27,8 +27,37 @@ export async function generateMetadata(): Promise<Metadata> {
   if (locale === "en") {
     return {
       metadataBase: new URL("https://diasporalearn.org"),
-      title: "DiasporaLearn — Heritage Language Learning Platforms",
-      description: "Interactive K-5 learning platforms for diaspora communities. Armenian, Greek, and more.",
+      title: {
+        default: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
+        template: "%s | DiasporaLearn",
+      },
+      description: "Armenian and Greek language learning for diaspora kids. Complete K-5 curriculum with interactive lessons, audio pronunciation, Sunday school content, and cultural rewards.",
+      keywords: [
+        "diaspora language learning", "heritage language", "Armenian for kids", "Greek for kids",
+        "K-5 curriculum", "Sunday school lessons", "diaspora education",
+      ],
+      authors: [{ name: "DiasporaLearn" }],
+      creator: "DiasporaLearn",
+      publisher: "DiasporaLearn",
+      alternates: { canonical: "https://diasporalearn.org" },
+      openGraph: {
+        type: "website",
+        locale: "en_US",
+        url: "https://diasporalearn.org",
+        siteName: "DiasporaLearn",
+        title: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
+        description: "Armenian and Greek language learning for diaspora kids. Interactive K-5 curriculum and Sunday school lessons.",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "DiasporaLearn — Heritage Language Learning",
+        description: "Armenian and Greek language learning for diaspora kids.",
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large" as const, "max-snippet": -1 },
+      },
     };
   }
 
@@ -36,11 +65,12 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       metadataBase: new URL("https://mathaino.net"),
       title: {
-        default: "Mathaino — \u039C\u03AC\u03B8\u03B5 \u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC Online",
+        default: "Mathaino — Learn Modern Greek | Heritage Language for Diaspora Kids",
         template: "%s | Mathaino",
       },
       description:
-        "An interactive Greek learning platform for K-5 students. Built for Greek families in the diaspora.",
+        "Interactive K-5 Modern Greek curriculum for diaspora children. Audio pronunciation, cultural lessons, Sunday school content, and progress tracking.",
+      alternates: { canonical: "https://mathaino.net" },
       keywords: [
         "Greek language learning", "learn Greek online", "Greek for kids",
         "Greek school curriculum", "Greek alphabet", "Greek vocabulary",
@@ -73,11 +103,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL("https://hyelearn.com"),
     title: {
-      default: "HyeLearn — Learn Western Armenian Online | K-5 Curriculum",
+      default: "HyeLearn — Learn Western Armenian | Heritage Language for Diaspora Kids",
       template: "%s | HyeLearn",
     },
     description:
-      "The first interactive Western Armenian learning platform for K-5 students. Used by Armenian day schools and families in the diaspora.",
+      "Interactive K-5 Western Armenian curriculum for diaspora children. Audio pronunciation, cultural lessons, Sunday school content, and progress tracking.",
+    alternates: { canonical: "https://hyelearn.com" },
     keywords: [
       "Armenian language learning", "Western Armenian", "learn Armenian online",
       "Armenian for kids", "Armenian school curriculum", "Armenian alphabet",
