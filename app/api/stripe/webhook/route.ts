@@ -34,16 +34,36 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object;
+
+      // Check if this is a donation (has donor_name in metadata)
+      if (session.metadata?.donor_name) {
+        const { error: donationErr } = await db.from("donations").upsert({
+          stripe_session_id: session.id,
+          stripe_payment_intent_id: session.payment_intent as string,
+          donor_name: session.metadata.donor_name || "Anonymous",
+          donor_email: session.customer_details?.email || null,
+          amount_cents: session.amount_total || 0,
+          currency: session.currency || "usd",
+          show_name: session.metadata.show_name === "true",
+          message: session.metadata.message || null,
+        }, { onConflict: "stripe_session_id" });
+        if (donationErr) {
+          console.error("[webhook] Donation insert error:", donationErr.message);
+        } else {
+          console.log("[webhook] Donation recorded:", session.metadata.donor_name, session.amount_total);
+        }
+        break;
+      }
+
+      // Otherwise handle as subscription checkout
       const userId = session.metadata?.userId;
       if (!userId) break;
 
-      // Update profile to family tier + store Stripe customer ID
       await db.from("profiles").update({
         subscription_tier: "family",
         stripe_customer_id: session.customer as string,
       }).eq("id", userId);
 
-      // Also update subscriptions table if it exists
       const { data: familyPlan } = await db.from("plans").select("id").eq("slug", "family").single();
       if (familyPlan) {
         await db.from("subscriptions").insert({
