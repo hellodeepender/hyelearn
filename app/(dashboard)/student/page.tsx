@@ -8,7 +8,6 @@ import { getLevelsWithProgress } from "@/lib/curriculum";
 import { checkAndAwardBadges } from "@/lib/xp";
 import { getBadges, getBadgeBySlug } from "@/lib/badges";
 import { getEnglishTitle } from "@/lib/grade-labels";
-import { getBadgeIcon } from "@/lib/badge-icons";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale, getLocale } from "@/lib/server-locale";
 import BadgeCelebration from "@/components/ui/BadgeCelebration";
@@ -158,7 +157,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const celebrationBadges = newlyEarnedBadges
     .map((slug) => getBadgeBySlug(slug, locale))
     .filter(Boolean)
-    .map((b) => ({ slug: b!.slug, name: b!.name, emoji: b!.emoji, description: b!.description, culturalNote: b!.culturalNote }));
+    .map((b) => ({ slug: b!.slug, name: b!.name, emoji: b!.emoji, image: b!.image, description: b!.description, culturalNote: b!.culturalNote }));
 
   const nextLessonLabel = nextLessonTitle ? getEnglishTitle(nextLessonTitle, locale) ?? nextLessonTitle : null;
 
@@ -228,17 +227,12 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
               <Link href="/student/profile" className="text-sm text-gold hover:text-gold-dark font-medium">View all &rarr;</Link>
             </div>
             <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
-              {earnedBadgeList.map((badge) => {
-                const BadgeIcon = getBadgeIcon(badge.slug);
-                return (
+              {earnedBadgeList.map((badge) => (
                 <div key={badge.slug} className="flex flex-col items-center shrink-0 w-20 snap-start">
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gold/10 border-2 border-gold/30 shadow-sm" style={{ color: "var(--color-gold, #C8A951)" }}>
-                    {BadgeIcon ? <BadgeIcon size={40} /> : <span className="text-4xl">{badge.emoji}</span>}
-                  </div>
+                  <img src={badge.image} alt={badge.name} width={80} height={80} className="w-20 h-20" />
                   <p className="text-sm font-medium mt-2 text-center leading-tight line-clamp-2 text-brown-700">{badge.name}</p>
                 </div>
-                );
-              })}
+              ))}
             </div>
           </section>
         )}

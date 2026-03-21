@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getBadgeIcon } from "@/lib/badge-icons";
 
 interface BadgeInfo {
   slug: string;
   name: string;
   emoji: string;
+  image?: string;
   description: string;
   culturalNote?: string;
 }
@@ -57,20 +57,13 @@ export default function BadgeCelebration({ badges, gradeValue }: Props) {
           </div>
         )}
 
-        {(() => {
-          const BadgeIcon = getBadgeIcon(badge.slug);
-          return (
-            <div className={`flex justify-center mb-3 ${isYoung ? "" : "mt-2"}`} style={isYoung ? { animation: "badgeBounce 0.6s ease" } : undefined}>
-              {BadgeIcon ? (
-                <div className="w-16 h-16 flex items-center justify-center" style={{ color: "var(--color-gold, #C8A951)" }}>
-                  <BadgeIcon size={56} />
-                </div>
-              ) : (
-                <span className="text-6xl">{badge.emoji}</span>
-              )}
-            </div>
-          );
-        })()}
+        <div className={`flex justify-center mb-3 ${isYoung ? "" : "mt-2"}`} style={isYoung ? { animation: "badgeBounce 0.6s ease" } : undefined}>
+          {badge.image ? (
+            <img src={badge.image} alt={badge.name} width={96} height={96} className="w-24 h-24" />
+          ) : (
+            <span className="text-6xl">{badge.emoji}</span>
+          )}
+        </div>
 
         <h2 className="text-xl font-bold text-brown-800 mb-1">
           {isYoung ? "Badge Unlocked!" : "Achievement Unlocked"}
