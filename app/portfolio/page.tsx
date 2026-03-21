@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "DiasporaLearn — Heritage Language Learning Platforms",
-  description: "Free interactive K-5 learning platforms and Sunday school lessons for diaspora communities. Armenian, Greek, and more.",
+  description: "Interactive K-5 learning platforms and Sunday school lessons for diaspora communities. Armenian, Greek, and more.",
 };
 
 const serif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-dm-serif" });
@@ -43,7 +43,7 @@ const stats = [
   { value: "270+", label: "Lessons" },
   { value: "72", label: "Sunday School Lessons" },
   { value: "474", label: "Audio Files" },
-  { value: "100%", label: "Free" },
+  { value: "$0", label: "Cost" },
 ];
 
 export default function PortfolioPage() {
@@ -70,7 +70,7 @@ export default function PortfolioPage() {
               Helping diaspora kids stay connected to their roots
             </h1>
             <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
-              Free interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
+              Interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
             </p>
             <div className="max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-lg">
               <Image src="/images/portfolio/hero-illustration.jpg" alt="DiasporaLearn — heritage language learning for kids" width={1200} height={500} className="w-full h-auto max-h-[350px] object-cover" priority />
@@ -99,7 +99,7 @@ export default function PortfolioPage() {
               <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
                 {"\u271D"} Sunday School
               </h2>
-              <p className="text-center text-[#777] mb-8">Free weekly lessons for Armenian and Greek church Sunday schools</p>
+              <p className="text-center text-[#777] mb-8">Weekly lessons for Armenian and Greek church Sunday schools</p>
 
               <p className="text-[#555] leading-relaxed mb-4">
                 Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
@@ -216,7 +216,7 @@ export default function PortfolioPage() {
               Support our mission
             </h2>
             <p className="text-[#555] leading-relaxed mb-4">
-              Our curriculum is 100% free for every family. Your donation helps us create more lessons, add new languages, and keep heritage language education accessible worldwide.
+              Our curriculum has no cost for families. Your donation helps us create more lessons, add new languages, and keep heritage language education accessible worldwide.
             </p>
             <p className="text-sm text-[#999] mb-8">
               Payments processed securely by Stripe.
@@ -266,7 +266,7 @@ export default function PortfolioPage() {
             </div>
           </div>
           <div className="border-t border-[#E5E5E5] pt-4 text-center text-xs text-[#bbb]">
-            <p>&copy; {new Date().getFullYear()} DiasporaLearn. Free heritage language education for diaspora communities worldwide.</p>
+            <p>&copy; {new Date().getFullYear()} DiasporaLearn. Heritage language education for diaspora communities worldwide.</p>
           </div>
         </div>
       </footer>

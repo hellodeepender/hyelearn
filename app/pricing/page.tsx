@@ -73,7 +73,7 @@ export default function SupportPage() {
         {donated && (
           <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 mb-6 text-center">
             <p className="font-semibold text-lg">Thank you for your generous support! {"\uD83D\uDE4F"}</p>
-            <p className="text-sm text-green-600 mt-1">Your donation helps keep heritage language learning free for every child.</p>
+            <p className="text-sm text-green-600 mt-1">Your donation helps keep heritage language learning accessible for every child.</p>
             {showName && <p className="text-xs text-green-500 mt-1">Your name will appear on our Wall of Gratitude shortly.</p>}
           </div>
         )}
@@ -81,18 +81,18 @@ export default function SupportPage() {
         {/* Hero */}
         <div className="text-center mb-16">
           <div className="text-5xl mb-4">{"\u2764\uFE0F"}</div>
-          <h1 className="text-4xl font-bold text-brown-800 mb-3">Free for Everyone</h1>
+          <h1 className="text-4xl font-bold text-brown-800 mb-3">Built for Every Family</h1>
           <p className="text-brown-500 text-lg max-w-2xl mx-auto">
             We believe every diaspora child deserves access to their heritage language. Our complete K-5 {languageDesc} curriculum is free &mdash; no limits, no paywalls.
           </p>
           <Link href="/signup" className="inline-block mt-6 bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-            Start Learning Free
+            Start Learning
           </Link>
         </div>
 
         {/* What you get */}
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 mb-16">
-          <h2 className="text-xl font-bold text-brown-800 mb-4 text-center">Everything included, always free</h2>
+          <h2 className="text-xl font-bold text-brown-800 mb-4 text-center">Everything included</h2>
           <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto">
             {["Complete K-5 curriculum", "All exercises and practice", "Progress tracking & badges", "Cultural rewards system", "Audio pronunciation", "Works on any device"].map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-brown-600">
@@ -106,7 +106,7 @@ export default function SupportPage() {
         <div className="text-center mb-12">
           <h2 className="text-2xl font-bold text-brown-800 mb-3">Support Our Mission</h2>
           <p className="text-brown-500 max-w-xl mx-auto">
-            Your support helps us create more lessons, add new languages, and keep the platform free for families worldwide.
+            Your support helps us create more lessons, add new languages, and keep the platform accessible for families worldwide.
           </p>
         </div>
 
@@ -208,7 +208,7 @@ export default function SupportPage() {
             {[
               { q: `Is this ${languageDesc}?`, a: `Yes. All content uses ${languageDesc} \u2014 the same standard taught in ${tc("language")} day schools across the diaspora.` },
               { q: "What ages is this for?", a: "Kindergarten through Grade 5, with more levels coming soon." },
-              { q: "Is it really completely free?", a: "Yes! The entire K-5 curriculum is free for all families. No trial period, no hidden limits. We rely on donations and school partnerships to keep it running." },
+              { q: "Does it really cost nothing?", a: "Yes! The entire K-5 curriculum has no cost for families. No trial period, no hidden limits. We rely on donations and school partnerships to keep it running." },
               { q: "Is it safe for kids?", a: "Absolutely. No ads, no social features, no external links. Your child only sees learning content." },
             ].map((faq) => (
               <div key={faq.q} className="bg-warm-white border border-brown-100 rounded-xl p-5">

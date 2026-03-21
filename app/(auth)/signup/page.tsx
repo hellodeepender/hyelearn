@@ -112,7 +112,7 @@ export default function SignupPage() {
             <span className="text-3xl font-bold text-gold">{tc("brandLetter")}</span>
             <span className="text-2xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-brown-800">Create your free account</h1>
+          <h1 className="text-2xl font-bold text-brown-800">Create your account</h1>
           <p className="text-brown-500 mt-1">{tc("startLearningToday")}</p>
         </div>
         <div className="bg-warm-white border border-brown-100 rounded-2xl p-8 shadow-sm">
@@ -140,7 +140,7 @@ export default function SignupPage() {
             </div>
             <button type="submit" disabled={loading}
               className="w-full bg-gold hover:bg-gold-dark disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition-colors">
-              {loading ? "Creating account..." : "Create Free Account"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
         </div>

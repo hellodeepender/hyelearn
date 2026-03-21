@@ -50,7 +50,7 @@ export default async function AboutPage() {
 
         <div className="mt-12 pt-8 border-t border-brown-100 text-center">
           <Link href="/signup" className="bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-            Start Learning Free
+            Start Learning
           </Link>
         </div>
       </main>

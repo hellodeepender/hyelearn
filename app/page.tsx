@@ -261,7 +261,7 @@ export default async function LandingPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="bg-warm-white border-2 border-gold rounded-2xl p-8 relative shadow-lg">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">100% Free</span>
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-xs font-semibold px-3 py-1 rounded-full">Full Access</span>
               <h3 className="text-lg font-semibold text-brown-800">{t("planFreeTitle")}</h3>
               <p className="text-4xl font-bold text-brown-800 mt-4">{t("planFreePrice")}</p>
               <p className="text-sm text-brown-400 mt-1">{t("planFreePeriod")}</p>

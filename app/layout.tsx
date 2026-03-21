@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
         template: "%s | Mathaino",
       },
       description:
-        "An interactive Greek learning platform for K-5 students. Built for Greek families in the diaspora. Start free.",
+        "An interactive Greek learning platform for K-5 students. Built for Greek families in the diaspora.",
       keywords: [
         "Greek language learning", "learn Greek online", "Greek for kids",
         "Greek school curriculum", "Greek alphabet", "Greek vocabulary",
@@ -77,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | HyeLearn",
     },
     description:
-      "The first interactive Western Armenian learning platform for K-5 students. Used by Armenian day schools and families in the diaspora. Start free.",
+      "The first interactive Western Armenian learning platform for K-5 students. Used by Armenian day schools and families in the diaspora.",
     keywords: [
       "Armenian language learning", "Western Armenian", "learn Armenian online",
       "Armenian for kids", "Armenian school curriculum", "Armenian alphabet",

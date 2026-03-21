@@ -109,7 +109,7 @@ export default function JoinPage() {
               </button>
             </div>
             <p className="text-center text-brown-400 text-sm mt-6">
-              Don&apos;t have a code? <Link href="/signup" className="text-gold hover:text-gold-dark font-medium">Start learning for free</Link>
+              Don&apos;t have a code? <Link href="/signup" className="text-gold hover:text-gold-dark font-medium">Start learning</Link>
             </p>
           </>
         )}

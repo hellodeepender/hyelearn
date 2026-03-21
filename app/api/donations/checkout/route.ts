@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           currency: "usd",
           product_data: {
             name: "Donation to DiasporaLearn",
-            description: "Supporting free heritage language education",
+            description: "Supporting heritage language education for diaspora communities",
           },
           unit_amount: amountCents,
         },

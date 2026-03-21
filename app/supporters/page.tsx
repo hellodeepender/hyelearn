@@ -22,7 +22,7 @@ export default async function SupportersPage() {
     { value: String(supporters.length || 0), label: "Supporters" },
     { value: "2", label: "Countries" },
     { value: "2", label: "Languages" },
-    { value: "269", label: "Lessons Free" },
+    { value: "269", label: "Lessons Available" },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default async function SupportersPage() {
           <p className="text-xs font-medium text-brown-400 uppercase tracking-wide mb-3">Our Community</p>
           <h1 className="text-4xl font-bold text-brown-800 mb-3">Wall of Gratitude</h1>
           <p className="text-brown-500 text-lg max-w-2xl mx-auto">
-            Every donation keeps heritage language learning free for diaspora children everywhere. Thank you for making this possible.
+            Every donation keeps heritage language learning accessible for diaspora children everywhere. Thank you for making this possible.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export default async function SupportersPage() {
         <div className="rounded-2xl p-8 text-center text-white" style={{ background: "linear-gradient(135deg, #A8232A, #C4384B)" }}>
           <h2 className="text-2xl font-bold mb-2">Join Our Supporters</h2>
           <p className="text-white/80 mb-6 max-w-md mx-auto">
-            Your donation keeps heritage language education free for families worldwide.
+            Your donation keeps heritage language education accessible for families worldwide.
           </p>
           <Link href="/pricing" className="inline-block bg-[#D4A843] hover:bg-[#B8922E] text-white px-8 py-3 rounded-lg font-semibold transition-colors">
             Donate Now

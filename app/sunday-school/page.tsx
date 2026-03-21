@@ -179,10 +179,10 @@ export default async function SundaySchoolPage() {
         <div className={`${accentBgLight} border ${accentBorder} rounded-xl p-5 mt-10 flex items-center justify-between gap-4`}>
           <div>
             <p className="font-medium text-brown-800 text-sm">Want your child to learn {isGreek ? "Greek" : "Armenian"} at home?</p>
-            <p className="text-xs text-brown-500 mt-0.5">Free K-5 curriculum with interactive lessons, badges, and progress tracking.</p>
+            <p className="text-xs text-brown-500 mt-0.5">K-5 curriculum with interactive lessons, badges, and progress tracking.</p>
           </div>
           <Link href="/signup" className={`${accentBg} ${isGreek ? "hover:bg-blue-700" : "hover:bg-gold-dark"} text-white text-sm px-5 py-2 rounded-lg font-medium transition-colors shrink-0`}>
-            Try Free &rarr;
+            Try It &rarr;
           </Link>
         </div>
       </main>
