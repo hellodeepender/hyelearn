@@ -1,16 +1,23 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { getInitials } from "@/lib/supporters";
 
 export default async function SupportersPage() {
-  const supabase = await createClient();
+  // Use service role to bypass RLS — this is public data (show_name=true only)
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  const { data: donations } = await supabase
+  const { data: donations, error } = await supabase
     .from("donations")
     .select("donor_name, created_at, message")
     .eq("show_name", true)
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (error) {
+    console.error("[supporters] Query error:", error.message, error.details);
+  }
 
   const supporters = (donations ?? []).map((d) => ({
     name: d.donor_name,

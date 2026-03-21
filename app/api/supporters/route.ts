@@ -6,12 +6,16 @@ export async function GET() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  const { data } = await db
+  const { data, error } = await db
     .from("donations")
     .select("donor_name, created_at, message")
     .eq("show_name", true)
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (error) {
+    console.error("[api/supporters] Query error:", error.message, error.details, error.hint);
+  }
 
   const supporters = (data ?? []).map((d) => ({
     name: d.donor_name,
