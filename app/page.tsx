@@ -76,6 +76,7 @@ export default async function LandingPage() {
           <nav className="flex items-center gap-6">
             <a href="#features" className="hidden md:inline text-brown-600 hover:text-brown-800 text-sm">{tc("features")}</a>
             <a href="#curriculum" className="hidden md:inline text-brown-600 hover:text-brown-800 text-sm">{tc("curriculum")}</a>
+            <Link href="/sunday-school" className="hidden md:inline text-brown-600 hover:text-brown-800 text-sm">Sunday School</Link>
             <a href="#pricing" className="hidden md:inline text-brown-600 hover:text-brown-800 text-sm">{tc("pricing")}</a>
             <Link href="/login" className="text-brown-600 hover:text-brown-800 text-sm">{tc("logIn")}</Link>
             <Link href="/signup" className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">

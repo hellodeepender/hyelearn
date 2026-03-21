@@ -133,6 +133,16 @@ export default async function TeacherDashboard() {
           </div>
         </section>
 
+        {/* Sunday School */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-brown-800">Sunday School</h2>
+            <Link href="/sunday-school" className="border border-brown-200 hover:border-brown-300 text-brown-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              View Lessons
+            </Link>
+          </div>
+        </section>
+
         {/* Class management */}
         <section>
           <h2 className="text-lg font-semibold text-brown-800 mb-4">Classes</h2>
