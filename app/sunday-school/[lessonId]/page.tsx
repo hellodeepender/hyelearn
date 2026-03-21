@@ -282,6 +282,15 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
           </LessonSection>
         )}
 
+        {/* K-5 Curriculum CTA */}
+        <div className={`${accentBgLight} border ${accentBorder} rounded-xl p-5 mt-10`}>
+          <p className="font-medium text-brown-800 text-sm">Want your child to learn {isGreek ? "Greek" : "Armenian"} at home?</p>
+          <p className="text-xs text-brown-500 mt-1 mb-3">Try our free K-5 curriculum — interactive lessons from alphabet to reading.</p>
+          <Link href="/signup" className={`inline-block ${accentBg} ${isGreek ? "hover:bg-blue-700" : "hover:bg-gold-dark"} text-white text-sm px-5 py-2 rounded-lg font-medium transition-colors`}>
+            Get Started Free &rarr;
+          </Link>
+        </div>
+
         {/* Prev / Next navigation */}
         <nav className="flex items-center justify-between mt-10 pt-6 border-t border-brown-100">
           {prevLesson ? (
