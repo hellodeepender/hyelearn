@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useLocale } from "@/lib/locale-context";
 
 function generateJoinCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -13,12 +14,34 @@ function generateJoinCode(): string {
   return code;
 }
 
+const GRADES_HY = [
+  { value: "K", label: "Kindergarten" },
+  { value: "1", label: "Grade 1" },
+  { value: "2", label: "Grade 2" },
+  { value: "3", label: "Grade 3" },
+  { value: "4", label: "Grade 4" },
+  { value: "5", label: "Grade 5" },
+];
+
+const GRADES_EL = [
+  { value: "K", label: "\u039D\u03B7\u03C0\u03B9\u03B1\u03B3\u03C9\u03B3\u03B5\u03AF\u03BF (Kindergarten)" },
+  { value: "1", label: "\u0391\u0384 \u0394\u03B7\u03BC\u03BF\u03C4\u03B9\u03BA\u03BF\u03CD (Grade 1)" },
+  { value: "2", label: "\u0392\u0384 \u0394\u03B7\u03BC\u03BF\u03C4\u03B9\u03BA\u03BF\u03CD (Grade 2)" },
+  { value: "3", label: "\u0393\u0384 \u0394\u03B7\u03BC\u03BF\u03C4\u03B9\u03BA\u03BF\u03CD (Grade 3)" },
+  { value: "4", label: "\u0394\u0384 \u0394\u03B7\u03BC\u03BF\u03C4\u03B9\u03BA\u03BF\u03CD (Grade 4)" },
+  { value: "5", label: "\u0395\u0384 \u0394\u03B7\u03BC\u03BF\u03C4\u03B9\u03BA\u03BF\u03CD (Grade 5)" },
+];
+
 export default function CreateClassForm() {
   const router = useRouter();
+  const { locale } = useLocale();
   const [name, setName] = useState("");
-  const [gradeLevel, setGradeLevel] = useState("5");
+  const [gradeLevel, setGradeLevel] = useState("K");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const grades = locale === "el" ? GRADES_EL : GRADES_HY;
+  const placeholderName = locale === "el" ? "e.g. Greek 4A" : "e.g. Armenian 4A";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,9 +50,7 @@ export default function CreateClassForm() {
     setError("");
 
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       setError("Not authenticated");
@@ -37,7 +58,6 @@ export default function CreateClassForm() {
       return;
     }
 
-    // Get teacher's school_id
     const { data: profile } = await supabase
       .from("profiles")
       .select("school_id")
@@ -78,7 +98,7 @@ export default function CreateClassForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          placeholder="e.g. Armenian 4A"
+          placeholder={placeholderName}
           className="w-full px-3 py-2 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-sm"
         />
       </div>
@@ -92,9 +112,8 @@ export default function CreateClassForm() {
           onChange={(e) => setGradeLevel(e.target.value)}
           className="w-full px-3 py-2 border border-brown-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold bg-warm-white text-sm"
         >
-          <option value="K">Kindergarten</option>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
-            <option key={g} value={String(g)}>Grade {g}</option>
+          {grades.map((g) => (
+            <option key={g.value} value={g.value}>{g.label}</option>
           ))}
         </select>
       </div>
