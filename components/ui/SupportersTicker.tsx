@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { SUPPORTERS } from "@/lib/supporters";
 import { useLocale } from "@/lib/locale-context";
 
@@ -16,27 +15,28 @@ export default function SupportersTicker() {
     date: s.date.replace(", 2026", ""),
   }));
 
-  const tickerContent = [...items, ...items];
+  // Duplicate 4x so the track is always wider than the viewport
+  const tickerContent = [...items, ...items, ...items, ...items];
 
   return (
     <div>
       <div className="text-white overflow-hidden" style={{ background: bgColor }}>
-        <div className="max-w-6xl mx-auto flex items-center h-10">
-          <Link href="https://diasporalearn.org/supporters" target="_blank" rel="noopener noreferrer"
-            className="shrink-0 px-4 text-sm font-medium flex items-center gap-1.5 border-r border-white/20 h-full hover:bg-white/10 transition-colors">
+        <div className="flex items-center h-10">
+          <a href="https://diasporalearn.org/supporters" target="_blank" rel="noopener noreferrer"
+            className="shrink-0 px-4 text-sm font-medium flex items-center gap-1.5 border-r border-white/20 h-full hover:bg-white/10 transition-colors z-10">
             <span>{"\uD83D\uDE4F"}</span>
             <span className="hidden sm:inline">Recent Supporters</span>
-          </Link>
+          </a>
 
-          <div className="flex-1 overflow-hidden relative" style={{ maskImage: "linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent)" }}>
-            <div className="flex items-center gap-0 animate-ticker-scroll hover:[animation-play-state:paused] whitespace-nowrap">
+          <div className="flex-1 overflow-hidden relative" style={{ WebkitMaskImage: "linear-gradient(to right, transparent, black 30px, black calc(100% - 30px), transparent)", maskImage: "linear-gradient(to right, transparent, black 30px, black calc(100% - 30px), transparent)" }}>
+            <div className="inline-flex whitespace-nowrap hover:[animation-play-state:paused]" style={{ animation: "ticker-scroll 35s linear infinite" }}>
               {tickerContent.map((item, i) => (
-                <span key={i} className="inline-flex items-center text-sm px-4">
+                <span key={i} className="inline-flex items-center text-sm px-3">
                   <span style={{ color: accentColor }}>{"\u2665"}</span>
                   <span className="ml-1.5">{item.label} donated</span>
                   <span className="text-white/50 mx-1">&middot;</span>
                   <span className="text-white/70">{item.date}</span>
-                  <span style={{ color: accentColor }} className="mx-4">{"\u2726"}</span>
+                  <span style={{ color: accentColor }} className="mx-3">{"\u2726"}</span>
                 </span>
               ))}
             </div>
@@ -54,9 +54,6 @@ export default function SupportersTicker() {
         @keyframes ticker-scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
-        }
-        .animate-ticker-scroll {
-          animation: ticker-scroll 30s linear infinite;
         }
       `}</style>
     </div>
