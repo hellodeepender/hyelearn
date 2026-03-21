@@ -74,16 +74,15 @@ export default function PortfolioPage() {
 
         {/* 2. Stats bar */}
         <section className="pb-16 px-6">
-          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-12">
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex items-center gap-8 md:gap-12">
-                {i > 0 && <div className="hidden md:block w-px h-10 bg-[#E5E5E5] -ml-8 md:-ml-12" />}
-                <div className="text-center">
-                  <p style={{ fontFamily: "var(--font-dm-serif)" }} className="text-3xl text-[#1a1a1a]">{s.value}</p>
-                  <p className="text-xs text-[#999] mt-1">{s.label}</p>
+          <div className="max-w-4xl mx-auto bg-[#FBF0E8] border border-[#E8D5C4] rounded-2xl py-6 px-4">
+            <div className="grid grid-cols-5">
+              {stats.map((s, i) => (
+                <div key={s.label} className={`text-center px-2 ${i < stats.length - 1 ? "border-r border-[#E0D5C8]" : ""}`}>
+                  <p style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl md:text-3xl font-bold text-[#C4384B]">{s.value}</p>
+                  <p className="text-[10px] md:text-xs text-[#888] mt-1">{s.label}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
