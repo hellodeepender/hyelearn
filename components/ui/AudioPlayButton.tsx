@@ -24,23 +24,26 @@ export default function AudioPlayButton({ url, size = "md" }: { url?: string; si
     audio.onerror = () => setPlaying(false);
   }
 
-  const sizeClass = size === "sm"
-    ? "w-7 h-7 text-brown-400 hover:text-brown-600"
-    : "w-9 h-9 text-brown-400 hover:text-brown-600";
+  const isSm = size === "sm";
+  const iconSize = isSm ? 20 : 24;
 
   return (
     <button
       onClick={handlePlay}
       aria-label={playing ? "Stop audio" : "Play audio"}
-      className={`${sizeClass} rounded-full bg-brown-50 hover:bg-brown-100 flex items-center justify-center transition-colors shrink-0`}
+      className={`${isSm ? "w-9 h-9 min-w-[36px] min-h-[36px]" : "w-11 h-11 min-w-[44px] min-h-[44px]"} rounded-full border-2 ${
+        playing
+          ? "bg-gold/10 border-gold/30 text-gold"
+          : "bg-brown-50 border-brown-200 text-brown-500 hover:bg-brown-100 hover:border-brown-300 hover:text-brown-700"
+      } flex items-center justify-center transition-colors shrink-0`}
     >
       {playing ? (
-        <svg width={size === "sm" ? 12 : 16} height={size === "sm" ? 12 : 16} viewBox="0 0 24 24" fill="currentColor">
+        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="currentColor">
           <rect x="6" y="5" width="4" height="14" rx="1" />
           <rect x="14" y="5" width="4" height="14" rx="1" />
         </svg>
       ) : (
-        <svg width={size === "sm" ? 12 : 16} height={size === "sm" ? 12 : 16} viewBox="0 0 24 24" fill="currentColor">
+        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
       )}
