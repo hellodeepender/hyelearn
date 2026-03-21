@@ -76,19 +76,13 @@ export function generateSundaySchoolPDF(data: SundayLessonPDFData): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor("#333333");
-  doc.text(title, margin + 50, 42);
-
-  // Native title (transliteration fallback)
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(12);
-  doc.setTextColor("#666666");
-  doc.text(titleNative || "", margin + 50, 58);
+  doc.text(title, margin + 50, 45);
 
   // Unit + week
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor("#999999");
-  doc.text(`${unitTitle} \u2022 Week ${lessonNumber}`, margin + 50, 74);
+  doc.text(`${unitTitle} \u2022 Week ${lessonNumber}`, margin + 50, 62);
 
   // Decorative line
   doc.setDrawColor("#CCCCCC");
