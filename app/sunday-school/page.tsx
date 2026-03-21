@@ -51,9 +51,46 @@ export default async function SundaySchoolPage() {
   const locale = await getLocale();
   const { brandName } = await getServerLocale();
   const tc = await getTranslations("common");
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+
+  // diasporalearn.org (en locale) — show hub page linking to child sites
+  if (locale === "en") {
+    return (
+      <div className="min-h-screen bg-cream">
+        <header className="bg-warm-white border-b border-brown-100">
+          <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-gold">D</span>
+              <span className="text-xl font-semibold text-brown-800">DiasporaLearn</span>
+            </Link>
+            <Link href="/supporters" className="text-sm text-brown-400 hover:text-brown-600">Our Supporters</Link>
+          </div>
+        </header>
+        <main className="max-w-3xl mx-auto px-6 py-16 text-center">
+          <div className="text-5xl mb-4">{"\u26EA"}</div>
+          <h1 className="text-3xl font-bold text-brown-800 mb-3">Sunday School</h1>
+          <p className="text-brown-500 mb-10 max-w-xl mx-auto">
+            72 weekly lessons for Armenian and Greek church Sunday schools. Opening prayers, teacher-led stories, vocabulary with audio, activities, and printable worksheets.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-6 max-w-lg mx-auto">
+            <a href="https://hyelearn.com/sunday-school" className="bg-warm-white border border-brown-100 rounded-2xl p-6 hover:shadow-lg transition-all text-center">
+              <div className="text-3xl font-bold mb-2" style={{ color: "#C4384B" }}>{"\u0531"}</div>
+              <h2 className="font-semibold text-brown-800 mb-1">Armenian</h2>
+              <p className="text-xs text-brown-400">36 lessons in Western Armenian</p>
+            </a>
+            <a href="https://mathaino.net/sunday-school" className="bg-warm-white border border-brown-100 rounded-2xl p-6 hover:shadow-lg transition-all text-center">
+              <div className="text-3xl font-bold mb-2" style={{ color: "#2271B3" }}>{"\u039C"}</div>
+              <h2 className="font-semibold text-brown-800 mb-1">Greek</h2>
+              <p className="text-xs text-brown-400">36 lessons in Modern Greek</p>
+            </a>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const dbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const dbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(dbUrl, dbKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
   const { data: units, error: unitsErr } = await supabase
     .from("sunday_units")
@@ -61,7 +98,7 @@ export default async function SundaySchoolPage() {
     .eq("locale", locale)
     .order("unit_number");
 
-  if (unitsErr) console.error("[sunday-school] Units query error:", unitsErr.message);
+  if (unitsErr) console.error("[sunday-school] Units query error:", unitsErr.message, unitsErr.details, unitsErr.hint);
 
   const { data: lessons, error: lessonsErr } = await supabase
     .from("sunday_lessons")
@@ -69,7 +106,7 @@ export default async function SundaySchoolPage() {
     .eq("locale", locale)
     .order("lesson_number");
 
-  if (lessonsErr) console.error("[sunday-school] Lessons query error:", lessonsErr.message);
+  if (lessonsErr) console.error("[sunday-school] Lessons query error:", lessonsErr.message, lessonsErr.details, lessonsErr.hint);
 
   const allUnits = (units ?? []) as SundayUnit[];
   const allLessons = (lessons ?? []) as SundayLesson[];
