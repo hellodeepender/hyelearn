@@ -4,8 +4,9 @@ import { DM_Serif_Display, DM_Sans } from "next/font/google";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "DiasporaLearn — Heritage Language Learning Platforms",
-  description: "Interactive K-5 learning platforms and Sunday school lessons for diaspora communities. Armenian, Greek, and more.",
+  title: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
+  description: "DiasporaLearn offers K-5 Armenian and Greek curriculum for diaspora families. Interactive lessons, audio pronunciation, Sunday school content, and culturally grounded learning. Learn at hyelearn.com and mathaino.net.",
+  alternates: { canonical: "https://diasporalearn.org/" },
 };
 
 const serif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-dm-serif" });
@@ -67,7 +68,7 @@ export default function PortfolioPage() {
         <section className="py-24 px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h1 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight mb-6">
-              Helping diaspora kids stay connected to their roots
+              DiasporaLearn: Helping kids stay connected to their roots
             </h1>
             <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
               Interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
