@@ -32,7 +32,7 @@ export const LEVELS_HY: AraratLevel[] = [
 
 // Greek: Climb Olympus
 export const LEVELS_EL: AraratLevel[] = [
-  { level: 1, name: "\u039B\u03B9\u03C4\u03CC\u03C7\u03C9\u03C1\u03BF", emoji: "\u26FA", minXP: 0, maxXP: 49 },
+  { level: 1, name: "Litochoro", emoji: "\u26FA", minXP: 0, maxXP: 49 },
   { level: 2, name: "Forest Trail", emoji: "\uD83C\uDF33", minXP: 50, maxXP: 149 },
   { level: 3, name: "Prionia Spring", emoji: "\uD83D\uDCA7", minXP: 150, maxXP: 299 },
   { level: 4, name: "Refuge A", emoji: "\uD83C\uDFE0", minXP: 300, maxXP: 499 },
