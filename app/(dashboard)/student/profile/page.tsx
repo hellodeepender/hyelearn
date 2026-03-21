@@ -80,8 +80,8 @@ export default async function ProfilePage() {
             const isEarned = !!earnedAt;
             return (
               <div key={badge.slug} className={`bg-warm-white border rounded-xl p-5 text-center flex flex-col items-center ${isEarned ? "border-gold/30" : "border-brown-100"}`}>
-                <div className="w-20 h-20 flex items-center justify-center mb-3">
-                  <img src={badge.image} alt={badge.name} width={80} height={80} className={`w-20 h-20 rounded-full ${isEarned ? "" : "grayscale opacity-40"}`} />
+                <div className={`w-20 h-20 rounded-full overflow-hidden bg-brown-50 mb-3 ${isEarned ? "" : "grayscale opacity-40"}`}>
+                  <img src={badge.image} alt={badge.name} width={80} height={80} className="w-full h-full object-cover" />
                 </div>
                 <p className={`font-medium text-sm ${isEarned ? "text-brown-800" : "text-brown-300"}`}>{badge.name}</p>
                 <p className="text-xs text-brown-400 mt-0.5">{badge.description}</p>

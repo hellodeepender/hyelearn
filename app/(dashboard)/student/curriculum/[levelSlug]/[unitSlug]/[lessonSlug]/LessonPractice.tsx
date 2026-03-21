@@ -209,7 +209,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
           const badge = getBadgeBySlug(slug, locale);
           return badge ? (
             <div key={slug} className="bg-gold/5 border border-gold/20 rounded-xl p-3 flex items-center gap-3">
-              <img src={badge.image} alt={badge.name} width={48} height={48} className="w-12 h-12" />
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-brown-50 shrink-0"><img src={badge.image} alt={badge.name} width={48} height={48} className="w-full h-full object-cover" /></div>
               <div>
                 <p className="font-medium text-brown-800 text-sm">New badge: {badge.name}!</p>
                 <p className="text-xs text-brown-400">{badge.description}</p>

@@ -59,7 +59,7 @@ export default function BadgeCelebration({ badges, gradeValue }: Props) {
 
         <div className={`flex justify-center mb-3 ${isYoung ? "" : "mt-2"}`} style={isYoung ? { animation: "badgeBounce 0.6s ease" } : undefined}>
           {badge.image ? (
-            <img src={badge.image} alt={badge.name} width={96} height={96} className="w-24 h-24" />
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-brown-50 mx-auto"><img src={badge.image} alt={badge.name} width={96} height={96} className="w-full h-full object-cover" /></div>
           ) : (
             <span className="text-6xl">{badge.emoji}</span>
           )}

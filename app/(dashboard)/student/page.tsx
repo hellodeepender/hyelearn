@@ -229,7 +229,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             <div className="flex gap-5 overflow-x-auto pb-3 px-2 snap-x snap-mandatory">
               {earnedBadgeList.map((badge) => (
                 <div key={badge.slug} className="flex flex-col items-center shrink-0 w-20 snap-start">
-                  <img src={badge.image} alt={badge.name} width={80} height={80} className="w-20 h-20" />
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-brown-50"><img src={badge.image} alt={badge.name} width={80} height={80} className="w-full h-full object-cover" /></div>
                   <p className="text-sm font-medium mt-2 text-center leading-tight line-clamp-2 text-brown-700">{badge.name}</p>
                 </div>
               ))}
