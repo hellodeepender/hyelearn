@@ -57,7 +57,6 @@ export default function PortfolioPage() {
           </span>
           <nav className="flex gap-6 text-sm text-[#777]">
             <a href="/supporters" className="hover:text-[#333]">Our Supporters</a>
-            <a href="#support" className="hover:text-[#333]">Donate</a>
             <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
           </nav>
         </div>
