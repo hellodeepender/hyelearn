@@ -51,15 +51,19 @@ export default async function TeacherDashboard() {
     .eq("status", "approved");
   const readyLessons = new Set((readyLessonRows ?? []).map((r) => r.lesson_id)).size;
 
-  // Curriculum levels with stats
-  const { data: levels } = await supabase
-    .from("curriculum_levels")
-    .select("id, slug, title, sort_order")
-    .eq("is_active", true)
-    .order("sort_order");
-
-  const { data: allUnits } = await supabase.from("curriculum_units").select("id, level_id").eq("is_active", true);
-  const { data: allLessons } = await supabase.from("curriculum_lessons").select("id, unit_id").eq("is_active", true);
+  // Curriculum levels with stats — teachers see only their locale, admins see all
+  const isAdmin = profile?.role === "admin";
+  let levelsQuery = supabase.from("curriculum_levels").select("id, slug, title, sort_order").eq("is_active", true).order("sort_order");
+  let unitsQuery = supabase.from("curriculum_units").select("id, level_id").eq("is_active", true);
+  let lessonsQuery = supabase.from("curriculum_lessons").select("id, unit_id").eq("is_active", true);
+  if (!isAdmin) {
+    levelsQuery = levelsQuery.eq("locale", locale);
+    unitsQuery = unitsQuery.eq("locale", locale);
+    lessonsQuery = lessonsQuery.eq("locale", locale);
+  }
+  const { data: levels } = await levelsQuery;
+  const { data: allUnits } = await unitsQuery;
+  const { data: allLessons } = await lessonsQuery;
   const { data: allExercises } = await supabase.from("curated_exercises").select("lesson_id, status");
 
   const levelStats = (levels ?? []).map((level) => {
@@ -78,7 +82,6 @@ export default async function TeacherDashboard() {
 
   const activeLevels = levelStats.filter((l) => l.hasContent || l.units > 0);
   const emptyLevels = levelStats.filter((l) => !l.hasContent && l.units === 0);
-  const isAdmin = profile?.role === "admin";
   const firstName = profile?.full_name?.split(" ")[0] ?? "Teacher";
 
   return (
