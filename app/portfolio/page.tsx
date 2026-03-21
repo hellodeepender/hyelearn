@@ -14,7 +14,7 @@ const products = [
   {
     name: "HyeLearn",
     letter: "\u0531",
-    letterColor: "#C8A951",
+    letterColor: "#C4384B",
     language: "Western Armenian",
     url: "https://hyelearn.com",
     description: "The first interactive K-5 Western Armenian curriculum. Built for Armenian day schools and diaspora families. Alphabet, vocabulary, grammar, and cultural content — all with native audio pronunciation.",
@@ -145,7 +145,7 @@ export default function PortfolioPage() {
 
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <a href="https://hyelearn.com/sunday-school" target="_blank" rel="noopener noreferrer"
-                  className="px-6 py-3 bg-[#C8A951] text-white rounded-lg font-medium text-center hover:bg-[#B89941] transition-colors">
+                  className="px-6 py-3 bg-[#C4384B] text-white rounded-lg font-medium text-center hover:bg-[#A02E3E] transition-colors">
                   Armenian Sunday School &rarr;
                 </a>
                 <a href="https://mathaino.net/sunday-school" target="_blank" rel="noopener noreferrer"

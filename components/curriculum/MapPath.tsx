@@ -65,7 +65,7 @@ function getIconForNode(index: number, locale: string): string {
 
 const THEME: Record<string, { accent: string; pathColor: string; summitEmoji: string }> = {
   el: { accent: "#1A6AFF", pathColor: "#5B8DB8", summitEmoji: "\uD83C\uDFDB\uFE0F" },
-  hy: { accent: "#C8A951", pathColor: "#C4956A", summitEmoji: "\uD83C\uDFD4\uFE0F" },
+  hy: { accent: "#D4A843", pathColor: "#C4384B", summitEmoji: "\uD83C\uDFD4\uFE0F" },
 };
 
 const W = 900;

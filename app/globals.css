@@ -2,23 +2,23 @@
 
 /* Default theme values (Armenian/HyeLearn) — overridden by layout.tsx per domain */
 :root {
-  --theme-primary: #D4A843;
-  --theme-primary-dark: #B8923F;
-  --theme-primary-light: rgba(212,168,67,0.1);
-  --theme-text-900: #1A1303;
-  --theme-text-800: #2D2106;
+  --theme-primary: #C4384B;
+  --theme-primary-dark: #A02E3E;
+  --theme-primary-light: rgba(196,56,75,0.1);
+  --theme-text-900: #1C1408;
+  --theme-text-800: #3D2E1C;
   --theme-text-700: #4A3609;
-  --theme-text-600: #6B4F0E;
-  --theme-text-500: #8B6914;
-  --theme-text-400: #B8923F;
-  --theme-text-300: #C9A96E;
+  --theme-text-600: #6B5A45;
+  --theme-text-500: #8B7A64;
+  --theme-text-400: #A89880;
+  --theme-text-300: #C4B8A4;
   --theme-text-200: #E0CDB0;
-  --theme-bg: #FFFDF7;
-  --theme-bg-alt: #FDF6E3;
-  --theme-bg-alt-dark: #F5E6C8;
-  --theme-surface: #FAF5F0;
-  --theme-border: #F0E6D6;
-  --theme-hero-overlay: #2D2106;
+  --theme-bg: #FDF8F4;
+  --theme-bg-alt: #FBF0E8;
+  --theme-bg-alt-dark: #F0DDD0;
+  --theme-surface: #FDF8F4;
+  --theme-border: #F0DDD0;
+  --theme-hero-overlay: #3D2E1C;
 }
 
 @theme {
