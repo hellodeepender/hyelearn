@@ -17,44 +17,41 @@ export default function Header({ userName: initialName, userRole: initialRole }:
   const supabaseRef = useRef(createClient());
   const [displayName, setDisplayName] = useState(initialName);
   const [displayRole, setDisplayRole] = useState(initialRole);
-  const [loading, setLoading] = useState(true);
 
+  // Background refresh — server already provides correct values via props,
+  // so we show those immediately and silently update if the client fetch returns newer data
   useEffect(() => {
     const supabase = supabaseRef.current;
 
-    async function fetchProfile() {
+    async function refreshProfile() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setLoading(false);
-          return;
-        }
+        if (!user) return;
 
-        // Try profiles table first (use maybeSingle to avoid PGRST116 on 0 rows)
-        const { data: profile, error: profileErr } = await supabase
+        // Try user_metadata first (always available, no DB query needed)
+        const metaName = (user.user_metadata?.full_name ?? user.user_metadata?.name) as string | undefined;
+        const metaRole = user.user_metadata?.role as string | undefined;
+
+        // Then try profiles table for the freshest data
+        const { data: profile } = await supabase
           .from("profiles")
           .select("full_name, role")
           .eq("id", user.id)
           .maybeSingle();
 
-        if (profileErr) {
-          console.error("[Header] Profile fetch error:", profileErr.message);
-        }
-
         if (profile?.full_name) {
           setDisplayName(profile.full_name);
           setDisplayRole(profile.role);
-        } else if (user.user_metadata?.full_name) {
-          // Fallback to auth metadata
-          setDisplayName(user.user_metadata.full_name as string);
-          setDisplayRole((user.user_metadata.role as string) ?? initialRole);
+        } else if (metaName) {
+          setDisplayName(metaName);
+          if (metaRole) setDisplayRole(metaRole);
         }
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        console.error("[Header] Profile refresh error:", err);
       }
     }
 
-    fetchProfile();
+    refreshProfile();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleLogout() {
@@ -73,15 +70,11 @@ export default function Header({ userName: initialName, userRole: initialRole }:
           <span className="text-xl font-semibold text-brown-800">{t("brand")}</span>
         </Link>
         <div className="flex items-center gap-4">
-          {loading ? (
-            <div className="h-5 w-32 bg-brown-100 rounded animate-pulse hidden sm:block" />
-          ) : (
-            <p className="text-sm text-brown-600 hidden sm:block">
-              <span className="font-medium text-brown-800">{displayName}</span>
-              <span className="text-brown-300 mx-1.5">&middot;</span>
-              <span className="capitalize">{displayRole}</span>
-            </p>
-          )}
+          <p className="text-sm text-brown-600 hidden sm:block">
+            <span className="font-medium text-brown-800">{displayName}</span>
+            <span className="text-brown-300 mx-1.5">&middot;</span>
+            <span className="capitalize">{displayRole}</span>
+          </p>
           <button
             onClick={handleLogout}
             className="text-sm text-brown-500 hover:text-brown-700 border border-brown-200 hover:border-brown-300 px-3 py-1.5 rounded-lg transition-colors"
