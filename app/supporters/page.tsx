@@ -4,9 +4,9 @@ import { SUPPORTERS, getInitials } from "@/lib/supporters";
 export default function SupportersPage() {
   const stats = [
     { value: String(SUPPORTERS.length), label: "Supporters" },
-    { value: "3", label: "Countries" },
-    { value: "100%", label: "Free Platform" },
-    { value: "270+", label: "Lessons Funded" },
+    { value: "2", label: "Countries" },
+    { value: "2", label: "Languages" },
+    { value: "269", label: "Lessons Free" },
   ];
 
   return (
@@ -27,10 +27,10 @@ export default function SupportersPage() {
       <main className="max-w-4xl mx-auto px-6 py-16">
         {/* Hero */}
         <div className="text-center mb-16">
-          <div className="text-5xl mb-4">{"\uD83D\uDE4F"}</div>
+          <p className="text-xs font-medium text-brown-400 uppercase tracking-wide mb-3">Our Community</p>
           <h1 className="text-4xl font-bold text-brown-800 mb-3">Wall of Gratitude</h1>
           <p className="text-brown-500 text-lg max-w-2xl mx-auto">
-            Every donation keeps heritage language learning free for diaspora children everywhere.
+            Every donation keeps heritage language learning free for diaspora children everywhere. Thank you for making this possible.
           </p>
         </div>
 

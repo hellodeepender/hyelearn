@@ -261,6 +261,7 @@ export default function PortfolioPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">HyeLearn (Armenian)</a>
               <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Mathaino (Greek)</a>
+              <a href="/supporters" className="hover:text-[#555]">Our Supporters</a>
               <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
             </div>
           </div>
