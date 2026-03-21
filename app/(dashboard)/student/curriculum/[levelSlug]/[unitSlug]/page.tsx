@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -28,7 +29,9 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
   if (!unit) notFound();
 
   const locale = await getLocale();
-  const lessons = await getLessonsWithProgress(supabase, user.id, unit.id, locale);
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+  const lessons = await getLessonsWithProgress(db, user.id, unit.id, locale);
 
   return (
     <div className="min-h-screen bg-cream">

@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import ClassDetailClient from "./ClassDetailClient";
 
@@ -30,9 +31,13 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
 
   const studentIds = (members ?? []).map((m) => m.student_id);
 
+  // Use service role for cross-student progress queries (teacher viewing students' data)
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+
   // Get all progress for class students
   const { data: progress } = studentIds.length > 0
-    ? await supabase
+    ? await db
         .from("student_progress")
         .select("student_id, lesson_id, score, total, passed, completed_at")
         .in("student_id", studentIds)

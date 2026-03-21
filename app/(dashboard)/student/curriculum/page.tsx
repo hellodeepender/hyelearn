@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -26,7 +27,9 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
     .single();
 
   const locale = await getLocale();
-  const levels = await getLevelsWithProgress(supabase, user.id, locale);
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+  const levels = await getLevelsWithProgress(db, user.id, locale);
 
   const totalCompleted = levels.reduce((s, l) => s + l.completedLessons, 0);
   const totalLessons = levels.reduce((s, l) => s + l.totalLessons, 0);

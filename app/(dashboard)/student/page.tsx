@@ -19,6 +19,12 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Use service role client for RLS-sensitive queries (auth.uid() can be null in server components)
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk
+    ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } })
+    : supabase;
+
   const locale = await getLocale();
   let { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
 
@@ -40,14 +46,14 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   if (profile && profile.locale !== locale) {
     await supabase.from("profiles").update({ locale }).eq("id", user.id);
   }
-  const levels = await getLevelsWithProgress(supabase, user.id, locale);
+  const levels = await getLevelsWithProgress(db, user.id, locale);
   const currentLevel = levels.find((l) => l.unlocked && l.completedLessons < l.totalLessons) ?? levels[0];
   const totalCurriculumLessons = levels.reduce((s, l) => s + l.totalLessons, 0);
   const completedCurriculumLessons = levels.reduce((s, l) => s + l.completedLessons, 0);
 
   // Check if student completed a lesson today (passed = true, score IS NOT NULL)
   const today = new Date().toISOString().split("T")[0];
-  const { data: todayProgress } = await supabase
+  const { data: todayProgress } = await db
     .from("student_progress")
     .select("id")
     .eq("student_id", user.id)
@@ -58,7 +64,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   const didLessonToday = (todayProgress?.length ?? 0) > 0;
 
   // Streak: count consecutive days with actual completed exercises
-  const { data: recentProgress } = await supabase
+  const { data: recentProgress } = await db
     .from("student_progress")
     .select("completed_at")
     .eq("student_id", user.id)
@@ -84,13 +90,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     }
   }
 
-  const { data: sessions } = await supabase
+  const { data: sessions } = await db
     .from("exercise_sessions")
     .select("id")
     .eq("student_id", user.id);
 
   // Find next lesson for the CTA
-  const { data: allProgress } = await supabase
+  const { data: allProgress } = await db
     .from("student_progress")
     .select("lesson_id, passed")
     .eq("student_id", user.id);
@@ -135,7 +141,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   // Find what was completed today
   let todayLessonTitle: string | null = null;
   if (didLessonToday) {
-    const { data: todayDetail } = await supabase
+    const { data: todayDetail } = await db
       .from("student_progress")
       .select("lesson_id, curriculum_lessons!inner(title)")
       .eq("student_id", user.id)
@@ -159,12 +165,10 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
   // Badges — check for newly earned badges on every dashboard load (idempotent)
   const badges = getBadges(locale);
   let newlyEarnedBadges: string[] = [];
-  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (sk) {
-    const db = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } });
     newlyEarnedBadges = await checkAndAwardBadges(db, user.id, streak, locale).catch(() => [] as string[]) ?? [];
   }
-  const { data: earnedBadges } = await supabase.from("student_badges").select("badge_slug").eq("student_id", user.id);
+  const { data: earnedBadges } = await db.from("student_badges").select("badge_slug").eq("student_id", user.id);
   const earnedBadgeSlugs = new Set((earnedBadges ?? []).map((b) => b.badge_slug));
   const earnedBadgeList = badges.filter((b) => earnedBadgeSlugs.has(b.slug));
   const celebrationBadges = newlyEarnedBadges

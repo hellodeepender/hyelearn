@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import StudentNav from "@/components/ui/StudentNav";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -29,7 +30,9 @@ export default async function LevelPage({
   if (!level) notFound();
 
   const locale = await getLocale();
-  const units = await getUnitsWithProgress(supabase, user.id, level.id, locale);
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+  const units = await getUnitsWithProgress(db, user.id, level.id, locale);
 
   const totalCompleted = units.reduce((s, u) => s + u.completedLessons, 0);
   const totalLessons = units.reduce((s, u) => s + u.totalLessons, 0);
