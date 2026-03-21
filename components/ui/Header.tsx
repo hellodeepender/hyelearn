@@ -30,12 +30,16 @@ export default function Header({ userName: initialName, userRole: initialRole }:
           return;
         }
 
-        // Try profiles table first
-        const { data: profile } = await supabase
+        // Try profiles table first (use maybeSingle to avoid PGRST116 on 0 rows)
+        const { data: profile, error: profileErr } = await supabase
           .from("profiles")
           .select("full_name, role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
+
+        if (profileErr) {
+          console.error("[Header] Profile fetch error:", profileErr.message);
+        }
 
         if (profile?.full_name) {
           setDisplayName(profile.full_name);
