@@ -1,28 +1,25 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
-import { getInitials, SUPPORTERS as FALLBACK_SUPPORTERS } from "@/lib/supporters";
+import { getInitials } from "@/lib/supporters";
 
 export default async function SupportersPage() {
   const supabase = await createClient();
 
-  // Query public donations (show_name = true via RLS)
   const { data: donations } = await supabase
     .from("donations")
     .select("donor_name, created_at, message")
+    .eq("show_name", true)
     .order("created_at", { ascending: false })
     .limit(50);
 
-  // Use DB data if available, fall back to hardcoded
-  const supporters = (donations && donations.length > 0)
-    ? donations.map((d) => ({
-        name: d.donor_name,
-        date: new Date(d.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-        message: d.message,
-      }))
-    : FALLBACK_SUPPORTERS.filter((s) => !s.anonymous).map((s) => ({ name: s.name, date: s.date, message: s.message }));
+  const supporters = (donations ?? []).map((d) => ({
+    name: d.donor_name,
+    date: new Date(d.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    message: d.message,
+  }));
 
   const stats = [
-    { value: String(supporters.length), label: "Supporters" },
+    { value: String(supporters.length || 0), label: "Supporters" },
     { value: "2", label: "Countries" },
     { value: "2", label: "Languages" },
     { value: "269", label: "Lessons Free" },
@@ -61,27 +58,33 @@ export default async function SupportersPage() {
           ))}
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-          {supporters.map((supporter, i) => (
-            <div key={i} className="bg-warm-white border border-brown-100 rounded-xl p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                  style={{ background: "linear-gradient(135deg, #A8232A, #D4A843)" }}>
-                  {getInitials(supporter.name)}
+        {supporters.length > 0 ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
+            {supporters.map((supporter, i) => (
+              <div key={i} className="bg-warm-white border border-brown-100 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                    style={{ background: "linear-gradient(135deg, #A8232A, #D4A843)" }}>
+                    {getInitials(supporter.name)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-brown-800">{supporter.name}</p>
+                    <p className="text-xs text-brown-400">{supporter.date}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-brown-800">{supporter.name}</p>
-                  <p className="text-xs text-brown-400">{supporter.date}</p>
-                </div>
+                {supporter.message && (
+                  <p className="text-sm text-brown-500 italic border-l-2 border-gold/40 pl-3 mt-3">
+                    &ldquo;{supporter.message}&rdquo;
+                  </p>
+                )}
               </div>
-              {supporter.message && (
-                <p className="text-sm text-brown-500 italic border-l-2 border-gold/40 pl-3 mt-3">
-                  &ldquo;{supporter.message}&rdquo;
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-warm-white border border-brown-100 rounded-xl p-8 text-center mb-16">
+            <p className="text-brown-500">Be the first to support DiasporaLearn!</p>
+          </div>
+        )}
 
         <div className="rounded-2xl p-8 text-center text-white" style={{ background: "linear-gradient(135deg, #A8232A, #C4384B)" }}>
           <h2 className="text-2xl font-bold mb-2">Join Our Supporters</h2>

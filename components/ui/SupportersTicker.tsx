@@ -1,22 +1,32 @@
 "use client";
 
-import { SUPPORTERS } from "@/lib/supporters";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/locale-context";
+
+interface TickerItem { name: string; date: string }
 
 export default function SupportersTicker() {
   const { locale } = useLocale();
   const isGreek = locale === "el";
+  const [items, setItems] = useState<TickerItem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/supporters")
+      .then((r) => r.json())
+      .then((data: { name: string; date: string }[]) => {
+        setItems(data.map((d) => ({ name: d.name, date: d.date.replace(/, \d{4}$/, "") })));
+      })
+      .catch(() => {});
+  }, []);
+
+  if (items.length === 0) return null;
 
   const bgColor = isGreek ? "linear-gradient(135deg, #1a365d, #153e75)" : "#A8232A";
   const accentColor = isGreek ? "#63B3ED" : "#D4A843";
 
-  const items = SUPPORTERS.map((s) => ({
-    label: s.anonymous ? "Anonymous Supporter" : s.name,
-    date: s.date.replace(", 2026", ""),
-  }));
-
-  // Duplicate 4x so the track is always wider than the viewport
-  const tickerContent = [...items, ...items, ...items, ...items];
+  // Duplicate enough times for seamless scroll
+  const reps = Math.max(4, Math.ceil(20 / items.length));
+  const tickerContent = Array.from({ length: reps }, () => items).flat();
 
   return (
     <div>
@@ -33,7 +43,7 @@ export default function SupportersTicker() {
               {tickerContent.map((item, i) => (
                 <span key={i} className="inline-flex items-center text-sm px-3">
                   <span style={{ color: accentColor }}>{"\u2665"}</span>
-                  <span className="ml-1.5">{item.label} donated</span>
+                  <span className="ml-1.5">{item.name} donated</span>
                   <span className="text-white/50 mx-1">&middot;</span>
                   <span className="text-white/70">{item.date}</span>
                   <span style={{ color: accentColor }} className="mx-3">{"\u2726"}</span>
