@@ -33,8 +33,8 @@ function getStatus(n: MapNode): NodeStatus {
 }
 
 const GRADIENTS: Record<string, string> = {
-  el: "linear-gradient(135deg, #4A8530 0%, #6DAA45 25%, #93C572 50%, #7BBCE6 75%, #5BA3D9 100%)",
-  hy: "linear-gradient(135deg, #5A7A3A 0%, #8B9960 25%, #B8A070 50%, #C49558 75%, #D4A56A 100%)",
+  el: "linear-gradient(135deg, #3d7a2e 0%, #5a9e42 30%, #7ab868 55%, #8ec5d8 78%, #5ba3d9 100%)",
+  hy: "linear-gradient(135deg, #4a6b2a 0%, #7a8c48 25%, #b8a070 50%, #c49558 75%, #d4a56a 100%)",
 };
 
 const THEME: Record<string, { primary: string; accent: string; summitEmoji: string }> = {
@@ -98,6 +98,15 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
 
         {subtitle && <text x={W - 110} y={58} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
 
+        {/* Decorative clouds */}
+        <ellipse cx={W * 0.85} cy={50} rx={40} ry={14} fill="rgba(255,255,255,0.12)" />
+        <ellipse cx={W * 0.82} cy={42} rx={30} ry={11} fill="rgba(255,255,255,0.08)" />
+        <ellipse cx={W * 0.2} cy={65} rx={35} ry={12} fill="rgba(255,255,255,0.08)" />
+        {/* Decorative trees at bottom */}
+        <polygon points={`${W*0.06},${H-40} ${W*0.07},${H-70} ${W*0.08},${H-40}`} fill="rgba(255,255,255,0.06)" />
+        <polygon points={`${W*0.1},${H-35} ${W*0.11},${H-62} ${W*0.12},${H-35}`} fill="rgba(255,255,255,0.05)" />
+        <polygon points={`${W*0.14},${H-30} ${W*0.15},${H-55} ${W*0.16},${H-30}`} fill="rgba(255,255,255,0.06)" />
+
         {/* Path */}
         {pathD && <path d={pathD} fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="22" strokeLinecap="round" strokeLinejoin="round" />}
         {pathD && <path d={pathD} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />}
@@ -132,13 +141,16 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
                   <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" repeatCount="indefinite" />
                 </circle>
               )}
-              <rect x="-32" y="-32" width="64" height="64" rx="16"
-                fill={isLocked ? "rgba(255,255,255,0.5)" : "white"}
-                stroke={isCompleted ? "#2D8B4E" : isLocked ? "rgba(150,150,150,0.5)" : theme.accent}
-                strokeWidth="3" filter={isLocked ? "" : "url(#shadow)"} />
+              <rect
+                x={isLocked ? "-24" : "-32"} y={isLocked ? "-24" : "-32"}
+                width={isLocked ? "48" : "64"} height={isLocked ? "48" : "64"}
+                rx={isLocked ? "12" : "16"}
+                fill={isLocked ? "rgba(255,255,255,0.4)" : "white"}
+                stroke={isCompleted ? "#2D8B4E" : isLocked ? "rgba(180,180,180,0.4)" : theme.accent}
+                strokeWidth={isLocked ? "1.5" : "3"} filter={isLocked ? "" : "url(#shadow)"} />
               {isLocked ? (
-                <g transform="translate(-10, -10)" color="#999">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <g transform="translate(-8, -8)" color="#aaa">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
                 </g>
@@ -157,9 +169,9 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
                   <text x="0" y="4" textAnchor="middle" fontSize="12">{"\u2B50"}</text>
                 </g>
               )}
-              <g transform="translate(0, 48)">
-                <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="700"
-                  fill={isLocked ? "rgba(255,255,255,0.5)" : "white"}
+              <g transform={`translate(0, ${isLocked ? 38 : 48})`}>
+                <text x="0" y="0" textAnchor="middle" fontSize={isLocked ? "10" : "11"} fontWeight="700"
+                  fill={isLocked ? "rgba(255,255,255,0.45)" : "white"}
                   style={{ textShadow: isLocked ? "none" : "0 1px 4px rgba(0,0,0,0.6)" }}>
                   {node.title}
                 </text>
@@ -170,8 +182,8 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
                     {node.englishTitle}
                   </text>
                 )}
-                <text x="0" y={node.englishTitle ? "26" : "14"} textAnchor="middle" fontSize="10"
-                  fill={isLocked ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.8)"}
+                <text x="0" y={node.englishTitle ? "26" : "14"} textAnchor="middle" fontSize={isLocked ? "9" : "10"}
+                  fill={isLocked ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.8)"}
                   style={{ textShadow: isLocked ? "none" : "0 1px 3px rgba(0,0,0,0.5)" }}>
                   {node.completedLessons}/{node.totalLessons} lessons
                 </text>
