@@ -115,9 +115,10 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   // --- Save progress ---
   const saveProgress = useCallback(async () => {
     setSaving(true);
-    const score = answers.filter(Boolean).length;
-    const total = answers.length;
-    const localPct = total > 0 ? Math.round((score / total) * 100) : 0;
+    // If no graded exercises (learn-card-only lesson), treat as 100% pass
+    const score = answers.length > 0 ? answers.filter(Boolean).length : learnCount;
+    const total = answers.length > 0 ? answers.length : learnCount;
+    const localPct = total > 0 ? Math.round((score / total) * 100) : 100;
     const localPassed = localPct >= passingScore;
 
     try {
@@ -146,14 +147,14 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     } finally {
       setSaving(false);
     }
-  }, [answers, lessonId, passingScore]);
+  }, [answers, lessonId, passingScore, learnCount]);
 
   useEffect(() => {
-    if (done && !didSave.current && answers.length > 0) {
+    if (done && !didSave.current) {
       didSave.current = true;
       saveProgress();
     }
-  }, [done, answers, saveProgress]);
+  }, [done, saveProgress]);
 
   function handleRetry() {
     setCurrentStep(0);

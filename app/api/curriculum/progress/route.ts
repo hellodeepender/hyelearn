@@ -44,11 +44,42 @@ export async function POST(request: NextRequest) {
   const templateType = lesson.template_type ?? lesson.lesson_type;
   const passed = templateType === "review" ? true : pct >= (lesson.passing_score ?? 70);
 
-  // Upsert progress
-  const { data, error: upsertErr } = await db
+  // Check for existing progress
+  const { data: existing } = await db
     .from("student_progress")
-    .upsert(
-      {
+    .select("id, score, total, passed, attempts")
+    .eq("student_id", user.id)
+    .eq("lesson_id", lesson_id)
+    .maybeSingle();
+
+  let data: { id: string; passed: boolean; attempts: number } | null = null;
+
+  if (existing) {
+    // Update: keep best score, increment attempts, set passed if newly passing
+    const bestScore = score > (existing.score ?? 0) ? score : existing.score;
+    const bestTotal = score > (existing.score ?? 0) ? total : existing.total;
+    const nowPassed = existing.passed || passed;
+    const { data: updated, error: updateErr } = await db
+      .from("student_progress")
+      .update({
+        score: bestScore,
+        total: bestTotal,
+        passed: nowPassed,
+        attempts: (existing.attempts ?? 0) + 1,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select("id, passed, attempts")
+      .single();
+    if (updateErr) {
+      return NextResponse.json({ error: updateErr.message, details: updateErr.details }, { status: 500 });
+    }
+    data = updated;
+  } else {
+    // Insert new progress
+    const { data: inserted, error: insertErr } = await db
+      .from("student_progress")
+      .insert({
         student_id: user.id,
         lesson_id,
         score,
@@ -56,14 +87,17 @@ export async function POST(request: NextRequest) {
         passed,
         attempts: 1,
         completed_at: new Date().toISOString(),
-      },
-      { onConflict: "student_id,lesson_id" },
-    )
-    .select("id, passed, attempts")
-    .single();
+      })
+      .select("id, passed, attempts")
+      .single();
+    if (insertErr) {
+      return NextResponse.json({ error: insertErr.message, details: insertErr.details }, { status: 500 });
+    }
+    data = inserted;
+  }
 
-  if (upsertErr) {
-    return NextResponse.json({ error: upsertErr.message, details: upsertErr.details }, { status: 500 });
+  if (!data) {
+    return NextResponse.json({ error: "Failed to save progress" }, { status: 500 });
   }
 
   // Process rewards (XP + badges) — best-effort, don't block the response
