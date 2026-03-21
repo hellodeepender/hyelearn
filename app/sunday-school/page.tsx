@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { getLocale, getServerLocale } from "@/lib/server-locale";
 import { getTranslations } from "@/lib/translations";
 
@@ -51,19 +51,25 @@ export default async function SundaySchoolPage() {
   const locale = await getLocale();
   const { brandName } = await getServerLocale();
   const tc = await getTranslations("common");
-  const supabase = await createClient();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  const { data: units } = await supabase
+  const { data: units, error: unitsErr } = await supabase
     .from("sunday_units")
     .select("id, unit_number, title, title_native, description, season, week_start, week_end")
     .eq("locale", locale)
     .order("unit_number");
 
-  const { data: lessons } = await supabase
+  if (unitsErr) console.error("[sunday-school] Units query error:", unitsErr.message);
+
+  const { data: lessons, error: lessonsErr } = await supabase
     .from("sunday_lessons")
     .select("id, unit_id, lesson_number, title, title_native")
     .eq("locale", locale)
     .order("lesson_number");
+
+  if (lessonsErr) console.error("[sunday-school] Lessons query error:", lessonsErr.message);
 
   const allUnits = (units ?? []) as SundayUnit[];
   const allLessons = (lessons ?? []) as SundayLesson[];
