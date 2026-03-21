@@ -11,7 +11,8 @@ type Step = "code" | "account" | "done";
 
 export default function JoinPage() {
   const tc = useTranslations("common");
-  const { brandName } = useLocale();
+  const localeCtx = useLocale();
+  const { brandName } = localeCtx;
   const router = useRouter();
   const supabase = createClient();
   const [step, setStep] = useState<Step>("code");
@@ -48,11 +49,23 @@ export default function JoinPage() {
         const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
         if (authErr) { setError(authErr.message); setLoading(false); return; }
       } else {
-        const { error: authErr } = await supabase.auth.signUp({
+        const { data: signUpData, error: authErr } = await supabase.auth.signUp({
           email, password,
-          options: { data: { role: "student", full_name: childName || "Student" } },
+          options: { data: { role: "student", full_name: childName || "Student", locale: localeCtx.locale } },
         });
         if (authErr) { setError(authErr.message); setLoading(false); return; }
+
+        // Explicitly create profile — don't rely solely on DB trigger
+        if (signUpData?.user) {
+          await supabase.from("profiles").upsert({
+            id: signUpData.user.id,
+            full_name: childName || "Student",
+            role: "student",
+            locale: localeCtx.locale,
+          }, { onConflict: "id" }).then(({ error: profileErr }) => {
+            if (profileErr) console.error("[join] Profile upsert error:", profileErr.message);
+          });
+        }
       }
 
       const res = await fetch("/api/join-class", {

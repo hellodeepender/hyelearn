@@ -41,6 +41,18 @@ export default function SignupPage() {
       return;
     }
 
+    // Explicitly create profile — don't rely solely on DB trigger
+    if (data.user) {
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        full_name: fullName,
+        role: "student",
+        locale: locale.locale,
+      }, { onConflict: "id" }).then(({ error: profileErr }) => {
+        if (profileErr) console.error("[signup] Profile upsert error:", profileErr.message);
+      });
+    }
+
     // If user exists but email not confirmed, or new user needing confirmation
     if (data.user && !data.session) {
       trackEvent("sign_up", { method: "email", locale: locale.locale });
