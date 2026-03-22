@@ -28,7 +28,6 @@ export default async function BlogIndex() {
             <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
           </Link>
           <nav className="flex gap-6 text-sm text-[#777]">
-            <Link href="/blog" className="text-[#333] font-medium">Blog</Link>
             <Link href="/supporters" className="hover:text-[#333]">Our Supporters</Link>
             <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
           </nav>
