@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { getLocale } from "@/lib/server-locale";
 import Header from "@/components/ui/Header";
 import LessonPractice from "./LessonPractice";
@@ -14,15 +15,18 @@ export default async function LessonPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role, grade_level").eq("id", user.id).single();
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
 
-  const { data: level } = await supabase.from("curriculum_levels").select("id, title, grade_value").eq("slug", levelSlug).single();
+  const { data: profile } = await db.from("profiles").select("full_name, role, grade_level").eq("id", user.id).single();
+
+  const { data: level } = await db.from("curriculum_levels").select("id, title, grade_value").eq("slug", levelSlug).single();
   if (!level) notFound();
 
-  const { data: unit } = await supabase.from("curriculum_units").select("id, title").eq("level_id", level.id).eq("slug", unitSlug).single();
+  const { data: unit } = await db.from("curriculum_units").select("id, title").eq("level_id", level.id).eq("slug", unitSlug).single();
   if (!unit) notFound();
 
-  const { data: lesson } = await supabase
+  const { data: lesson } = await db
     .from("curriculum_lessons")
     .select("id, slug, title, lesson_type, template_type, passing_score, sort_order")
     .eq("unit_id", unit.id)
@@ -30,14 +34,14 @@ export default async function LessonPage({
     .single();
   if (!lesson) notFound();
 
-  const { data: exercises } = await supabase
+  const { data: exercises } = await db
     .from("curated_exercises")
     .select("exercise_type, exercise_data, sort_order")
     .eq("lesson_id", lesson.id)
     .eq("status", "approved")
     .order("sort_order");
 
-  const { data: nextLesson } = await supabase
+  const { data: nextLesson } = await db
     .from("curriculum_lessons")
     .select("slug, sort_order")
     .eq("unit_id", unit.id)
@@ -58,14 +62,14 @@ export default async function LessonPage({
   // If no next lesson in this unit, find the next unit's first lesson
   let nextUnitUrl: string | undefined;
   if (!nextLesson) {
-    const { data: currentUnit } = await supabase
+    const { data: currentUnit } = await db
       .from("curriculum_units")
       .select("sort_order")
       .eq("id", unit.id)
       .single();
 
     if (currentUnit) {
-      const { data: nextUnit } = await supabase
+      const { data: nextUnit } = await db
         .from("curriculum_units")
         .select("slug")
         .eq("level_id", level.id)
