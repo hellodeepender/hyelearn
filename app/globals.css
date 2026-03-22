@@ -72,6 +72,12 @@ button, a, [role="button"], input, select, textarea {
   animation-fill-mode: forwards;
 }
 
+/* Arabic content RTL — apply to lesson content containers, not the whole page */
+.arabic-content {
+  direction: rtl;
+  text-align: right;
+}
+
 /* Smooth scrolling on iOS */
 .overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll {
   -webkit-overflow-scrolling: touch;

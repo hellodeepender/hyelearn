@@ -61,7 +61,7 @@ export default async function ProfilePage() {
                   <span className={`font-medium text-sm ${isActive ? "text-gold-dark" : isReached ? "text-brown-700" : "text-brown-300"}`}>
                     {level.name}
                   </span>
-                  <span className="text-xs text-brown-400 ms-auto">{level.minXP}+ XP</span>
+                  <span className="text-xs text-brown-400 ml-auto">{level.minXP}+ XP</span>
                 </div>
               );
             })}

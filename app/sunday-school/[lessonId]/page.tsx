@@ -298,7 +298,7 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
           {prevLesson ? (
             <Link href={`/sunday-school/${prevLesson.id}`} className="flex items-center gap-2 text-sm text-brown-500 hover:text-brown-700 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-              <div className="text-start">
+              <div className="text-left">
                 <p className="text-xs text-brown-400">Previous</p>
                 <p className="font-medium">{prevLesson.title}</p>
               </div>
@@ -329,7 +329,7 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
 
 function LessonSection({ title, icon, borderColor, children }: { title: string; icon: string; borderColor: string; children: React.ReactNode }) {
   return (
-    <section className={`mb-8 border-s-4 ${borderColor} ps-5`}>
+    <section className={`mb-8 border-l-4 ${borderColor} pl-5`}>
       <h2 className="text-sm font-semibold text-brown-800 uppercase tracking-wide mb-4 flex items-center gap-2">
         <span>{icon}</span> {title}
       </h2>

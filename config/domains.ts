@@ -120,7 +120,7 @@ export const DOMAIN_MAP: Record<string, DomainConfig> = {
     nativeName: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629",
     englishName: "Arabic",
     fontFamily: "'Noto Sans Arabic', sans-serif",
-    dir: "rtl",
+    dir: "ltr",
     supportEmail: "support@ta3allam.org",
     noreplyEmail: "noreply@ta3allam.org",
     url: "https://ta3allam.org",

@@ -77,7 +77,7 @@ export default async function SupportersPage() {
                   </div>
                 </div>
                 {supporter.message && (
-                  <p className="text-sm text-brown-500 italic border-s-2 border-gold/40 ps-3 mt-3">
+                  <p className="text-sm text-brown-500 italic border-l-2 border-gold/40 pl-3 mt-3">
                     &ldquo;{supporter.message}&rdquo;
                   </p>
                 )}

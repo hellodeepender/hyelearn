@@ -206,7 +206,7 @@ export default async function RootLayout({
   const t = domainConfig.theme;
 
   return (
-    <html lang="en" dir={domainConfig.dir}>
+    <html lang="en" dir={domainConfig.dir} data-locale={domainConfig.locale}>
       <head>
         <link rel="manifest" href="/api/manifest" />
         <meta name="theme-color" content={t.primary} />

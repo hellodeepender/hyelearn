@@ -47,7 +47,7 @@ export default async function PrivacyPage() {
 
           <section id="section-3">
             <h2 className="text-lg font-semibold text-brown-800">3. How We Use Information</h2>
-            <ul className="list-disc ms-5 space-y-1">
+            <ul className="list-disc ml-5 space-y-1">
               <li>To provide the {languageDesc} language learning service</li>
               <li>To track learning progress for parents and teachers</li>
               <li>To process subscription payments (via Stripe)</li>
@@ -59,7 +59,7 @@ export default async function PrivacyPage() {
           <section id="section-4" className="bg-blue-50/50 border border-blue-100 rounded-xl p-5">
             <h2 className="text-lg font-semibold text-brown-800">4. Children&apos;s Privacy (COPPA Compliance)</h2>
             <p>{brandName} is designed for children under 13 and complies with the Children&apos;s Online Privacy Protection Act (COPPA).</p>
-            <ul className="list-disc ms-5 space-y-1 mt-2">
+            <ul className="list-disc ml-5 space-y-1 mt-2">
               <li>We require verifiable parental consent: a parent or guardian must create the account.</li>
               <li>Children cannot create accounts independently.</li>
               <li>We collect minimal data from children: first name and learning progress only.</li>
@@ -72,7 +72,7 @@ export default async function PrivacyPage() {
           <section id="section-5">
             <h2 className="text-lg font-semibold text-brown-800">5. Data Sharing</h2>
             <p>We use the following third-party services to operate {brandName}:</p>
-            <ul className="list-disc ms-5 space-y-1 mt-2">
+            <ul className="list-disc ml-5 space-y-1 mt-2">
               <li><strong>Supabase</strong> &mdash; Database hosting and authentication (US region)</li>
               <li><strong>Vercel</strong> &mdash; Web hosting (US)</li>
               <li><strong>Stripe</strong> &mdash; Payment processing (PCI compliant). Only receives parent payment data, never children&apos;s data.</li>
@@ -94,7 +94,7 @@ export default async function PrivacyPage() {
 
           <section id="section-8">
             <h2 className="text-lg font-semibold text-brown-800">8. Your Rights</h2>
-            <ul className="list-disc ms-5 space-y-1">
+            <ul className="list-disc ml-5 space-y-1">
               <li>Parents can access, correct, or delete their child&apos;s data at any time.</li>
               <li>You have the right to opt out of non-essential communications.</li>
               <li>To exercise these rights, contact <a href={`mailto:${supportEmail}`} className="text-gold">{supportEmail}</a>.</li>

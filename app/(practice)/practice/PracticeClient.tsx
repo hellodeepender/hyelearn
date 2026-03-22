@@ -232,7 +232,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             <p className="text-brown-500 text-sm mt-1">
               Choose a topic and exercise type to practice.
               {remaining !== null && (
-                <span className="text-brown-400 ms-1">({remaining} session{remaining !== 1 ? "s" : ""} left today)</span>
+                <span className="text-brown-400 ml-1">({remaining} session{remaining !== 1 ? "s" : ""} left today)</span>
               )}
             </p>
           </div>
@@ -329,7 +329,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
                     : "border-brown-200 hover:border-brown-300 bg-warm-white"
                 }`}
               >
-                <span className="text-xl me-1">{et.icon}</span>
+                <span className="text-xl mr-1">{et.icon}</span>
                 <span className={`font-medium text-sm ${exerciseType === et.id ? "text-gold-dark" : "text-brown-700"}`}>
                   {et.label}
                 </span>
