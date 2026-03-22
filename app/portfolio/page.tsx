@@ -37,11 +37,23 @@ const products = [
     statusColor: "bg-green-100 text-green-700",
     screenshot: "/images/portfolio/screenshot-mathaino.png",
   },
+  {
+    name: "Ta3allam",
+    letter: "\u0639",
+    letterColor: "#2E7D32",
+    language: "Arabic",
+    url: "https://ta3allam.org",
+    description: "Interactive Arabic language learning for K-5 students. Arabic alphabet, vocabulary, reading comprehension, and cultural awareness \u2014 designed for Arabic-speaking diaspora families.",
+    grades: "K\u20135",
+    status: "Live",
+    statusColor: "bg-green-100 text-green-700",
+    screenshot: "/images/portfolio/screenshot-ta3allam.png",
+  },
 ];
 
 const stats = [
-  { value: "2", label: "Languages" },
-  { value: "270+", label: "Lessons" },
+  { value: "3", label: "Languages" },
+  { value: "365+", label: "Lessons" },
   { value: "72", label: "Sunday School Lessons" },
   { value: "474", label: "Audio Files" },
   { value: "$0", label: "Cost" },
@@ -126,6 +138,10 @@ export default function PortfolioPage() {
                   className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
                   Greek Sunday School &rarr;
                 </a>
+                <a href="https://ta3allam.org/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#2E7D32] text-white rounded-lg font-medium text-center hover:bg-[#1B5E20] transition-colors">
+                  Arabic Sunday School &rarr;
+                </a>
               </div>
             </div>
           </div>
@@ -137,7 +153,7 @@ export default function PortfolioPage() {
             <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-12">
               Our platforms
             </h2>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {products.map((p) => (
                 <a
                   key={p.name}
@@ -262,6 +278,7 @@ export default function PortfolioPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">HyeLearn (Armenian)</a>
               <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Mathaino (Greek)</a>
+              <a href="https://ta3allam.org" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Ta3allam (Arabic)</a>
               <a href="/supporters" className="hover:text-[#555]">Our Supporters</a>
               <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
             </div>
