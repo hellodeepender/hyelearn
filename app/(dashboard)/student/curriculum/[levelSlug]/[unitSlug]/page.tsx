@@ -88,14 +88,14 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
                   </div>
                   {lesson.description && <p className="text-xs text-brown-400 mt-0.5">{lesson.description}</p>}
                 </div>
-                {lesson.passed && lesson.score !== null && lesson.total !== null && (
+                {lesson.passed && lesson.score != null && lesson.total != null && (
                   <span className="text-sm font-medium text-green-600 shrink-0">
-                    {Math.round((lesson.score / lesson.total) * 100)}%
+                    {lesson.total > 0 ? Math.round((lesson.score / lesson.total) * 100) : 0}%
                   </span>
                 )}
-                {!lesson.passed && lesson.attempts > 0 && lesson.score !== null && lesson.total !== null && (
+                {!lesson.passed && lesson.attempts > 0 && lesson.score != null && lesson.total != null && (
                   <span className="text-sm text-brown-400 shrink-0">
-                    {Math.round((lesson.score / lesson.total) * 100)}%
+                    {lesson.total > 0 ? Math.round((lesson.score / lesson.total) * 100) : 0}%
                   </span>
                 )}
               </div>
