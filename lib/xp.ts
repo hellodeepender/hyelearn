@@ -95,12 +95,17 @@ export async function awardXP(
     if (existing && existing.length > 0) return -1; // already awarded
   }
 
-  await db.from("student_xp").insert({
+  const { error: insertErr } = await db.from("student_xp").insert({
     student_id: studentId,
     xp_amount: amount,
     source,
     source_id: sourceId ?? null,
   });
+
+  if (insertErr) {
+    console.error("[awardXP] Insert error:", insertErr.message, insertErr.details);
+    return -1;
+  }
 
   // Increment denormalized total
   const { data: profile } = await db
