@@ -36,7 +36,7 @@ export default async function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">3. Account Registration</h2>
-            <ul className="list-disc ml-5 space-y-1">
+            <ul className="list-disc ms-5 space-y-1">
               <li>You must be 18 years or older to create an account.</li>
               <li>Parents and guardians create accounts on behalf of their children.</li>
               <li>You are responsible for maintaining the security of your account credentials.</li>
@@ -46,7 +46,7 @@ export default async function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">4. Donations and Payments</h2>
-            <ul className="list-disc ml-5 space-y-1">
+            <ul className="list-disc ms-5 space-y-1">
               <li>The entire K-5 curriculum is free for all users.</li>
               <li><strong>Donations:</strong> Voluntary donations are processed securely by Stripe. {brandName} never sees or stores your credit card information.</li>
               <li><strong>School plan:</strong> Custom pricing via agreement.</li>
@@ -56,7 +56,7 @@ export default async function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">5. Acceptable Use</h2>
-            <ul className="list-disc ml-5 space-y-1">
+            <ul className="list-disc ms-5 space-y-1">
               <li>Use the platform for its intended educational purpose.</li>
               <li>Do not share your account credentials with others.</li>
               <li>Do not attempt to access other users&apos; data.</li>

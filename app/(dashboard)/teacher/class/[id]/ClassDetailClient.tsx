@@ -70,7 +70,7 @@ export default function ClassDetailClient({ classId, className, gradeLabel, join
             <span className="text-brown-400 text-sm">{roster.length} student{roster.length !== 1 ? "s" : ""}</span>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-end">
           <button onClick={() => copy(joinCode, "code")} className="font-mono text-2xl bg-brown-50 border border-brown-200 px-5 py-2 rounded-xl text-brown-800 hover:bg-brown-100 transition-colors">
             {joinCode}
           </button>
@@ -88,7 +88,7 @@ export default function ClassDetailClient({ classId, className, gradeLabel, join
             </p>
           </div>
           <button onClick={() => copy(`Join our Armenian class on HyeLearn! Go to hyelearn.com/join and enter code: ${joinCode}`, "msg")}
-            className="text-xs text-gold hover:text-gold-dark font-medium shrink-0 ml-4">
+            className="text-xs text-gold hover:text-gold-dark font-medium shrink-0 ms-4">
             {copied === "msg" ? "Copied!" : "Copy Message"}
           </button>
         </div>
@@ -158,7 +158,7 @@ export default function ClassDetailClient({ classId, className, gradeLabel, join
               <p className="text-sm text-brown-400 mb-1 md:mb-0">{relativeTime(s.lastActive)}</p>
 
               {/* Remove */}
-              <div className="text-right">
+              <div className="text-end">
                 <button onClick={() => handleRemove(s.id, s.name)}
                   className="text-xs text-brown-300 hover:text-red-500 transition-colors">
                   Remove

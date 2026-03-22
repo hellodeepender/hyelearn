@@ -127,7 +127,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 key={`left-${item.index}`}
                 onClick={() => handleLeftClick(i)}
                 disabled={done}
-                className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
+                className={`w-full p-3 ${radius} border-2 text-start transition-all ${statusStyles[status]}`}
               >
                 <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
                 {done && item.left_en && (
@@ -146,7 +146,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 key={`right-${item.index}`}
                 onClick={() => handleRightClick(i)}
                 disabled={done || selectedLeft === null}
-                className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
+                className={`w-full p-3 ${radius} border-2 text-start transition-all ${statusStyles[status]}`}
               >
                 <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
                 {done && item.right_en && (
