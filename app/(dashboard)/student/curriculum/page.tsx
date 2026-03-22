@@ -45,7 +45,7 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
     englishTitle: getEnglishTitle(level.title, locale) ?? undefined,
   }));
 
-  const summitLabel = locale === "el" ? "Mount Olympus" : "Mount Ararat";
+  const summitLabel = locale === "el" ? "Mount Olympus" : locale === "ar" ? "Mount of Olives" : "Mount Ararat";
 
   return (
     <div className="min-h-screen bg-cream">
