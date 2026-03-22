@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Armenian, Noto_Sans } from "next/font/google";
+import { Noto_Sans_Armenian, Noto_Sans, Noto_Sans_Arabic } from "next/font/google";
 import { getServerLocale } from "@/lib/server-locale";
 import { LocaleProvider } from "@/lib/locale-context";
 import CookieBanner from "@/components/ui/CookieBanner";
@@ -18,6 +18,12 @@ const notoSansArmenian = Noto_Sans_Armenian({
 const notoSans = Noto_Sans({
   subsets: ["greek", "latin"],
   variable: "--font-noto-sans",
+  display: "swap",
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic", "latin"],
+  variable: "--font-noto-arabic",
   display: "swap",
 });
 
@@ -100,6 +106,44 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
+  if (locale === "ar") {
+    return {
+      metadataBase: new URL("https://arabiclearn.com"),
+      title: {
+        default: "ArabicLearn \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
+        template: "%s | ArabicLearn",
+      },
+      description: "Interactive K-5 Arabic curriculum for diaspora children. Audio pronunciation, cultural lessons, and progress tracking.",
+      alternates: { canonical: "https://arabiclearn.com" },
+      keywords: [
+        "Arabic language learning", "learn Arabic online", "Arabic for kids",
+        "Arabic alphabet", "Arabic vocabulary", "Arabic diaspora education",
+        "K-5 Arabic", "teach Arabic to children",
+      ],
+      authors: [{ name: "ArabicLearn" }],
+      creator: "ArabicLearn",
+      publisher: "ArabicLearn",
+      openGraph: {
+        type: "website",
+        locale: "ar_SA",
+        url: "https://arabiclearn.com",
+        siteName: "ArabicLearn",
+        title: "ArabicLearn \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
+        description: "Interactive Arabic language learning for K-5 students. Built for Arabic-speaking diaspora families.",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "ArabicLearn \u2014 Learn Arabic Online",
+        description: "Interactive Arabic language learning for K-5 students.",
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large" as const, "max-snippet": -1 },
+      },
+    };
+  }
+
   return {
     metadataBase: new URL("https://hyelearn.com"),
     title: {
@@ -153,11 +197,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const domainConfig = await getServerLocale();
-  const isGreek = domainConfig.locale === "el";
 
-  const fontClass = isGreek
-    ? `${notoSans.variable} font-[family-name:var(--font-noto-sans)]`
-    : `${notoSansArmenian.variable} font-[family-name:var(--font-noto-armenian)]`;
+  const fontClass =
+    domainConfig.locale === "el" ? `${notoSans.variable} font-[family-name:var(--font-noto-sans)]` :
+    domainConfig.locale === "ar" ? `${notoSansArabic.variable} font-[family-name:var(--font-noto-arabic)]` :
+    `${notoSansArmenian.variable} font-[family-name:var(--font-noto-armenian)]`;
 
   const t = domainConfig.theme;
 

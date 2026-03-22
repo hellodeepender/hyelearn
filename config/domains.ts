@@ -1,4 +1,4 @@
-export type Locale = "hy" | "el" | "en";
+export type Locale = "hy" | "el" | "en" | "ar";
 
 export const DEFAULT_LOCALE: Locale = "hy";
 
@@ -114,12 +114,40 @@ export const DOMAIN_MAP: Record<string, DomainConfig> = {
       heroOverlay: "#1a1a1a",
     },
   },
+  "arabiclearn.com": {
+    locale: "ar" as Locale,
+    brandName: "ArabicLearn",
+    nativeName: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629",
+    englishName: "Arabic",
+    fontFamily: "'Noto Sans Arabic', sans-serif",
+    dir: "rtl",
+    supportEmail: "support@arabiclearn.com",
+    noreplyEmail: "noreply@arabiclearn.com",
+    url: "https://arabiclearn.com",
+    theme: {
+      primary: "#2E7D32",
+      primaryDark: "#1B5E20",
+      primaryLight: "rgba(46,125,50,0.1)",
+      text900: "#1A1A0A",
+      text800: "#2E2E1C",
+      text600: "#5A5A3D",
+      text500: "#7A7A5A",
+      text400: "#9A9A7A",
+      text300: "#BABAA0",
+      bg: "#FAFAF5",
+      bgAlt: "rgba(245,245,235,0.4)",
+      surface: "#FAFAF5",
+      border: "#E0E0C8",
+      heroOverlay: "#2E2E1C",
+    },
+  },
 };
 
 if (process.env.NODE_ENV === "development") {
   DOMAIN_MAP["localhost"] = DOMAIN_MAP["hyelearn.com"];
   DOMAIN_MAP["hyelearn.local"] = DOMAIN_MAP["hyelearn.com"];
   DOMAIN_MAP["mathaino.local"] = DOMAIN_MAP["mathaino.net"];
+  DOMAIN_MAP["arabiclearn.local"] = DOMAIN_MAP["arabiclearn.com"];
 }
 
 export function getDomainConfig(hostname: string): DomainConfig {
