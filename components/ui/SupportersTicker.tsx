@@ -43,7 +43,7 @@ export default function SupportersTicker() {
               {tickerContent.map((item, i) => (
                 <span key={i} className="inline-flex items-center text-sm px-3">
                   <span style={{ color: accentColor }}>{"\u2665"}</span>
-                  <span className="ml-1.5">{item.name} donated</span>
+                  <span className="ms-1.5">{item.name} donated</span>
                   <span className="text-white/50 mx-1">&middot;</span>
                   <span className="text-white/70">{item.date}</span>
                   <span style={{ color: accentColor }} className="mx-3">{"\u2726"}</span>

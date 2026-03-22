@@ -384,12 +384,12 @@ export default function ContentClient({ levels, units, lessons, userId, userRole
             const lv = u ? levels.find((x) => x.id === u.level_id) : null;
             if (l && u && lv) {
               const url = `/student/curriculum/${lv.slug}/${u.slug}/${l.slug}`;
-              return <> <a href={url} target="_blank" rel="noopener noreferrer" className="font-medium underline ml-1">Preview as student &rarr;</a></>;
+              return <> <a href={url} target="_blank" rel="noopener noreferrer" className="font-medium underline ms-1">Preview as student &rarr;</a></>;
             }
             return null;
           })()}
           {result.errors && result.errors.length > 0 && (
-            <ul className="mt-2 list-disc ml-4 text-amber-700">
+            <ul className="mt-2 list-disc ms-4 text-amber-700">
               {result.errors.map((e, i) => <li key={i}>{e}</li>)}
             </ul>
           )}

@@ -177,9 +177,9 @@ export default async function SundaySchoolPage() {
                     {unit.title_native && <p className="text-sm text-brown-400">{unit.title_native}</p>}
                     {unit.season && <span className="text-xs text-brown-300">{unit.season}</span>}
                   </div>
-                  <div className="text-xs text-brown-400 shrink-0 ml-4">
+                  <div className="text-xs text-brown-400 shrink-0 ms-4">
                     {unitLessons.length} lesson{unitLessons.length !== 1 ? "s" : ""}
-                    <span className="ml-2 group-open:rotate-180 inline-block transition-transform">{"\u25BC"}</span>
+                    <span className="ms-2 group-open:rotate-180 inline-block transition-transform">{"\u25BC"}</span>
                   </div>
                 </summary>
                 <div className="border-t border-brown-100">
@@ -206,7 +206,7 @@ export default async function SundaySchoolPage() {
                             )}
                           </div>
                           {isCurrent && (
-                            <span className={`ml-auto text-xs font-medium ${accentColor}`}>This week</span>
+                            <span className={`ms-auto text-xs font-medium ${accentColor}`}>This week</span>
                           )}
                         </div>
                       </Link>
