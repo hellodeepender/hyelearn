@@ -58,14 +58,28 @@ const EL_ICONS = [
   "/images/quest-map/el-icon-laurel.png",
 ];
 
+const AR_ICONS = [
+  "/images/quest-map/ar-oliveseed.jpg",
+  "/images/quest-map/ar-aliftoya.jpg",
+  "/images/quest-map/ar-lantern.jpg",
+  "/images/quest-map/ar-cedarcrown.jpg",
+  "/images/quest-map/ar-olivegrove.jpg",
+  "/images/quest-map/ar-mountofolives.jpg",
+  "/images/quest-map/ar-dallah.jpg",
+  "/images/quest-map/ar-outmaster.jpg",
+  "/images/quest-map/ar-jerusalemstar.jpg",
+  "/images/quest-map/ar-set.jpg",
+];
+
 function getIconForNode(index: number, locale: string): string {
-  const icons = locale === "el" ? EL_ICONS : HY_ICONS;
+  const icons = locale === "el" ? EL_ICONS : locale === "ar" ? AR_ICONS : HY_ICONS;
   return icons[index % icons.length];
 }
 
 const THEME: Record<string, { accent: string; pathColor: string; summitEmoji: string }> = {
   el: { accent: "#1A6AFF", pathColor: "#5B8DB8", summitEmoji: "\uD83C\uDFDB\uFE0F" },
   hy: { accent: "#D4A843", pathColor: "#C4384B", summitEmoji: "\uD83C\uDFD4\uFE0F" },
+  ar: { accent: "#2E7D32", pathColor: "#4A7C59", summitEmoji: "\u26F0\uFE0F" },
 };
 
 export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props) {
@@ -122,7 +136,7 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
-  const bgImage = locale === "el" ? "/images/quest-map/quest-bg-greek.png" : "/images/quest-map/quest-bg-armenian.png";
+  const bgImage = locale === "el" ? "/images/quest-map/quest-bg-greek.png" : locale === "ar" ? "/images/quest-map/quest-bg-armenian.png" : "/images/quest-map/quest-bg-armenian.png";
 
   return (
     <div className="rounded-2xl overflow-hidden relative">
@@ -143,6 +157,8 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
       <div className="absolute inset-0" style={{
         background: locale === "el"
           ? "linear-gradient(135deg, #3d7a2e 0%, #5a9e42 30%, #7ab868 55%, #8ec5d8 78%, #5ba3d9 100%)"
+          : locale === "ar"
+          ? "linear-gradient(135deg, #2E5930 0%, #4A7C4A 25%, #8BA870 50%, #C4B880 75%, #D4C890 100%)"
           : "linear-gradient(135deg, #4a6b2a 0%, #7a8c48 25%, #b8a070 50%, #c49558 75%, #d4a56a 100%)",
       }} />
 
