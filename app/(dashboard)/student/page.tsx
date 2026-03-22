@@ -26,17 +26,17 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
     : supabase;
 
   const locale = await getLocale();
-  let { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
+  let { data: profile } = await db.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
 
   // Safety net: create missing profile if DB trigger didn't fire
   if (!profile) {
-    await supabase.from("profiles").upsert({
+    await db.from("profiles").upsert({
       id: user.id,
       full_name: user.user_metadata?.full_name || user.user_metadata?.name || "",
       role: (user.user_metadata?.role as string) || "student",
       locale,
     }, { onConflict: "id" });
-    const { data: refetched } = await supabase.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
+    const { data: refetched } = await db.from("profiles").select("full_name, role, subscription_tier, total_xp, locale").eq("id", user.id).single();
     profile = refetched;
   }
 
@@ -44,7 +44,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
 
   // Auto-sync locale to match the current domain
   if (profile && profile.locale !== locale) {
-    await supabase.from("profiles").update({ locale }).eq("id", user.id);
+    await db.from("profiles").update({ locale }).eq("id", user.id);
   }
   const levels = await getLevelsWithProgress(db, user.id, locale);
   const currentLevel = levels.find((l) => l.unlocked && l.completedLessons < l.totalLessons) ?? levels[0];

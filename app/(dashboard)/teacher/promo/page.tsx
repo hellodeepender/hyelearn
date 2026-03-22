@@ -9,13 +9,13 @@ export default async function PromoPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
-  if (profile?.role === "student") redirect("/student");
-
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const db = serviceKey
     ? createDbClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
     : supabase;
+
+  const { data: profile } = await db.from("profiles").select("full_name, role").eq("id", user.id).single();
+  if (profile?.role === "student") redirect("/student");
 
   const { data: codes } = await db
     .from("promo_codes")

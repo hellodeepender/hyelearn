@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale } from "@/lib/server-locale";
@@ -10,7 +11,9 @@ async function checkAuth() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+    const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).single();
     if (profile?.role === "teacher" || profile?.role === "admin") redirect("/teacher");
     if (profile?.role === "student") redirect("/student");
   } catch {}
