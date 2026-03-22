@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import { getProgressToNextLevel, getClimbLevels, CLIMB_NAMES } from "@/lib/xp";
 import { getBadges } from "@/lib/badges";
@@ -14,13 +15,17 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  // Use service role for data queries (cookie-based client's auth.uid() can be null in server components)
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+
+  const { data: profile } = await db
     .from("profiles")
     .select("full_name, role, total_xp")
     .eq("id", user.id)
     .single();
 
-  const { data: earnedBadges } = await supabase
+  const { data: earnedBadges } = await db
     .from("student_badges")
     .select("badge_slug, earned_at")
     .eq("student_id", user.id);
