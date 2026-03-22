@@ -36,11 +36,24 @@ export const BADGES_EL: Badge[] = [
   { slug: "streak_100", name: "Century Champion", nameTarget: "\u03A0\u03C1\u03C9\u03C4\u03B1\u03B8\u03BB\u03B7\u03C4\u03AE\u03C2", description: "100-day learning streak", emoji: "\uD83D\uDC51", image: "/images/quest-map/el-icon-scroll.png", condition: "streak_100", category: "streak" },
 ];
 
+// ── Arabic badges ────────────────────────────────────────────
+export const BADGES_AR: Badge[] = [
+  { slug: "olive_seed", name: "Olive Seed", nameTarget: "\u0628\u0630\u0631\u0629 \u0632\u064A\u062A\u0648\u0646", description: "Completed your first lesson", emoji: "\uD83C\uDF3F", image: "/images/quest-map/ar-oliveseed.jpg", condition: "first_lesson", category: "milestone", culturalNote: "The olive tree is a symbol of peace and endurance across the Arab world" },
+  { slug: "alif_to_ya", name: "Alif to Ya", nameTarget: "\u0645\u0646 \u0623\u0644\u0641 \u0625\u0644\u0649 \u064A\u0627\u0621", description: "Completed the Arabic Alphabet", emoji: "\uD83D\uDCDC", image: "/images/quest-map/ar-aliftoya.jpg", condition: "alphabet_complete", category: "milestone", culturalNote: "Alif and Ya are the first and last letters of the Arabic alphabet" },
+  { slug: "lantern", name: "Arabic Lantern", nameTarget: "\u0641\u0627\u0646\u0648\u0633", description: "Completed 10 lessons", emoji: "\uD83C\uDFEE", image: "/images/quest-map/ar-lantern.jpg", condition: "lessons_10", category: "milestone", culturalNote: "The fanous (lantern) is a beloved symbol of Ramadan celebrations" },
+  { slug: "cedar_crown", name: "Cedar Crown", nameTarget: "\u062A\u0627\u062C \u0627\u0644\u0623\u0631\u0632", description: "Scored 100% on a quiz", emoji: "\uD83C\uDF32", image: "/images/quest-map/ar-cedarcrown.jpg", condition: "perfect_quiz", category: "achievement", culturalNote: "The cedar tree is a symbol of strength and immortality in the Levant" },
+  { slug: "olive_grove", name: "Olive Grove", nameTarget: "\u0628\u0633\u062A\u0627\u0646 \u0632\u064A\u062A\u0648\u0646", description: "Completed all of Kindergarten", emoji: "\uD83C\uDF33", image: "/images/quest-map/ar-olivegrove.jpg", condition: "kindergarten_complete", category: "milestone", culturalNote: "Olive groves have been cultivated in the Arab world for thousands of years" },
+  { slug: "mount_olives", name: "Mount of Olives", nameTarget: "\u062C\u0628\u0644 \u0627\u0644\u0632\u064A\u062A\u0648\u0646", description: "Completed an entire grade level", emoji: "\u26F0\uFE0F", image: "/images/quest-map/ar-mountofolives.jpg", condition: "grade_complete", category: "milestone", culturalNote: "The Mount of Olives in Jerusalem is one of the most sacred places in the world" },
+  { slug: "streak_7", name: "Week Warrior", nameTarget: "\u0645\u062D\u0627\u0631\u0628 \u0627\u0644\u0623\u0633\u0628\u0648\u0639", description: "7-day learning streak", emoji: "\uD83D\uDD25", image: "/images/quest-map/ar-dallah.jpg", condition: "streak_7", category: "streak" },
+  { slug: "streak_30", name: "Monthly Master", nameTarget: "\u0633\u064A\u062F \u0627\u0644\u0634\u0647\u0631", description: "30-day learning streak", emoji: "\uD83D\uDCAA", image: "/images/quest-map/ar-outmaster.jpg", condition: "streak_30", category: "streak" },
+  { slug: "streak_100", name: "Century Champion", nameTarget: "\u0628\u0637\u0644 \u0627\u0644\u0645\u0626\u0629", description: "100-day learning streak", emoji: "\uD83D\uDC51", image: "/images/quest-map/ar-jerusalemstar.jpg", condition: "streak_100", category: "streak" },
+];
+
 // ── Backward compat ──────────────────────────────────────────
 export const BADGES = BADGES_HY;
 
 // ── Locale-aware accessors ───────────────────────────────────
-const BADGE_MAP: Record<string, Badge[]> = { hy: BADGES_HY, el: BADGES_EL };
+const BADGE_MAP: Record<string, Badge[]> = { hy: BADGES_HY, el: BADGES_EL, ar: BADGES_AR };
 
 export function getBadges(locale: string): Badge[] {
   return BADGE_MAP[locale] ?? BADGES_HY;
@@ -50,10 +63,12 @@ export function getBadgeBySlug(slug: string, locale?: string): Badge | undefined
   const badges = locale ? getBadges(locale) : BADGES_HY;
   const bySlug = badges.find((b) => b.slug === slug);
   if (bySlug) return bySlug;
-  const source = locale === "el" ? BADGES_HY : BADGES_EL;
-  const sourceBadge = source.find((b) => b.slug === slug);
-  if (sourceBadge) {
-    return badges.find((b) => b.condition === sourceBadge.condition);
+  // Cross-locale lookup by condition
+  for (const set of Object.values(BADGE_MAP)) {
+    const sourceBadge = set.find((b) => b.slug === slug);
+    if (sourceBadge) {
+      return badges.find((b) => b.condition === sourceBadge.condition);
+    }
   }
   return undefined;
 }

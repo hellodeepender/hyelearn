@@ -41,11 +41,22 @@ export const LEVELS_EL: AraratLevel[] = [
   { level: 7, name: "Mytikas Summit", emoji: "\uD83D\uDC51", minXP: 1200, maxXP: Infinity },
 ];
 
+// Arabic: Climb the Mount of Olives
+export const LEVELS_AR: AraratLevel[] = [
+  { level: 1, name: "Old City Gate", emoji: "\uD83D\uDEAA", minXP: 0, maxXP: 49 },
+  { level: 2, name: "Olive Garden", emoji: "\uD83C\uDF33", minXP: 50, maxXP: 149 },
+  { level: 3, name: "Cedar Path", emoji: "\uD83C\uDF32", minXP: 150, maxXP: 299 },
+  { level: 4, name: "Lantern Rest", emoji: "\uD83C\uDFEE", minXP: 300, maxXP: 499 },
+  { level: 5, name: "Minaret View", emoji: "\uD83C\uDF19", minXP: 500, maxXP: 799 },
+  { level: 6, name: "Summit Ridge", emoji: "\u26F0\uFE0F", minXP: 800, maxXP: 1199 },
+  { level: 7, name: "Mount of Olives", emoji: "\uD83D\uDC51", minXP: 1200, maxXP: Infinity },
+];
+
 // Backward compat
 export const ARARAT_LEVELS = LEVELS_HY;
 
 // Locale-aware accessors
-const LEVELS_MAP: Record<string, AraratLevel[]> = { hy: LEVELS_HY, el: LEVELS_EL };
+const LEVELS_MAP: Record<string, AraratLevel[]> = { hy: LEVELS_HY, el: LEVELS_EL, ar: LEVELS_AR };
 
 export function getClimbLevels(locale: string): AraratLevel[] {
   return LEVELS_MAP[locale] ?? LEVELS_HY;
@@ -54,6 +65,7 @@ export function getClimbLevels(locale: string): AraratLevel[] {
 export const CLIMB_NAMES: Record<string, string> = {
   hy: "Climb Ararat \uD83C\uDFD4\uFE0F",
   el: "Climb Olympus \u26F0\uFE0F",
+  ar: "Climb the Mount of Olives \u26F0\uFE0F",
 };
 
 export function getCurrentLevel(totalXP: number, locale?: string): AraratLevel {
