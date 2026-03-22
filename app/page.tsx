@@ -192,9 +192,9 @@ export default async function LandingPage() {
                     <span className="font-semibold text-brown-800">{g.grade}</span>
                   </div>
                   {g.expanded ? (
-                    <p className="text-brown-500 text-sm mt-2 ms-9">{g.desc}</p>
+                    <p className="text-brown-500 text-sm mt-2 ml-9">{g.desc}</p>
                   ) : (
-                    <p className="text-brown-400 text-sm mt-1 ms-9">{g.desc}</p>
+                    <p className="text-brown-400 text-sm mt-1 ml-9">{g.desc}</p>
                   )}
                 </div>
               ))}

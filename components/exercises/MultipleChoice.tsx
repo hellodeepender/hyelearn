@@ -81,7 +81,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-start py-4 px-6 rounded-xl border-2 min-h-[56px] transition-all duration-150 ${style}`}
+              className={`w-full text-left py-4 px-6 rounded-xl border-2 min-h-[56px] transition-all duration-150 ${style}`}
             >
               <div className="flex items-center gap-3">
                 {answered && opt.correct && showCorrect && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
@@ -89,7 +89,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
                 <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{opt.text_hy}</span>
               </div>
               {answered && showCorrect && opt.text_en && (
-                <span className="text-sm text-brown-400 ms-8 animate-fade-in block mt-1">({opt.text_en})</span>
+                <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>
               )}
             </button>
           );

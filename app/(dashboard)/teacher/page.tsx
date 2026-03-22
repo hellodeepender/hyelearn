@@ -179,7 +179,7 @@ export default async function TeacherDashboard() {
                           <p className="font-medium text-brown-800">{c.name}</p>
                           <p className="text-sm text-brown-400">{gradeLabel} &middot; {studentCount} student{studentCount !== 1 ? "s" : ""}</p>
                         </div>
-                        <div className="text-end">
+                        <div className="text-right">
                           <p className="text-sm font-mono bg-brown-50 border border-brown-200 px-3 py-1 rounded-lg text-brown-700">{c.join_code}</p>
                           <p className="text-xs text-brown-400 mt-1">View class &rarr;</p>
                         </div>

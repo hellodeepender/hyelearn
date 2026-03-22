@@ -80,7 +80,7 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium text-brown-800">
                       {lesson.title}
-                      {getEnglishTitle(lesson.title, locale) && <span className="text-xs text-brown-400 font-normal ms-2">({getEnglishTitle(lesson.title, locale)})</span>}
+                      {getEnglishTitle(lesson.title, locale) && <span className="text-xs text-brown-400 font-normal ml-2">({getEnglishTitle(lesson.title, locale)})</span>}
                     </h3>
                     <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${typeBadge}`}>
                       {lesson.lesson_type === "quiz" ? "Quiz" : lesson.lesson_type === "final_test" ? "Final" : "Practice"}

@@ -167,7 +167,7 @@ export default function SupportPage() {
               <a key={tier.amount} href={tier.href} target="_blank" rel="noopener noreferrer"
                 className="block border-2 border-brown-200 hover:border-gold rounded-lg p-4 transition-colors">
                 <span className="font-semibold text-brown-800">{tier.amount}</span>
-                <span className="text-sm text-brown-500 ms-2">{tier.desc}</span>
+                <span className="text-sm text-brown-500 ml-2">{tier.desc}</span>
               </a>
             ))}
           </div>
