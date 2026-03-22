@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { DM_Serif_Display, DM_Sans } from "next/font/google";
+import PortfolioHeader from "@/components/ui/PortfolioHeader";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -62,19 +63,7 @@ const stats = [
 export default function PortfolioPage() {
   return (
     <div className={`${serif.variable} ${sans.variable} min-h-screen bg-[#FAFAFA]`} style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
-      {/* Header */}
-      <header className="border-b border-[#E5E5E5]">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span style={{ fontFamily: "var(--font-dm-serif)" }} className="text-xl">
-            <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
-          </span>
-          <nav className="flex gap-6 text-sm text-[#777]">
-            <a href="/blog" className="hover:text-[#333]">Blog</a>
-            <a href="/supporters" className="hover:text-[#333]">Our Supporters</a>
-            <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
-          </nav>
-        </div>
-      </header>
+      <PortfolioHeader />
 
       <main>
         {/* 1. Hero */}
