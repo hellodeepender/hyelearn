@@ -22,6 +22,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep links: auth callbacks for all DiasporaLearn domains -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="hyelearn.com" android:pathPrefix="/auth/callback" />
+                <data android:scheme="https" android:host="mathaino.net" android:pathPrefix="/auth/callback" />
+                <data android:scheme="https" android:host="ta3allam.org" android:pathPrefix="/auth/callback" />
+                <data android:scheme="https" android:host="diasporalearn.org" android:pathPrefix="/auth/callback" />
+            </intent-filter>
+
+            <!-- Deep links: password reset for all domains -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="hyelearn.com" android:pathPrefix="/reset-password" />
+                <data android:scheme="https" android:host="mathaino.net" android:pathPrefix="/reset-password" />
+                <data android:scheme="https" android:host="ta3allam.org" android:pathPrefix="/reset-password" />
+                <data android:scheme="https" android:host="diasporalearn.org" android:pathPrefix="/reset-password" />
+            </intent-filter>
+
         </activity>
 
         <provider
