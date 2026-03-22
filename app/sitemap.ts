@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { getServerLocale } from "@/lib/server-locale";
+import { getAllPosts } from "@/lib/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { url: baseUrl, locale } = await getServerLocale();
@@ -17,9 +18,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/cookies`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  // diasporalearn.org — parent site, no curriculum pages
+  // diasporalearn.org — parent site with blog, no curriculum pages
   if (locale === "en") {
-    return staticPages;
+    const blogPages: MetadataRoute.Sitemap = [
+      { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    ];
+    const posts = getAllPosts();
+    for (const post of posts) {
+      blogPages.push({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.date),
+        changeFrequency: "monthly",
+        priority: 0.7,
+      });
+    }
+    return [...staticPages, ...blogPages];
   }
 
   // Language sites (hyelearn.com, mathaino.net) — add auth + curriculum pages

@@ -7,6 +7,7 @@ const GA_MAP: Record<string, string> = {
   hy: "G-8TGT94E6P2",
   el: "G-8TGT94E6P2",
   en: "G-8TGT94E6P2",
+  ar: "G-8TGT94E6P2",
 };
 
 export default function GoogleAnalytics() {

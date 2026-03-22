@@ -12,6 +12,7 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: [
       "https://hyelearn.com/sitemap.xml",
       "https://mathaino.net/sitemap.xml",
+      "https://ta3allam.org/sitemap.xml",
       "https://diasporalearn.org/sitemap.xml",
     ],
   };
