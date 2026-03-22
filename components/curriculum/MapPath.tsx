@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
 
@@ -68,14 +68,24 @@ const THEME: Record<string, { accent: string; pathColor: string; summitEmoji: st
   hy: { accent: "#D4A843", pathColor: "#C4384B", summitEmoji: "\uD83C\uDFD4\uFE0F" },
 };
 
-const W = 900;
-const H = 500;
-
 export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props) {
   const router = useRouter();
   const theme = THEME[locale] ?? THEME.hy;
   const N = nodes.length;
-  const padding = 80;
+
+  // Detect mobile for responsive layout
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Responsive dimensions
+  const W = isMobile ? 400 : 900;
+  const H = isMobile ? Math.max(600, N * 110 + 120) : 500;
+  const padding = isMobile ? 50 : 80;
 
   // Bottom-to-top zigzag climb: Kindergarten at bottom, summit at top
   const positions = nodes.map((_, i) => {
@@ -84,7 +94,7 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
     const y = (H - padding) - t * (H - padding * 2);
     // X: zigzag left-right around center
     const centerX = W / 2;
-    const amplitude = W * 0.2;
+    const amplitude = isMobile ? 60 : W * 0.2;
     const x = centerX + (i % 2 === 0 ? -amplitude : amplitude);
     return { x, y };
   });
@@ -157,11 +167,11 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
         </defs>
 
         {/* Summit label — top center */}
-        <g transform={`translate(${W / 2}, 30)`}>
+        <g transform={`translate(${W / 2}, ${isMobile ? 25 : 30})`}>
           <rect x="-70" y="-16" width="140" height="32" rx="16" fill="rgba(255,255,255,0.92)" filter="url(#node-shadow)" />
-          <text x="0" y="5" textAnchor="middle" fontSize="13" fontWeight="700" fill="#333">{theme.summitEmoji} {summitLabel}</text>
+          <text x="0" y="5" textAnchor="middle" fontSize={isMobile ? 11 : 13} fontWeight="700" fill="#333">{theme.summitEmoji} {summitLabel}</text>
         </g>
-        {subtitle && <text x={W / 2} y={55} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
+        {subtitle && <text x={W / 2} y={isMobile ? 48 : 55} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
 
         {/* Path: shadow → main → dashes */}
         {pathD && <path d={pathD} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" />}
@@ -256,7 +266,7 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
                 left: "50%",
                 top: `${ringSize / 2 + 8}px`,
                 transform: "translateX(-50%)",
-                width: 120,
+                width: isMobile ? 100 : 120,
               }}>
                 <p className={`font-bold leading-tight ${isLocked ? "text-[10px]" : "text-[11px]"}`}
                   style={{
