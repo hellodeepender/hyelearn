@@ -3,6 +3,7 @@ import { DM_Serif_Display, DM_Sans } from "next/font/google";
 import { getAllPosts } from "@/lib/blog";
 import { getLocale } from "@/lib/server-locale";
 import { redirect } from "next/navigation";
+import PortfolioHeader from "@/components/ui/PortfolioHeader";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,18 +23,7 @@ export default async function BlogIndex() {
 
   return (
     <div className={`${serif.variable} ${sans.variable} min-h-screen bg-[#FAFAFA]`} style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
-      <header className="border-b border-[#E5E5E5]">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" style={{ fontFamily: "var(--font-dm-serif)" }} className="text-xl">
-            <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
-          </Link>
-          <nav className="flex gap-6 text-sm text-[#777]">
-            <Link href="/blog" className="text-[#333] font-medium">Blog</Link>
-            <Link href="/supporters" className="hover:text-[#333]">Our Supporters</Link>
-            <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
-          </nav>
-        </div>
-      </header>
+      <PortfolioHeader />
 
       <main className="max-w-3xl mx-auto px-6 py-16">
         <h1 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-4xl text-[#1a1a1a] mb-3">Blog</h1>

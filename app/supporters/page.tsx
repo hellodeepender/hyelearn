@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { getInitials } from "@/lib/supporters";
+import SupportersNav from "@/components/ui/SupportersNav";
 
 export default async function SupportersPage() {
   // Use service role to bypass RLS — this is public data (show_name=true only)
@@ -40,7 +41,7 @@ export default async function SupportersPage() {
             <span className="text-2xl font-bold text-gold">D</span>
             <span className="text-xl font-semibold text-brown-800">DiasporaLearn</span>
           </Link>
-          <Link href="/pricing" className="text-sm text-brown-600 hover:text-brown-800">Donate</Link>
+          <SupportersNav />
         </div>
       </header>
 
