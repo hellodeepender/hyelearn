@@ -87,20 +87,16 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
   const H = isMobile ? Math.max(600, N * 110 + 120) : 500;
   const padding = isMobile ? 50 : 80;
 
-  // Layout: vertical zigzag on mobile, diagonal on desktop
+  // Bottom-to-top zigzag climb: Kindergarten at bottom, summit at top
   const positions = nodes.map((_, i) => {
     const t = N > 1 ? i / (N - 1) : 0;
-    if (isMobile) {
-      // Vertical: top to bottom with left-right zigzag
-      const x = W / 2 + (i % 2 === 0 ? -60 : 60);
-      const y = padding + t * (H - padding * 2);
-      return { x, y };
-    }
-    // Desktop: diagonal bottom-left to top-right
-    const x = padding + t * (W - padding * 2);
-    const baseY = (H - padding) - t * (H - padding * 2);
-    const wobble = Math.sin(t * Math.PI * 2) * 30;
-    return { x, y: baseY + wobble };
+    // Y: bottom to top (t=0 → bottom, t=1 → top)
+    const y = (H - padding) - t * (H - padding * 2);
+    // X: zigzag left-right around center
+    const centerX = W / 2;
+    const amplitude = isMobile ? 60 : W * 0.2;
+    const x = centerX + (i % 2 === 0 ? -amplitude : amplitude);
+    return { x, y };
   });
 
   // Smooth cubic bezier path
@@ -170,12 +166,12 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
           <filter id="node-shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.2" /></filter>
         </defs>
 
-        {/* Summit label */}
-        <g transform={`translate(${isMobile ? W / 2 : W - 110}, ${isMobile ? 25 : 35})`}>
-          <rect x="-65" y="-16" width="130" height="32" rx="16" fill="rgba(255,255,255,0.92)" filter="url(#node-shadow)" />
+        {/* Summit label — top center */}
+        <g transform={`translate(${W / 2}, ${isMobile ? 25 : 30})`}>
+          <rect x="-70" y="-16" width="140" height="32" rx="16" fill="rgba(255,255,255,0.92)" filter="url(#node-shadow)" />
           <text x="0" y="5" textAnchor="middle" fontSize={isMobile ? 11 : 13} fontWeight="700" fill="#333">{theme.summitEmoji} {summitLabel}</text>
         </g>
-        {subtitle && <text x={isMobile ? W / 2 : W - 110} y={isMobile ? 48 : 58} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
+        {subtitle && <text x={W / 2} y={isMobile ? 48 : 55} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
 
         {/* Path: shadow → main → dashes */}
         {pathD && <path d={pathD} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" />}

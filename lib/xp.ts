@@ -103,19 +103,18 @@ export async function awardXP(
   });
 
   if (insertErr) {
-    console.error("[awardXP] Insert error:", insertErr.message, insertErr.details);
+    console.error("[awardXP] Insert failed:", insertErr.message, insertErr.details);
     return -1;
   }
 
-  // Increment denormalized total
+  // The auto_update_total_xp trigger handles profiles.total_xp via SUM.
+  // Read back the updated total.
   const { data: profile } = await db
     .from("profiles")
     .select("total_xp")
     .eq("id", studentId)
     .single();
-  const newTotal = (profile?.total_xp ?? 0) + amount;
-  await db.from("profiles").update({ total_xp: newTotal }).eq("id", studentId);
-  return newTotal;
+  return profile?.total_xp ?? 0;
 }
 
 // --- Process rewards after lesson completion ---
