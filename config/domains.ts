@@ -114,16 +114,16 @@ export const DOMAIN_MAP: Record<string, DomainConfig> = {
       heroOverlay: "#1a1a1a",
     },
   },
-  "arabiclearn.com": {
+  "ta3allam.org": {
     locale: "ar" as Locale,
-    brandName: "ArabicLearn",
+    brandName: "Ta3allam",
     nativeName: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629",
     englishName: "Arabic",
     fontFamily: "'Noto Sans Arabic', sans-serif",
     dir: "rtl",
-    supportEmail: "support@arabiclearn.com",
-    noreplyEmail: "noreply@arabiclearn.com",
-    url: "https://arabiclearn.com",
+    supportEmail: "support@ta3allam.org",
+    noreplyEmail: "noreply@ta3allam.org",
+    url: "https://ta3allam.org",
     theme: {
       primary: "#2E7D32",
       primaryDark: "#1B5E20",
@@ -147,7 +147,7 @@ if (process.env.NODE_ENV === "development") {
   DOMAIN_MAP["localhost"] = DOMAIN_MAP["hyelearn.com"];
   DOMAIN_MAP["hyelearn.local"] = DOMAIN_MAP["hyelearn.com"];
   DOMAIN_MAP["mathaino.local"] = DOMAIN_MAP["mathaino.net"];
-  DOMAIN_MAP["arabiclearn.local"] = DOMAIN_MAP["arabiclearn.com"];
+  DOMAIN_MAP["ta3allam.local"] = DOMAIN_MAP["ta3allam.org"];
 }
 
 export function getDomainConfig(hostname: string): DomainConfig {
