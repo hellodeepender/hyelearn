@@ -77,13 +77,16 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
   const N = nodes.length;
   const padding = 80;
 
-  // Diagonal: bottom-left to top-right with S-curve wobble
+  // Bottom-to-top zigzag climb: Kindergarten at bottom, summit at top
   const positions = nodes.map((_, i) => {
     const t = N > 1 ? i / (N - 1) : 0;
-    const x = padding + t * (W - padding * 2);
-    const baseY = (H - padding) - t * (H - padding * 2);
-    const wobble = Math.sin(t * Math.PI * 2) * 30;
-    return { x, y: baseY + wobble };
+    // Y: bottom to top (t=0 → bottom, t=1 → top)
+    const y = (H - padding) - t * (H - padding * 2);
+    // X: zigzag left-right around center
+    const centerX = W / 2;
+    const amplitude = W * 0.2;
+    const x = centerX + (i % 2 === 0 ? -amplitude : amplitude);
+    return { x, y };
   });
 
   // Smooth cubic bezier path
@@ -153,12 +156,12 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
           <filter id="node-shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.2" /></filter>
         </defs>
 
-        {/* Summit label */}
-        <g transform={`translate(${W - 110}, 35)`}>
-          <rect x="-65" y="-16" width="130" height="32" rx="16" fill="rgba(255,255,255,0.92)" filter="url(#node-shadow)" />
+        {/* Summit label — top center */}
+        <g transform={`translate(${W / 2}, 30)`}>
+          <rect x="-70" y="-16" width="140" height="32" rx="16" fill="rgba(255,255,255,0.92)" filter="url(#node-shadow)" />
           <text x="0" y="5" textAnchor="middle" fontSize="13" fontWeight="700" fill="#333">{theme.summitEmoji} {summitLabel}</text>
         </g>
-        {subtitle && <text x={W - 110} y={58} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
+        {subtitle && <text x={W / 2} y={55} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.8)">{subtitle}</text>}
 
         {/* Path: shadow → main → dashes */}
         {pathD && <path d={pathD} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" />}
