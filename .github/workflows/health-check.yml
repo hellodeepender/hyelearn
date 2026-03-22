@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - name: Code smoke tests
+        run: npx tsx scripts/code-smoke-test.ts
       - name: Database health check
         run: npx tsx scripts/db-health-check.ts
         env:
