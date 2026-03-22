@@ -37,10 +37,10 @@ export async function generateMetadata(): Promise<Metadata> {
         default: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
         template: "%s | DiasporaLearn",
       },
-      description: "Armenian and Greek language learning for diaspora kids. Complete K-5 curriculum with interactive lessons, audio pronunciation, Sunday school content, and cultural rewards.",
+      description: "Armenian, Greek, and Arabic language learning for diaspora kids. Complete K-5 curriculum with interactive lessons, audio pronunciation, Sunday school content, and cultural rewards.",
       keywords: [
         "diaspora language learning", "heritage language", "Armenian for kids", "Greek for kids",
-        "K-5 curriculum", "Sunday school lessons", "diaspora education",
+        "Arabic for kids", "K-5 curriculum", "Sunday school lessons", "diaspora education",
       ],
       authors: [{ name: "DiasporaLearn" }],
       creator: "DiasporaLearn",
@@ -52,12 +52,14 @@ export async function generateMetadata(): Promise<Metadata> {
         url: "https://diasporalearn.org",
         siteName: "DiasporaLearn",
         title: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
-        description: "Armenian and Greek language learning for diaspora kids. Interactive K-5 curriculum and Sunday school lessons.",
+        description: "Armenian, Greek, and Arabic language learning for diaspora kids. Interactive K-5 curriculum and Sunday school lessons.",
+        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "DiasporaLearn - Heritage Language Learning" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "DiasporaLearn — Heritage Language Learning",
-        description: "Armenian and Greek language learning for diaspora kids.",
+        description: "Armenian, Greek, and Arabic language learning for diaspora kids.",
+        images: ["/og-image.svg"],
       },
       robots: {
         index: true,
@@ -92,11 +94,13 @@ export async function generateMetadata(): Promise<Metadata> {
         siteName: "Mathaino",
         title: "Mathaino — \u039C\u03AC\u03B8\u03B5 \u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC Online",
         description: "Interactive Greek language learning for K-5 students. Built for Greek diaspora families.",
+        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Mathaino - Learn Greek Online" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "Mathaino — \u039C\u03AC\u03B8\u03B5 \u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC Online",
         description: "Interactive Greek language learning for K-5 students.",
+        images: ["/og-image.svg"],
       },
       robots: {
         index: true,
@@ -118,7 +122,9 @@ export async function generateMetadata(): Promise<Metadata> {
       keywords: [
         "Arabic language learning", "learn Arabic online", "Arabic for kids",
         "Arabic alphabet", "Arabic vocabulary", "Arabic diaspora education",
-        "K-5 Arabic", "teach Arabic to children",
+        "K-5 Arabic", "teach Arabic to children", "ta3allam",
+        "\u062A\u0639\u0644\u0645 \u0627\u0644\u0639\u0631\u0628\u064A\u0629", "\u0639\u0631\u0628\u064A \u0644\u0644\u0623\u0637\u0641\u0627\u0644",
+        "\u062A\u0639\u0644\u064A\u0645 \u0627\u0644\u0644\u063A\u0629 \u0627\u0644\u0639\u0631\u0628\u064A\u0629",
       ],
       authors: [{ name: "Ta3allam" }],
       creator: "Ta3allam",
@@ -130,11 +136,13 @@ export async function generateMetadata(): Promise<Metadata> {
         siteName: "Ta3allam",
         title: "Ta3allam \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
         description: "Interactive Arabic language learning for K-5 students. Built for Arabic-speaking diaspora families.",
+        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Ta3allam - Learn Arabic Online" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "Ta3allam \u2014 Learn Arabic Online",
         description: "Interactive Arabic language learning for K-5 students.",
+        images: ["/og-image.svg"],
       },
       robots: {
         index: true,
