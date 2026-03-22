@@ -439,9 +439,15 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 </blockquote>
                 <p className="text-sm text-brown-500">{card.secondary_text}</p>
               </div>
+            ) : card.card_type === "discussion" ? (
+              <div className="text-center space-y-4 py-4">
+                <p className="text-xs font-medium text-brown-400 uppercase">Discussion</p>
+                <p className={`text-brown-800 font-medium ${young ? "text-xl" : "text-lg"}`}>{card.primary_text}</p>
+                {card.secondary_text && <p className="text-sm text-brown-500">{card.secondary_text}</p>}
+              </div>
             ) : (
               <LearnCard
-                visual={card.visual ?? ""}
+                visual={card.emoji ?? card.visual ?? ""}
                 primaryText={card.primary_text ?? ""}
                 secondaryText={card.secondary_text ?? ""}
                 young={young}
