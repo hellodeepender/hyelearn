@@ -68,10 +68,10 @@ export default function PortfolioPage() {
           <span style={{ fontFamily: "var(--font-dm-serif)" }} className="text-xl">
             <span className="text-[#2271B3]">D</span><span className="text-[#333]">iasporaLearn</span>
           </span>
-          <nav className="flex gap-6 text-sm text-[#777]">
+          <nav className="flex gap-4 md:gap-6 text-sm text-[#777]">
             <a href="/blog" className="hover:text-[#333]">Blog</a>
-            <a href="/supporters" className="hover:text-[#333]">Our Supporters</a>
-            <a href="mailto:hello@diasporalearn.org" className="hover:text-[#333]">Contact</a>
+            <a href="/supporters" className="hidden md:inline hover:text-[#333]">Our Supporters</a>
+            <a href="mailto:hello@diasporalearn.org" className="hidden md:inline hover:text-[#333]">Contact</a>
           </nav>
         </div>
       </header>
