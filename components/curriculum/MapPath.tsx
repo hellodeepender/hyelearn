@@ -136,7 +136,7 @@ export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props)
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
-  const bgImage = locale === "el" ? "/images/quest-map/quest-bg-greek.png" : locale === "ar" ? "/images/quest-map/quest-bg-armenian.png" : "/images/quest-map/quest-bg-armenian.png";
+  const bgImage = locale === "el" ? "/images/quest-map/quest-bg-greek.png" : locale === "ar" ? "/images/quest-map/quest-bg-arabic.png" : "/images/quest-map/quest-bg-armenian.png";
 
   return (
     <div className="rounded-2xl overflow-hidden relative">
