@@ -116,17 +116,18 @@ export default async function SundaySchoolPage() {
   const currentUnit = currentLesson ? allUnits.find((u) => u.id === currentLesson.unit_id) : null;
 
   const isGreek = locale === "el";
-  const accentColor = isGreek ? "text-blue-600" : "text-gold";
-  const accentBg = isGreek ? "bg-blue-600" : "bg-gold";
-  const accentBgHover = isGreek ? "hover:bg-blue-700" : "hover:bg-gold-dark";
-  const accentBorder = isGreek ? "border-blue-200" : "border-gold/20";
-  const accentBgLight = isGreek ? "bg-blue-50" : "bg-gold/5";
+  const isArabic = locale === "ar";
+  const accentColor = isGreek ? "text-blue-600" : isArabic ? "text-green-700" : "text-gold";
+  const accentBg = isGreek ? "bg-blue-600" : isArabic ? "bg-green-700" : "bg-gold";
+  const accentBgHover = isGreek ? "hover:bg-blue-700" : isArabic ? "hover:bg-green-800" : "hover:bg-gold-dark";
+  const accentBorder = isGreek ? "border-blue-200" : isArabic ? "border-green-200" : "border-gold/20";
+  const accentBgLight = isGreek ? "bg-blue-50" : isArabic ? "bg-green-50" : "bg-gold/5";
 
   // Empty state
   if (allLessons.length === 0) {
     return (
       <div className="min-h-screen bg-cream">
-        <SundayHeader brandName={brandName} locale={locale} language={tc("language")} />
+        <SundayHeader brandName={brandName} locale={locale} language={tc("language")} brandLetter={tc("brandLetter")} />
         <main className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="text-5xl mb-4">{isGreek ? "\u26EA" : "\u26EA"}</div>
           <h1 className="text-3xl font-bold text-brown-800 mb-3">Sunday School</h1>
@@ -143,7 +144,7 @@ export default async function SundaySchoolPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <SundayHeader brandName={brandName} locale={locale} language={tc("language")} />
+      <SundayHeader brandName={brandName} locale={locale} language={tc("language")} brandLetter={tc("brandLetter")} />
       <main className="max-w-3xl mx-auto px-6 py-10">
         {/* Hero: This Week's Lesson */}
         {currentLesson && (
@@ -221,10 +222,10 @@ export default async function SundaySchoolPage() {
         {/* K-5 Curriculum CTA */}
         <div className={`${accentBgLight} border ${accentBorder} rounded-xl p-5 mt-10 flex items-center justify-between gap-4`}>
           <div>
-            <p className="font-medium text-brown-800 text-sm">Want your child to learn {isGreek ? "Greek" : "Armenian"} at home?</p>
+            <p className="font-medium text-brown-800 text-sm">Want your child to learn {tc("language")} at home?</p>
             <p className="text-xs text-brown-500 mt-0.5">K-5 curriculum with interactive lessons, badges, and progress tracking.</p>
           </div>
-          <Link href="/signup" className={`${accentBg} ${isGreek ? "hover:bg-blue-700" : "hover:bg-gold-dark"} text-white text-sm px-5 py-2 rounded-lg font-medium transition-colors shrink-0`}>
+          <Link href="/signup" className={`${accentBg} ${accentBgHover} text-white text-sm px-5 py-2 rounded-lg font-medium transition-colors shrink-0`}>
             Try It &rarr;
           </Link>
         </div>
@@ -239,14 +240,14 @@ export default async function SundaySchoolPage() {
   );
 }
 
-function SundayHeader({ brandName, locale, language }: { brandName: string; locale: string; language: string }) {
-  const isGreek = locale === "el";
+function SundayHeader({ brandName, locale, language, brandLetter }: { brandName: string; locale: string; language: string; brandLetter: string }) {
+  const accentClass = locale === "el" ? "text-blue-600" : locale === "ar" ? "text-green-700" : "text-gold";
   return (
     <header className="bg-warm-white border-b border-brown-100">
       <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className={`text-xl font-bold ${isGreek ? "text-blue-600" : "text-gold"}`}>
-            {isGreek ? "\u039C" : "\u0531"}
+          <span className={`text-xl font-bold ${accentClass}`}>
+            {brandLetter}
           </span>
           <span className="text-sm font-semibold text-brown-800">{brandName}</span>
         </Link>
