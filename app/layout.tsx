@@ -108,32 +108,32 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (locale === "ar") {
     return {
-      metadataBase: new URL("https://arabiclearn.com"),
+      metadataBase: new URL("https://ta3allam.org"),
       title: {
-        default: "ArabicLearn \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
-        template: "%s | ArabicLearn",
+        default: "Ta3allam \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
+        template: "%s | Ta3allam",
       },
       description: "Interactive K-5 Arabic curriculum for diaspora children. Audio pronunciation, cultural lessons, and progress tracking.",
-      alternates: { canonical: "https://arabiclearn.com" },
+      alternates: { canonical: "https://ta3allam.org" },
       keywords: [
         "Arabic language learning", "learn Arabic online", "Arabic for kids",
         "Arabic alphabet", "Arabic vocabulary", "Arabic diaspora education",
         "K-5 Arabic", "teach Arabic to children",
       ],
-      authors: [{ name: "ArabicLearn" }],
-      creator: "ArabicLearn",
-      publisher: "ArabicLearn",
+      authors: [{ name: "Ta3allam" }],
+      creator: "Ta3allam",
+      publisher: "Ta3allam",
       openGraph: {
         type: "website",
         locale: "ar_SA",
-        url: "https://arabiclearn.com",
-        siteName: "ArabicLearn",
-        title: "ArabicLearn \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
+        url: "https://ta3allam.org",
+        siteName: "Ta3allam",
+        title: "Ta3allam \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
         description: "Interactive Arabic language learning for K-5 students. Built for Arabic-speaking diaspora families.",
       },
       twitter: {
         card: "summary_large_image",
-        title: "ArabicLearn \u2014 Learn Arabic Online",
+        title: "Ta3allam \u2014 Learn Arabic Online",
         description: "Interactive Arabic language learning for K-5 students.",
       },
       robots: {
