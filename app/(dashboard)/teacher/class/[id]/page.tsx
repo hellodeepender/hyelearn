@@ -10,10 +10,14 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  // Use service role client for RLS-sensitive queries (auth.uid() can be null in server components)
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+
+  const { data: profile } = await db.from("profiles").select("full_name, role").eq("id", user.id).single();
   if (profile?.role === "student") redirect("/student");
 
-  const { data: cls } = await supabase
+  const { data: cls } = await db
     .from("classes")
     .select("id, name, grade_level, join_code, max_students")
     .eq("id", id)
@@ -22,7 +26,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
   if (!cls) notFound();
 
   // Get class members
-  const { data: members } = await supabase
+  const { data: members } = await db
     .from("class_memberships")
     .select("student_id, joined_at, status, profiles!class_memberships_student_id_fkey(full_name)")
     .eq("class_id", id)
@@ -30,10 +34,6 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .order("joined_at");
 
   const studentIds = (members ?? []).map((m) => m.student_id);
-
-  // Use service role for cross-student progress queries (teacher viewing students' data)
-  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
 
   // Get all progress for class students
   const { data: progress } = studentIds.length > 0
@@ -45,12 +45,12 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
 
   // Count total available lessons for the grade
   const gradeValue = cls.grade_level === 0 ? "K" : String(cls.grade_level);
-  const { data: gradeLevel } = await supabase.from("curriculum_levels").select("id").eq("grade_value", gradeValue).single();
+  const { data: gradeLevel } = await db.from("curriculum_levels").select("id").eq("grade_value", gradeValue).single();
   let totalLessons = 0;
   if (gradeLevel) {
-    const { data: units } = await supabase.from("curriculum_units").select("id").eq("level_id", gradeLevel.id).eq("is_active", true);
+    const { data: units } = await db.from("curriculum_units").select("id").eq("level_id", gradeLevel.id).eq("is_active", true);
     if (units) {
-      const { count } = await supabase
+      const { count } = await db
         .from("curriculum_lessons")
         .select("id", { count: "exact", head: true })
         .in("unit_id", units.map((u) => u.id))

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { getLocale } from "@/lib/server-locale";
 import Header from "@/components/ui/Header";
 import CreateClassForm from "./CreateClassForm";
@@ -10,18 +11,24 @@ export default async function TeacherDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Use service role client for RLS-sensitive queries (auth.uid() can be null in server components)
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk
+    ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } })
+    : supabase;
+
   const locale = await getLocale();
-  let { data: profile } = await supabase.from("profiles").select("full_name, role, locale").eq("id", user.id).single();
+  let { data: profile } = await db.from("profiles").select("full_name, role, locale").eq("id", user.id).single();
 
   // Safety net: create missing profile if DB trigger didn't fire
   if (!profile) {
-    await supabase.from("profiles").upsert({
+    await db.from("profiles").upsert({
       id: user.id,
       full_name: user.user_metadata?.full_name || user.user_metadata?.name || "",
       role: (user.user_metadata?.role as string) || "student",
       locale,
     }, { onConflict: "id" });
-    const { data: refetched } = await supabase.from("profiles").select("full_name, role, locale").eq("id", user.id).single();
+    const { data: refetched } = await db.from("profiles").select("full_name, role, locale").eq("id", user.id).single();
     profile = refetched;
   }
 
@@ -29,11 +36,11 @@ export default async function TeacherDashboard() {
 
   // Auto-sync locale to match the current domain
   if (profile && profile.locale !== locale) {
-    await supabase.from("profiles").update({ locale }).eq("id", user.id);
+    await db.from("profiles").update({ locale }).eq("id", user.id);
   }
 
   // Classes
-  const { data: classes } = await supabase
+  const { data: classes } = await db
     .from("classes")
     .select("id, name, grade_level, join_code, class_students(count)")
     .eq("teacher_id", user.id)
@@ -45,7 +52,7 @@ export default async function TeacherDashboard() {
   }, 0);
 
   // Count distinct lessons with at least 1 approved exercise
-  const { data: readyLessonRows } = await supabase
+  const { data: readyLessonRows } = await db
     .from("curated_exercises")
     .select("lesson_id")
     .eq("status", "approved");
@@ -53,9 +60,9 @@ export default async function TeacherDashboard() {
 
   // Curriculum levels with stats — teachers see only their locale, admins see all
   const isAdmin = profile?.role === "admin";
-  let levelsQuery = supabase.from("curriculum_levels").select("id, slug, title, sort_order").eq("is_active", true).order("sort_order");
-  let unitsQuery = supabase.from("curriculum_units").select("id, level_id").eq("is_active", true);
-  let lessonsQuery = supabase.from("curriculum_lessons").select("id, unit_id").eq("is_active", true);
+  let levelsQuery = db.from("curriculum_levels").select("id, slug, title, sort_order").eq("is_active", true).order("sort_order");
+  let unitsQuery = db.from("curriculum_units").select("id, level_id").eq("is_active", true);
+  let lessonsQuery = db.from("curriculum_lessons").select("id, unit_id").eq("is_active", true);
   if (!isAdmin) {
     levelsQuery = levelsQuery.eq("locale", locale);
     unitsQuery = unitsQuery.eq("locale", locale);
@@ -64,7 +71,7 @@ export default async function TeacherDashboard() {
   const { data: levels } = await levelsQuery;
   const { data: allUnits } = await unitsQuery;
   const { data: allLessons } = await lessonsQuery;
-  const { data: allExercises } = await supabase.from("curated_exercises").select("lesson_id, status");
+  const { data: allExercises } = await db.from("curated_exercises").select("lesson_id, status");
 
   const levelStats = (levels ?? []).map((level) => {
     const unitIds = (allUnits ?? []).filter((u) => u.level_id === level.id).map((u) => u.id);

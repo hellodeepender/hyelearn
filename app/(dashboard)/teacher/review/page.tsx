@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
 import ReviewClient from "./ReviewClient";
 
@@ -8,10 +9,13 @@ export default async function ReviewPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+
+  const { data: profile } = await db.from("profiles").select("full_name, role").eq("id", user.id).single();
   if (profile?.role === "student") redirect("/student");
 
-  const { data: draftExercises } = await supabase
+  const { data: draftExercises } = await db
     .from("curated_exercises")
     .select("id, exercise_type, exercise_data, sort_order, status, created_at, curriculum_lessons!inner(title, curriculum_units!inner(title))")
     .eq("status", "draft")

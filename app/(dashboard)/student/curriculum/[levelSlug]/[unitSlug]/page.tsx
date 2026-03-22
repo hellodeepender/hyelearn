@@ -15,22 +15,22 @@ export default async function UnitPage({ params }: { params: Promise<{ levelSlug
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role").eq("id", user.id).single();
+  const locale = await getLocale();
+  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
 
-  const { data: level } = await supabase.from("curriculum_levels").select("id, title").eq("slug", levelSlug).single();
+  const { data: profile } = await db.from("profiles").select("full_name, role").eq("id", user.id).single();
+
+  const { data: level } = await db.from("curriculum_levels").select("id, title").eq("slug", levelSlug).single();
   if (!level) notFound();
 
-  const { data: unit } = await supabase
+  const { data: unit } = await db
     .from("curriculum_units")
     .select("id, title, description")
     .eq("level_id", level.id)
     .eq("slug", unitSlug)
     .single();
   if (!unit) notFound();
-
-  const locale = await getLocale();
-  const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
   const lessons = await getLessonsWithProgress(db, user.id, unit.id, locale);
 
   return (

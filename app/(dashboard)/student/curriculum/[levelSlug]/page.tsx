@@ -25,13 +25,13 @@ export default async function LevelPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
-  const { data: level } = await supabase.from("curriculum_levels").select("id, slug, title, description").eq("slug", levelSlug).single();
-  if (!level) notFound();
-
   const locale = await getLocale();
   const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const db = sk ? createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, sk, { auth: { persistSession: false, autoRefreshToken: false } }) : supabase;
+
+  const { data: profile } = await db.from("profiles").select("full_name, role, subscription_tier").eq("id", user.id).single();
+  const { data: level } = await db.from("curriculum_levels").select("id, slug, title, description").eq("slug", levelSlug).single();
+  if (!level) notFound();
   const units = await getUnitsWithProgress(db, user.id, level.id, locale);
 
   const totalCompleted = units.reduce((s, u) => s + u.completedLessons, 0);
