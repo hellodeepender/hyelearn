@@ -40,10 +40,7 @@ export default async function SupportersPage() {
             <span className="text-2xl font-bold text-gold">D</span>
             <span className="text-xl font-semibold text-brown-800">DiasporaLearn</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/pricing" className="text-sm text-brown-600 hover:text-brown-800">Donate</Link>
-            <Link href="/login" className="text-sm text-brown-400 hover:text-brown-600">Log in</Link>
-          </div>
+          <Link href="/pricing" className="text-sm text-brown-600 hover:text-brown-800">Donate</Link>
         </div>
       </header>
 
