@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Default theme values (Armenian/HyeLearn) — overridden by layout.tsx per domain */
 :root {

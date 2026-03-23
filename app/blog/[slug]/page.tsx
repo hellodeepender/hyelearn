@@ -105,7 +105,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             )}
           </div>
 
-          <div className="prose prose-neutral max-w-none prose-headings:font-[family-name:var(--font-dm-serif)] prose-a:text-[#2271B3] prose-a:no-underline hover:prose-a:underline">
+          <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-[#1a1a1a] prose-headings:font-[family-name:var(--font-dm-serif)] prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:mb-4 prose-p:leading-relaxed prose-p:text-[#555] prose-a:text-[#2271B3] prose-a:underline">
             <MDXRemote source={post.content} />
           </div>
         </article>
