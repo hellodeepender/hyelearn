@@ -215,7 +215,7 @@ export async function checkAndAwardBadges(
 
   async function tryAward(slug: string) {
     if (earned.has(slug)) return;
-    await db.from("student_badges").insert({ student_id: studentId, badge_slug: slug }).select().maybeSingle();
+    await db.from("student_badges").upsert({ student_id: studentId, badge_slug: slug }, { onConflict: "student_id,badge_slug", ignoreDuplicates: true });
     newBadges.push(slug);
   }
 
