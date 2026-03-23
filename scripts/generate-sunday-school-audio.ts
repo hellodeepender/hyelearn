@@ -24,7 +24,7 @@ if (!NARAKEET_KEY) {
 }
 
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-const VOICE_MAP: Record<string, string> = { hy: "nune", el: "eleni" };
+const VOICE_MAP: Record<string, string> = { hy: "nune", el: "eleni", ar: "majida" };
 const DELAY_MS = 600; // ms between API calls
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
