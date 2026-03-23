@@ -7,6 +7,8 @@ import AuthHashHandler from "@/components/ui/AuthHashHandler";
 import GoogleAnalytics from "@/components/ui/GoogleAnalytics";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
 import NativeApp from "@/components/ui/NativeApp";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import GlobalErrorHandler from "@/components/ui/GlobalErrorHandler";
 import "./globals.css";
 
 const notoSansArmenian = Noto_Sans_Armenian({
@@ -247,7 +249,10 @@ export default async function RootLayout({
           <AuthHashHandler />
           <ServiceWorkerRegister />
           <NativeApp />
-          {children}
+          <GlobalErrorHandler />
+          <ErrorBoundary locale={domainConfig.locale}>
+            {children}
+          </ErrorBoundary>
           <CookieBanner />
         </LocaleProvider>
       </body>
