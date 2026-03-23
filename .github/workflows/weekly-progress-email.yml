@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Trigger weekly progress
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+          STATUS=$(curl -sL -o /dev/null -w "%{http_code}" -X POST \
             "https://diasporalearn.org/api/cron/weekly-progress" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json")
