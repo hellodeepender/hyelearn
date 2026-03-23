@@ -31,37 +31,39 @@ interface LetterData {
 
 const ARABIC_LETTERS: LetterData[] = [
   // Part 1: أ ب ت ث ج ح خ
-  { letter_upper: "\u0623", letter_lower: "\u0627", letter_name: "\u0623\u064E\u0644\u0650\u0641", transliteration: "alif", sound: "a", example_word_target: "\u0623\u0633\u062F", example_word_eng: "lion", emoji: "\uD83E\uDD81" },
-  { letter_upper: "\u0628", letter_lower: "\u0628", letter_name: "\u0628\u0627\u0621", transliteration: "baa", sound: "b", example_word_target: "\u0628\u064A\u062A", example_word_eng: "house", emoji: "\uD83C\uDFE0" },
-  { letter_upper: "\u062A", letter_lower: "\u062A", letter_name: "\u062A\u0627\u0621", transliteration: "taa", sound: "t", example_word_target: "\u062A\u0641\u0627\u062D", example_word_eng: "apple", emoji: "\uD83C\uDF4E" },
-  { letter_upper: "\u062B", letter_lower: "\u062B", letter_name: "\u062B\u0627\u0621", transliteration: "thaa", sound: "th", example_word_target: "\u062B\u0639\u0644\u0628", example_word_eng: "fox", emoji: "\uD83E\uDD8A" },
-  { letter_upper: "\u062C", letter_lower: "\u062C", letter_name: "\u062C\u064A\u0645", transliteration: "jeem", sound: "j", example_word_target: "\u062C\u0645\u0644", example_word_eng: "camel", emoji: "\uD83D\uDC2B" },
-  { letter_upper: "\u062D", letter_lower: "\u062D", letter_name: "\u062D\u0627\u0621", transliteration: "haa", sound: "h", example_word_target: "\u062D\u0635\u0627\u0646", example_word_eng: "horse", emoji: "\uD83D\uDC34" },
-  { letter_upper: "\u062E", letter_lower: "\u062E", letter_name: "\u062E\u0627\u0621", transliteration: "khaa", sound: "kh", example_word_target: "\u062E\u0628\u0632", example_word_eng: "bread", emoji: "\uD83C\uDF5E" },
+  // letter_upper = isolated form, letter_lower = initial form (with tatweel ـ for connecting letters)
+  // Non-connecting letters (أ/ا د ذ ر ز و) keep the same form
+  { letter_upper: "\u0623", letter_lower: "\u0623", letter_name: "\u0623\u064E\u0644\u0650\u0641", transliteration: "alif", sound: "a", example_word_target: "\u0623\u0633\u062F", example_word_eng: "lion", emoji: "\uD83E\uDD81" },
+  { letter_upper: "\u0628", letter_lower: "\u0628\u0640", letter_name: "\u0628\u0627\u0621", transliteration: "baa", sound: "b", example_word_target: "\u0628\u064A\u062A", example_word_eng: "house", emoji: "\uD83C\uDFE0" },
+  { letter_upper: "\u062A", letter_lower: "\u062A\u0640", letter_name: "\u062A\u0627\u0621", transliteration: "taa", sound: "t", example_word_target: "\u062A\u0641\u0627\u062D", example_word_eng: "apple", emoji: "\uD83C\uDF4E" },
+  { letter_upper: "\u062B", letter_lower: "\u062B\u0640", letter_name: "\u062B\u0627\u0621", transliteration: "thaa", sound: "th", example_word_target: "\u062B\u0639\u0644\u0628", example_word_eng: "fox", emoji: "\uD83E\uDD8A" },
+  { letter_upper: "\u062C", letter_lower: "\u062C\u0640", letter_name: "\u062C\u064A\u0645", transliteration: "jeem", sound: "j", example_word_target: "\u062C\u0645\u0644", example_word_eng: "camel", emoji: "\uD83D\uDC2B" },
+  { letter_upper: "\u062D", letter_lower: "\u062D\u0640", letter_name: "\u062D\u0627\u0621", transliteration: "haa", sound: "h", example_word_target: "\u062D\u0635\u0627\u0646", example_word_eng: "horse", emoji: "\uD83D\uDC34" },
+  { letter_upper: "\u062E", letter_lower: "\u062E\u0640", letter_name: "\u062E\u0627\u0621", transliteration: "khaa", sound: "kh", example_word_target: "\u062E\u0628\u0632", example_word_eng: "bread", emoji: "\uD83C\uDF5E" },
   // Part 2: د ذ ر ز س ش ص
   { letter_upper: "\u062F", letter_lower: "\u062F", letter_name: "\u062F\u0627\u0644", transliteration: "daal", sound: "d", example_word_target: "\u062F\u064F\u0628", example_word_eng: "bear", emoji: "\uD83D\uDC3B" },
   { letter_upper: "\u0630", letter_lower: "\u0630", letter_name: "\u0630\u0627\u0644", transliteration: "dhaal", sound: "dh", example_word_target: "\u0630\u0647\u0628", example_word_eng: "gold", emoji: "\u2728" },
   { letter_upper: "\u0631", letter_lower: "\u0631", letter_name: "\u0631\u0627\u0621", transliteration: "raa", sound: "r", example_word_target: "\u0631\u0645\u0627\u0646", example_word_eng: "pomegranate", emoji: "\uD83C\uDF4E" },
   { letter_upper: "\u0632", letter_lower: "\u0632", letter_name: "\u0632\u0627\u064A", transliteration: "zaay", sound: "z", example_word_target: "\u0632\u0647\u0631\u0629", example_word_eng: "flower", emoji: "\uD83C\uDF3A" },
-  { letter_upper: "\u0633", letter_lower: "\u0633", letter_name: "\u0633\u064A\u0646", transliteration: "seen", sound: "s", example_word_target: "\u0633\u0645\u0643", example_word_eng: "fish", emoji: "\uD83D\uDC1F" },
-  { letter_upper: "\u0634", letter_lower: "\u0634", letter_name: "\u0634\u064A\u0646", transliteration: "sheen", sound: "sh", example_word_target: "\u0634\u0645\u0633", example_word_eng: "sun", emoji: "\u2600\uFE0F" },
-  { letter_upper: "\u0635", letter_lower: "\u0635", letter_name: "\u0635\u0627\u062F", transliteration: "saad", sound: "s (emphatic)", example_word_target: "\u0635\u0642\u0631", example_word_eng: "falcon", emoji: "\uD83E\uDD85" },
+  { letter_upper: "\u0633", letter_lower: "\u0633\u0640", letter_name: "\u0633\u064A\u0646", transliteration: "seen", sound: "s", example_word_target: "\u0633\u0645\u0643", example_word_eng: "fish", emoji: "\uD83D\uDC1F" },
+  { letter_upper: "\u0634", letter_lower: "\u0634\u0640", letter_name: "\u0634\u064A\u0646", transliteration: "sheen", sound: "sh", example_word_target: "\u0634\u0645\u0633", example_word_eng: "sun", emoji: "\u2600\uFE0F" },
+  { letter_upper: "\u0635", letter_lower: "\u0635\u0640", letter_name: "\u0635\u0627\u062F", transliteration: "saad", sound: "s (emphatic)", example_word_target: "\u0635\u0642\u0631", example_word_eng: "falcon", emoji: "\uD83E\uDD85" },
   // Part 3: ض ط ظ ع غ ف ق
-  { letter_upper: "\u0636", letter_lower: "\u0636", letter_name: "\u0636\u0627\u062F", transliteration: "daad", sound: "d (emphatic)", example_word_target: "\u0636\u0641\u062F\u0639", example_word_eng: "frog", emoji: "\uD83D\uDC38" },
-  { letter_upper: "\u0637", letter_lower: "\u0637", letter_name: "\u0637\u0627\u0621", transliteration: "taa (emphatic)", sound: "t (emphatic)", example_word_target: "\u0637\u0627\u0626\u0631", example_word_eng: "bird", emoji: "\uD83D\uDC26" },
-  { letter_upper: "\u0638", letter_lower: "\u0638", letter_name: "\u0638\u0627\u0621", transliteration: "dhaa (emphatic)", sound: "dh (emphatic)", example_word_target: "\u0638\u0644", example_word_eng: "shadow", emoji: "\uD83C\uDF11" },
-  { letter_upper: "\u0639", letter_lower: "\u0639", letter_name: "\u0639\u064E\u064A\u0646", transliteration: "ayn", sound: "'a (deep)", example_word_target: "\u0639\u064A\u0646", example_word_eng: "eye", emoji: "\uD83D\uDC41\uFE0F" },
-  { letter_upper: "\u063A", letter_lower: "\u063A", letter_name: "\u063A\u064E\u064A\u0646", transliteration: "ghayn", sound: "gh", example_word_target: "\u063A\u0632\u0627\u0644", example_word_eng: "deer", emoji: "\uD83E\uDD8C" },
-  { letter_upper: "\u0641", letter_lower: "\u0641", letter_name: "\u0641\u0627\u0621", transliteration: "faa", sound: "f", example_word_target: "\u0641\u0631\u0627\u0634\u0629", example_word_eng: "butterfly", emoji: "\uD83E\uDD8B" },
-  { letter_upper: "\u0642", letter_lower: "\u0642", letter_name: "\u0642\u0627\u0641", transliteration: "qaaf", sound: "q", example_word_target: "\u0642\u0645\u0631", example_word_eng: "moon", emoji: "\uD83C\uDF19" },
+  { letter_upper: "\u0636", letter_lower: "\u0636\u0640", letter_name: "\u0636\u0627\u062F", transliteration: "daad", sound: "d (emphatic)", example_word_target: "\u0636\u0641\u062F\u0639", example_word_eng: "frog", emoji: "\uD83D\uDC38" },
+  { letter_upper: "\u0637", letter_lower: "\u0637\u0640", letter_name: "\u0637\u0627\u0621", transliteration: "taa (emphatic)", sound: "t (emphatic)", example_word_target: "\u0637\u0627\u0626\u0631", example_word_eng: "bird", emoji: "\uD83D\uDC26" },
+  { letter_upper: "\u0638", letter_lower: "\u0638\u0640", letter_name: "\u0638\u0627\u0621", transliteration: "dhaa (emphatic)", sound: "dh (emphatic)", example_word_target: "\u0638\u0644", example_word_eng: "shadow", emoji: "\uD83C\uDF11" },
+  { letter_upper: "\u0639", letter_lower: "\u0639\u0640", letter_name: "\u0639\u064E\u064A\u0646", transliteration: "ayn", sound: "'a (deep)", example_word_target: "\u0639\u064A\u0646", example_word_eng: "eye", emoji: "\uD83D\uDC41\uFE0F" },
+  { letter_upper: "\u063A", letter_lower: "\u063A\u0640", letter_name: "\u063A\u064E\u064A\u0646", transliteration: "ghayn", sound: "gh", example_word_target: "\u063A\u0632\u0627\u0644", example_word_eng: "deer", emoji: "\uD83E\uDD8C" },
+  { letter_upper: "\u0641", letter_lower: "\u0641\u0640", letter_name: "\u0641\u0627\u0621", transliteration: "faa", sound: "f", example_word_target: "\u0641\u0631\u0627\u0634\u0629", example_word_eng: "butterfly", emoji: "\uD83E\uDD8B" },
+  { letter_upper: "\u0642", letter_lower: "\u0642\u0640", letter_name: "\u0642\u0627\u0641", transliteration: "qaaf", sound: "q", example_word_target: "\u0642\u0645\u0631", example_word_eng: "moon", emoji: "\uD83C\uDF19" },
   // Part 4: ك ل م ن ه و ي
-  { letter_upper: "\u0643", letter_lower: "\u0643", letter_name: "\u0643\u0627\u0641", transliteration: "kaaf", sound: "k", example_word_target: "\u0643\u062A\u0627\u0628", example_word_eng: "book", emoji: "\uD83D\uDCD6" },
-  { letter_upper: "\u0644", letter_lower: "\u0644", letter_name: "\u0644\u0627\u0645", transliteration: "laam", sound: "l", example_word_target: "\u0644\u064A\u0645\u0648\u0646", example_word_eng: "lemon", emoji: "\uD83C\uDF4B" },
-  { letter_upper: "\u0645", letter_lower: "\u0645", letter_name: "\u0645\u064A\u0645", transliteration: "meem", sound: "m", example_word_target: "\u0645\u0627\u0621", example_word_eng: "water", emoji: "\uD83D\uDCA7" },
-  { letter_upper: "\u0646", letter_lower: "\u0646", letter_name: "\u0646\u0648\u0646", transliteration: "noon", sound: "n", example_word_target: "\u0646\u062C\u0645", example_word_eng: "star", emoji: "\u2B50" },
-  { letter_upper: "\u0647", letter_lower: "\u0647", letter_name: "\u0647\u0627\u0621", transliteration: "haa", sound: "h (light)", example_word_target: "\u0647\u0644\u0627\u0644", example_word_eng: "crescent", emoji: "\uD83C\uDF19" },
+  { letter_upper: "\u0643", letter_lower: "\u0643\u0640", letter_name: "\u0643\u0627\u0641", transliteration: "kaaf", sound: "k", example_word_target: "\u0643\u062A\u0627\u0628", example_word_eng: "book", emoji: "\uD83D\uDCD6" },
+  { letter_upper: "\u0644", letter_lower: "\u0644\u0640", letter_name: "\u0644\u0627\u0645", transliteration: "laam", sound: "l", example_word_target: "\u0644\u064A\u0645\u0648\u0646", example_word_eng: "lemon", emoji: "\uD83C\uDF4B" },
+  { letter_upper: "\u0645", letter_lower: "\u0645\u0640", letter_name: "\u0645\u064A\u0645", transliteration: "meem", sound: "m", example_word_target: "\u0645\u0627\u0621", example_word_eng: "water", emoji: "\uD83D\uDCA7" },
+  { letter_upper: "\u0646", letter_lower: "\u0646\u0640", letter_name: "\u0646\u0648\u0646", transliteration: "noon", sound: "n", example_word_target: "\u0646\u062C\u0645", example_word_eng: "star", emoji: "\u2B50" },
+  { letter_upper: "\u0647", letter_lower: "\u0647\u0640", letter_name: "\u0647\u0627\u0621", transliteration: "haa", sound: "h (light)", example_word_target: "\u0647\u0644\u0627\u0644", example_word_eng: "crescent", emoji: "\uD83C\uDF19" },
   { letter_upper: "\u0648", letter_lower: "\u0648", letter_name: "\u0648\u0627\u0648", transliteration: "waaw", sound: "w", example_word_target: "\u0648\u0631\u062F", example_word_eng: "rose", emoji: "\uD83C\uDF39" },
-  { letter_upper: "\u064A", letter_lower: "\u064A", letter_name: "\u064A\u0627\u0621", transliteration: "yaa", sound: "y", example_word_target: "\u064A\u062F", example_word_eng: "hand", emoji: "\u270B" },
+  { letter_upper: "\u064A", letter_lower: "\u064A\u0640", letter_name: "\u064A\u0627\u0621", transliteration: "yaa", sound: "y", example_word_target: "\u064A\u062F", example_word_eng: "hand", emoji: "\u270B" },
 ];
 
 // ── Seed structure ───────────────────────────────────────────
