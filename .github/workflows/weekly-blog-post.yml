@@ -29,7 +29,7 @@ jobs:
 
       - name: Create PR with new post
         run: |
-          BRANCH="blog/$(date +%Y-%m-%d)"
+          BRANCH="blog/$(date +%Y-%m-%d)-$(shuf -i 1000-9999 -n 1)"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
@@ -40,7 +40,7 @@ jobs:
             exit 0
           fi
           git commit -m "blog: auto-generated weekly post"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "Weekly blog post — $(date +%Y-%m-%d)" \
             --body "$(cat <<'EOF'
