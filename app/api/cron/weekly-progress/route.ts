@@ -165,6 +165,7 @@ export async function POST(request: NextRequest) {
   const { Resend } = await import("resend");
   const resend = new Resend(resendKey);
 
+  const testEmail = request.nextUrl.searchParams.get("test_email");
   const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
 
   // 1. Active students in last 7 days
@@ -185,6 +186,13 @@ export async function POST(request: NextRequest) {
 
   for (const studentId of studentIds) {
     try {
+      // Parent email (parent created the account)
+      const { data: { user: authUser } } = await db.auth.admin.getUserById(studentId);
+      if (!authUser?.email) { skipped++; continue; }
+
+      // In test mode, only process the matching email
+      if (testEmail && authUser.email !== testEmail) { skipped++; continue; }
+
       // Profile + opt-out check
       const { data: profile } = await db
         .from("profiles")
@@ -193,14 +201,10 @@ export async function POST(request: NextRequest) {
         .eq("role", "student")
         .single();
 
-      if (!profile || profile.email_weekly_progress === false) {
+      if (!profile || (!testEmail && profile.email_weekly_progress === false)) {
         skipped++;
         continue;
       }
-
-      // Parent email (parent created the account)
-      const { data: { user: authUser } } = await db.auth.admin.getUserById(studentId);
-      if (!authUser?.email) { skipped++; continue; }
 
       // Locale from most recent completed lesson
       const { data: recentLesson } = await db
@@ -255,12 +259,23 @@ export async function POST(request: NextRequest) {
         unsubscribeUrl,
       });
 
-      await resend.emails.send({
+      const emailPayload = {
         from: `${config.brandName} <noreply@diasporalearn.org>`,
         to: authUser.email,
         subject: getSubject(locale),
-        html,
+      };
+
+      console.log("[weekly-progress] Sending:", {
+        ...emailPayload,
+        student: profile.full_name,
+        locale,
+        lessonsCompleted: lessonsCompleted ?? 0,
+        weeklyXp,
+        streak,
+        badges: badges?.map((b) => b.badge_slug) ?? [],
       });
+
+      await resend.emails.send({ ...emailPayload, html });
 
       sent++;
     } catch (err) {
