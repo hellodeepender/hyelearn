@@ -270,6 +270,9 @@ export default function PortfolioPage() {
               <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Mathaino (Greek)</a>
               <a href="https://ta3allam.org" target="_blank" rel="noopener noreferrer" className="hover:text-[#555]">Ta3allam (Arabic)</a>
               <a href="/supporters" className="hover:text-[#555]">Our Supporters</a>
+              <a href="/blog" className="hover:text-[#555]">Blog</a>
+              <a href="/privacy" className="hover:text-[#555]">Privacy</a>
+              <a href="/terms" className="hover:text-[#555]">Terms</a>
               <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
             </div>
           </div>
