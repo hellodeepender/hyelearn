@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createHmac } from "crypto";
 import { DOMAIN_MAP, type DomainConfig } from "@/config/domains";
+import { getBadgeBySlug } from "@/lib/badges";
 
 export const maxDuration = 300; // 5 min — Vercel limit for cron jobs
 
@@ -22,17 +23,9 @@ function configForLocale(locale: string): DomainConfig {
   return Object.values(DOMAIN_MAP).find((c) => c.locale === locale) ?? DOMAIN_MAP["hyelearn.com"];
 }
 
-const BADGE_LABELS: Record<string, string> = {
-  first_lesson: "First Lesson",
-  lessons_10: "10 Lessons",
-  alphabet_complete: "Alphabet Master",
-  perfect_quiz: "Perfect Score",
-  kindergarten_complete: "Kindergarten Graduate",
-  grade_complete: "Grade Complete",
-  streak_7: "7-Day Streak",
-  streak_30: "30-Day Streak",
-  streak_100: "100-Day Streak",
-};
+function badgeDisplayName(slug: string, locale: string): string {
+  return getBadgeBySlug(slug, locale)?.name ?? slug;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function computeStreak(
@@ -73,17 +66,18 @@ function buildEmailHtml(p: {
   weeklyXp: number;
   streak: number;
   badges: string[];
+  locale: string;
   config: DomainConfig;
   unsubscribeUrl: string;
 }): string {
-  const { childName, lessonsCompleted, weeklyXp, streak, badges, config, unsubscribeUrl } = p;
+  const { childName, lessonsCompleted, weeklyXp, streak, badges, locale, config, unsubscribeUrl } = p;
   const c = config.theme.primary;
 
   const badgeHtml =
     badges.length > 0
       ? `<tr><td style="padding:0 0 24px;">
            <p style="margin:0 0 8px;font-size:14px;color:#333;font-weight:600;">Badges earned this week:</p>
-           <p style="margin:0;">${badges.map((b) => `<span style="display:inline-block;background:#FFF8E1;color:#F9A825;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;margin:2px 4px 2px 0;">${BADGE_LABELS[b] ?? b}</span>`).join("")}</p>
+           <p style="margin:0;">${badges.map((b) => `<span style="display:inline-block;background:#FFF8E1;color:#F9A825;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;margin:2px 4px 2px 0;">${badgeDisplayName(b, locale)}</span>`).join("")}</p>
          </td></tr>`
       : "";
 
@@ -255,6 +249,7 @@ export async function POST(request: NextRequest) {
         weeklyXp,
         streak,
         badges: badges?.map((b) => b.badge_slug) ?? [],
+        locale,
         config,
         unsubscribeUrl,
       });
