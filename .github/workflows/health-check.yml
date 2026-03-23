@@ -26,6 +26,9 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Site integration tests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx tsx scripts/site-integration-test.ts
 
   auto-merge:
     needs: health-check
