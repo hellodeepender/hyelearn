@@ -1,0 +1,22 @@
+name: Weekly Progress Email
+
+on:
+  schedule:
+    - cron: '0 14 * * 0' # Every Sunday at 2pm UTC (morning in US)
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  send-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly progress
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "https://diasporalearn.org/api/cron/weekly-progress" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Cron endpoint returned $STATUS"
+            exit 1
+          fi
