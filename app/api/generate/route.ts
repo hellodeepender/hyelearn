@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
   }
 
   // Parse and validate request
-  let body: { grade?: string | number; subject?: string; topic?: string; exerciseType?: string; count?: number };
+  let body: { grade?: string | number; subject?: string; topic?: string; exerciseType?: string; count?: number; locale?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { grade: rawGrade, subject, topic, exerciseType, count: rawCount } = body;
+  const { grade: rawGrade, subject, topic, exerciseType, count: rawCount, locale } = body;
   const grade = String(rawGrade);
   const validGrades = ["K", "1", "2", "3", "4", "5"];
 
@@ -61,8 +61,9 @@ export async function POST(request: NextRequest) {
   const count = Math.min(Math.max(rawCount ?? 4, 1), 10);
 
   // Build prompts and call Claude
-  const systemPrompt = getSystemPrompt();
-  const userPrompt = buildUserPrompt(grade, subject.trim(), topic.trim(), exerciseType as ExerciseType, count);
+  const loc = locale || "hy";
+  const systemPrompt = getSystemPrompt(loc);
+  const userPrompt = buildUserPrompt(grade, subject.trim(), topic.trim(), exerciseType as ExerciseType, count, loc);
 
   let rawText: string;
   try {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Parse JSON — strip markdown fences if Claude added them
-  let parsed: { exercises: unknown[]; topic_title_hy?: string; topic_title_en?: string };
+  let parsed: Record<string, unknown>;
   try {
     const cleaned = rawText.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?\s*```$/i, "").trim();
     parsed = JSON.parse(cleaned);
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "AI returned invalid format. Please try again." }, { status: 502 });
   }
 
-  if (!Array.isArray(parsed.exercises) || parsed.exercises.length === 0) {
+  if (!Array.isArray(parsed.exercises) || (parsed.exercises as unknown[]).length === 0) {
     return NextResponse.json({ error: "AI returned no exercises. Please try again." }, { status: 502 });
   }
 
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     exercises: parsed.exercises,
-    topic_title_hy: parsed.topic_title_hy ?? "",
-    topic_title_en: parsed.topic_title_en ?? topic,
+    topic_title_target: (parsed[`topic_title_${loc}`] as string) ?? "",
+    topic_title_en: (parsed.topic_title_en as string) ?? topic,
   });
 }

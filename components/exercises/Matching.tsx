@@ -7,6 +7,12 @@ interface Props {
   exercises: MatchingExercise[];
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
+  locale?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lf(obj: any, field: string, locale: string): string {
+  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -18,7 +24,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function Matching({ exercises, onAnswer, young }: Props) {
+export default function Matching({ exercises, onAnswer, young, locale = "hy" }: Props) {
   const leftItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
   const rightItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
 
@@ -129,7 +135,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 disabled={done}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.left_hy}</span>
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{lf(item, "left", locale)}</span>
                 {done && item.left_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
                 )}
@@ -148,7 +154,7 @@ export default function Matching({ exercises, onAnswer, young }: Props) {
                 disabled={done || selectedLeft === null}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{item.right_hy}</span>
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{lf(item, "right", locale)}</span>
                 {done && item.right_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
                 )}

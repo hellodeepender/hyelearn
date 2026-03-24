@@ -7,9 +7,15 @@ interface Props {
   exercise: TrueFalseExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
+  locale?: string;
 }
 
-export default function TrueFalse({ exercise, onAnswer, young }: Props) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lf(obj: any, field: string, locale: string): string {
+  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
+}
+
+export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: Props) {
   const [selected, setSelected] = useState<boolean | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
@@ -42,7 +48,7 @@ export default function TrueFalse({ exercise, onAnswer, young }: Props) {
 
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
-          {exercise.statement_hy}
+          {lf(exercise, "statement", locale)}
         </p>
         {!answered && !hintShown && (
           <button
@@ -80,7 +86,7 @@ export default function TrueFalse({ exercise, onAnswer, young }: Props) {
 
       {answered && (
         <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 space-y-1 animate-fade-in`}>
-          <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
+          <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>
       )}

@@ -26,6 +26,13 @@ const LOCALE_CONFIGS: Record<string, LocaleConfig> = {
     scriptField: "el",
     scriptNote: "Greek script appears ONLY in _el fields. English appears ONLY in _en fields. NEVER mix scripts.",
   },
+  ar: {
+    languageName: "Arabic",
+    dialect: "Modern Standard Arabic with Lebanese pronunciation and vocabulary where applicable",
+    studentDescription: "Arabic-speaking diaspora children (Lebanese, Iraqi, and other Christian communities) learning heritage Arabic",
+    scriptField: "ar",
+    scriptNote: "Arabic script appears ONLY in _ar fields. English appears ONLY in _en fields. NEVER mix scripts. All Arabic text must be fully vowelized (with tashkeel/harakat).",
+  },
 };
 
 function getLocaleConfig(locale: string): LocaleConfig {

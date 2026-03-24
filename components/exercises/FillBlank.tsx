@@ -7,6 +7,12 @@ interface Props {
   exercise: FillBlankExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
+  locale?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lf(obj: any, field: string, locale: string): any {
+  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -18,24 +24,27 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function FillBlank({ exercise, onAnswer, young }: Props) {
+export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
   const showCorrect = (exercise as unknown as Record<string, unknown>).showCorrectAnswer !== false;
 
   const wordBank = useMemo(() => {
+    const ex = exercise as unknown as Record<string, unknown>;
+    const answerTarget = (ex[`answer_${locale}`] ?? ex.answer_hy ?? "") as string;
+    const distractorsTarget = (ex[`distractors_${locale}`] ?? ex.distractors_hy ?? []) as string[];
     const options = [
-      { hy: exercise.answer_hy, en: exercise.answer_en, emoji: exercise.answer_emoji, isCorrect: true },
-      ...exercise.distractors_hy.map((hy, i) => ({
-        hy,
+      { target: answerTarget, en: exercise.answer_en, emoji: exercise.answer_emoji, isCorrect: true },
+      ...distractorsTarget.map((t, i) => ({
+        target: t,
         en: exercise.distractors_en[i] ?? "",
         emoji: exercise.distractors_emoji?.[i],
         isCorrect: false,
       })),
     ];
     return shuffle(options);
-  }, [exercise]);
+  }, [exercise, locale]);
 
   function handleSelect(index: number) {
     if (answered) return;
@@ -43,7 +52,8 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
     onAnswer(wordBank[index].isCorrect, hintShown);
   }
 
-  const parts = exercise.sentence_hy.split("___");
+  const sentenceTarget = lf(exercise, "sentence", locale) as string;
+  const parts = sentenceTarget.split("___");
 
   return (
     <div className="space-y-6">
@@ -65,7 +75,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
                 : "border-red-500 text-red-700"
               : "border-gold text-brown-300"
           }`}>
-            {answered ? wordBank[selected!].hy : "\u00A0\u00A0\u00A0?\u00A0\u00A0\u00A0"}
+            {answered ? wordBank[selected!].target : "\u00A0\u00A0\u00A0?\u00A0\u00A0\u00A0"}
           </span>
           {parts[1] ?? ""}
         </p>
@@ -107,7 +117,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
               disabled={answered}
               className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
             >
-              <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.hy}</span>
+              <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.target}</span>
               {answered && showCorrect && (
                 <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>
               )}
@@ -118,7 +128,7 @@ export default function FillBlank({ exercise, onAnswer, young }: Props) {
 
       {answered && showCorrect && (
         <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
-          <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
+          <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>
       )}

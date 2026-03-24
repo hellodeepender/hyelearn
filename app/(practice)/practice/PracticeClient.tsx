@@ -65,6 +65,7 @@ const EXERCISE_TYPES: { id: ExerciseType; label: string; icon: string }[] = [
 
 const LOADING_LETTERS_HY = ["\u0531", "\u0532", "\u0533", "\u0534", "\u0535", "\u0536", "\u0537", "\u0538", "\u0539", "\u053A"];
 const LOADING_LETTERS_EL = ["\u0391", "\u0392", "\u0393", "\u0394", "\u0395", "\u0396", "\u0397", "\u0398", "\u0399", "\u039A"];
+const LOADING_LETTERS_AR = ["\u0623", "\u0628", "\u062A", "\u062B", "\u062C", "\u062D", "\u062E", "\u062F", "\u0630", "\u0631"];
 
 type Phase = "config" | "loading" | "practicing" | "complete";
 
@@ -112,7 +113,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
 
   const young = isYoung(grade);
   const topics = getTopics(grade, englishName);
-  const loadingLetters = locale === "el" ? LOADING_LETTERS_EL : LOADING_LETTERS_HY;
+  const loadingLetters = locale === "el" ? LOADING_LETTERS_EL : locale === "ar" ? LOADING_LETTERS_AR : LOADING_LETTERS_HY;
 
   async function handleGenerate() {
     setError("");
@@ -128,6 +129,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           topic,
           exerciseType,
           count: exerciseType === "matching" ? (young ? 4 : 5) : (young ? 3 : 4),
+          locale,
         }),
       });
 
@@ -423,6 +425,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             exercise={exercises[currentIndex] as MultipleChoiceExercise}
             onAnswer={handleAnswer}
             young={young}
+            locale={locale}
           />
         )}
         {exerciseType === "fill_blank" && (
@@ -431,6 +434,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             exercise={exercises[currentIndex] as FillBlankExercise}
             onAnswer={handleAnswer}
             young={young}
+            locale={locale}
           />
         )}
         {exerciseType === "matching" && (
@@ -438,6 +442,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             exercises={exercises as MatchingExercise[]}
             onAnswer={handleAnswer}
             young={young}
+            locale={locale}
           />
         )}
         {exerciseType === "true_false" && (
@@ -446,6 +451,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             exercise={exercises[currentIndex] as TrueFalseExercise}
             onAnswer={handleAnswer}
             young={young}
+            locale={locale}
           />
         )}
       </div>

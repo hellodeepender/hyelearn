@@ -75,7 +75,7 @@ export type Exercise = MultipleChoiceExercise | FillBlankExercise | MatchingExer
 
 export interface ExerciseSetResponse {
   exercises: Exercise[];
-  topic_title_hy: string;
+  topic_title_target: string;
   topic_title_en: string;
 }
 
@@ -89,7 +89,7 @@ export interface GenerateRequest {
 
 export interface GenerateResponse {
   exercises: Exercise[];
-  topic_title_hy: string;
+  topic_title_target: string;
   topic_title_en: string;
 }
 

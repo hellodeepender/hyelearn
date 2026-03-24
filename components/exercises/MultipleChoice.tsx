@@ -7,6 +7,12 @@ interface Props {
   exercise: MultipleChoiceExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
+  locale?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lf(obj: any, field: string, locale: string): string {
+  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -18,7 +24,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
+export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy" }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
@@ -43,7 +49,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
 
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
-          {exercise.question_hy}
+          {lf(exercise, "question", locale)}
         </p>
         {!answered && !hintShown && (
           <button
@@ -86,7 +92,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
               <div className="flex items-center gap-3">
                 {answered && opt.correct && showCorrect && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
                 {answered && opt.id === selected && !opt.correct && <span className="text-red-500 text-lg shrink-0">{"\u2717"}</span>}
-                <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{opt.text_hy}</span>
+                <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{lf(opt, "text", locale)}</span>
               </div>
               {answered && showCorrect && opt.text_en && (
                 <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>
@@ -98,7 +104,7 @@ export default function MultipleChoice({ exercise, onAnswer, young }: Props) {
 
       {answered && showCorrect && (
         <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
-          <p className="text-brown-700 font-medium">{exercise.explanation_hy}</p>
+          <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>
       )}
