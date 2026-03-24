@@ -41,11 +41,17 @@ function pickWrong<T>(pool: T[], correctIdx: number, count = 2): T[] {
 }
 
 /** Build a shuffled option array: 1 correct + up to 2 wrong */
-function makeOptions(correct: { hy: string; en: string }, wrongs: { hy: string; en: string }[]) {
+function makeOptions(correct: { hy: string; en: string; emoji?: string }, wrongs: { hy: string; en: string; emoji?: string }[]) {
   const ids = ["a", "b", "c"];
   const wrongSlice = wrongs.slice(0, 2);
   const all = [{ ...correct, correct: true }, ...wrongSlice.map((w) => ({ ...w, correct: false }))];
-  return shuffle(all).map((o, j) => ({ id: ids[j] as string, text_hy: o.hy, text_en: o.en, correct: o.correct }));
+  return shuffle(all).map((o, j) => ({
+    id: ids[j] as string,
+    text_hy: o.hy,
+    text_en: o.en,
+    ...(o.emoji ? { emoji: o.emoji } : {}),
+    correct: o.correct,
+  }));
 }
 
 /** Alias for backward compatibility */
@@ -232,8 +238,8 @@ function generateVocabulary(items: ContentItem[], locale: string): GeneratedExer
 
   // --- Word exercises (only if 3+ words for proper 3-option MC) ---
   if (words.length >= 3) {
-    const armPool = words.map((w) => ({ hy: w.item_data.target_lang as string, en: "" }));
-    const engPool = words.map((w) => ({ hy: w.item_data.english as string, en: w.item_data.english as string }));
+    const armPool = words.map((w) => ({ hy: w.item_data.target_lang as string, en: "", emoji: w.item_data.emoji as string }));
+    const engPool = words.map((w) => ({ hy: w.item_data.english as string, en: w.item_data.english as string, emoji: w.item_data.emoji as string }));
 
     // Picture Recognition
     for (let i = 0; i < Math.min(3, words.length); i++) {
