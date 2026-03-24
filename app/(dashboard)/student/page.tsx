@@ -254,13 +254,6 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
             </div>
           </section>
         )}
-
-        {/* Extra Practice — compact link */}
-        <div className="text-center">
-          <Link href="/practice" className="text-sm text-brown-500 hover:text-brown-700 font-medium">
-            Extra Practice &rarr;
-          </Link>
-        </div>
       </main>
 
       <BadgeCelebration badges={celebrationBadges} />
