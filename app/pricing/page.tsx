@@ -187,10 +187,10 @@ export default function SupportPage() {
             <li>{"\u2713"} Student progress reports</li>
             <li>{"\u2713"} Admin analytics</li>
           </ul>
-          <a href={`mailto:${supportEmail}?subject=School inquiry for ${brandName}`}
+          <Link href="/contact?subject=school"
             className="inline-block bg-gold hover:bg-gold-dark text-white px-6 py-3 rounded-lg font-medium transition-colors">
             Contact Us for School Pricing
-          </a>
+          </Link>
         </div>
 
         {/* For Organizations */}

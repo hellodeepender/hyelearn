@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "@/lib/use-translations";
 import { useLocale } from "@/lib/locale-context";
 import SiteFooter from "@/components/ui/SiteFooter";
@@ -17,9 +18,11 @@ const SUBJECTS = [
 export default function ContactPage() {
   const tc = useTranslations("common");
   const { brandName, supportEmail } = useLocale();
+  const searchParams = useSearchParams();
+  const initialSubject = searchParams.get("subject") === "school" ? "School Partnership" : SUBJECTS[0];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const [subject, setSubject] = useState(initialSubject);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);

@@ -224,7 +224,7 @@ export default async function LandingPage() {
               ))}
             </div>
             <div className="text-center">
-              <Link href="/contact" className="inline-block bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+              <Link href="/contact?subject=school" className="inline-block bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors">
                 {t("contactSchoolPricing")}
               </Link>
               <p className="text-brown-400 text-sm mt-3">{t("orEmailSchools")}</p>
