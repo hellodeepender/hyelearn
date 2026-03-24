@@ -114,6 +114,23 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* ============ STATS BAR ============ */}
+        <section className="py-8 px-6 bg-cream/40 border-b border-brown-100">
+          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-6 md:gap-10 text-sm text-brown-500">
+            {(locale === "el"
+              ? [{ val: "135", label: "Lessons" }, { val: "2,345+", label: "Exercises" }, { val: "K\u20135", label: "Grade Levels" }, { val: "$0", label: "Forever Free" }]
+              : locale === "ar"
+              ? [{ val: "95", label: "Lessons" }, { val: "1,000+", label: "Exercises" }, { val: "K\u20135", label: "Grade Levels" }, { val: "$0", label: "Forever Free" }]
+              : [{ val: "134", label: "Lessons" }, { val: "2,130+", label: "Exercises" }, { val: "K\u20135", label: "Grade Levels" }, { val: "$0", label: "Forever Free" }]
+            ).map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-2xl font-bold text-brown-800">{s.val}</p>
+                <p>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* ============ HOW IT WORKS ============ */}
         <section id="how-it-works" className="py-20 px-6 bg-warm-white">
           <div className="max-w-5xl mx-auto">
@@ -255,6 +272,16 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ============ TESTIMONIAL — uncomment and fill when real quotes are collected ============ */}
+        {/* <section className="py-12 px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <blockquote className="text-xl italic text-brown-700 leading-relaxed">
+              &ldquo;Quote text here&rdquo;
+            </blockquote>
+            <p className="mt-4 text-sm text-brown-500">&mdash; Name, Role</p>
+          </div>
+        </section> */}
 
         {/* ============ PRICING ============ */}
         <section id="pricing" className="py-20 px-6 bg-cream/40">
