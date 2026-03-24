@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale } from "@/lib/server-locale";
+import SiteFooter from "@/components/ui/SiteFooter";
 
 export default async function CookiePolicyPage() {
   const tc = await getTranslations("common");
@@ -46,16 +47,7 @@ export default async function CookiePolicyPage() {
         </div>
       </main>
 
-      <footer className="py-8 px-6 border-t border-brown-100 mt-12">
-        <div className="max-w-4xl mx-auto text-center text-xs text-brown-400">
-          <div className="flex justify-center gap-6 mb-3">
-            <Link href="/privacy" className="hover:text-brown-600">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-brown-600">Terms of Service</Link>
-            <Link href="/cookies" className="hover:text-brown-600">Cookie Policy</Link>
-          </div>
-          &copy; {new Date().getFullYear()} {brandName}
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

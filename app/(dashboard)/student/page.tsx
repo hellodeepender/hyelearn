@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Header from "@/components/ui/Header";
+import SiteFooter from "@/components/ui/SiteFooter";
 import StudentNav from "@/components/ui/StudentNav";
 import { getLevelsWithProgress } from "@/lib/curriculum";
 import { checkAndAwardBadges } from "@/lib/xp";
@@ -264,30 +265,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
 
       <BadgeCelebration badges={celebrationBadges} />
 
-      {/* Footer */}
-      <footer className="mt-10 py-6 px-6 border-t border-brown-100">
-        <div className="max-w-6xl mx-auto flex flex-col items-center gap-2 text-xs text-brown-400">
-          <a href={`mailto:${supportEmail}?subject=Feedback for ${brandName}`} className="text-gold hover:text-gold-dark font-medium text-sm transition-colors">
-            Send Feedback
-          </a>
-          <span>{brandName} &middot; Made with love for diaspora communities</span>
-          <div className="flex items-center gap-3 mt-1">
-            <a href="https://diasporalearn.org" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">DiasporaLearn</a>
-            <span>&middot;</span>
-            <a href="https://diasporalearn.org/supporters" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">Our Supporters</a>
-            <span>&middot;</span>
-            {locale === "el" ? (
-              <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">HyeLearn (Armenian)</a>
-            ) : (
-              <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600">Mathaino (Greek)</a>
-            )}
-            <span>&middot;</span>
-            <a href="https://www.linkedin.com/company/diasporalearn/" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600" aria-label="LinkedIn">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            </a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter showFeedback />
     </div>
   );
 }

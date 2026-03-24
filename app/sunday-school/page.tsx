@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { getLocale, getServerLocale } from "@/lib/server-locale";
 import { getTranslations } from "@/lib/translations";
+import SiteFooter from "@/components/ui/SiteFooter";
 
 interface SundayUnit {
   id: string;
@@ -231,11 +232,7 @@ export default async function SundaySchoolPage() {
         </div>
       </main>
 
-      <footer className="py-6 px-6 border-t border-brown-100 mt-10">
-        <div className="max-w-3xl mx-auto text-center text-xs text-brown-400">
-          <Link href="/" className="hover:text-brown-600">&larr; Back to {brandName}</Link>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

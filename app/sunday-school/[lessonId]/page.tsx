@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getLocale, getServerLocale } from "@/lib/server-locale";
 import AudioPlayButton from "@/components/ui/AudioPlayButton";
 import DownloadPDFButton from "@/components/sunday-school/DownloadPDFButton";
+import SiteFooter from "@/components/ui/SiteFooter";
 
 interface KeyPhrase {
   native: string;
@@ -316,13 +317,10 @@ export default async function SundayLessonPage({ params }: { params: Promise<{ l
         </nav>
       </main>
 
-      <footer className="py-6 px-6 border-t border-brown-100 mt-6">
-        <div className="max-w-3xl mx-auto text-center text-xs text-brown-400">
+        <div className="max-w-3xl mx-auto text-center text-xs text-brown-400 mt-6 mb-4">
           <Link href="/sunday-school" className="hover:text-brown-600">&larr; All lessons</Link>
-          <span className="mx-3">&middot;</span>
-          <Link href="/" className="hover:text-brown-600">{brandName}</Link>
         </div>
-      </footer>
+        <SiteFooter />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "@/lib/translations";
 import { getServerLocale } from "@/lib/server-locale";
+import SiteFooter from "@/components/ui/SiteFooter";
 
 export default async function AboutPage() {
   const tc = await getTranslations("common");
@@ -55,11 +56,7 @@ export default async function AboutPage() {
         </div>
       </main>
 
-      <footer className="py-8 px-6 border-t border-brown-100">
-        <div className="max-w-6xl mx-auto text-center text-xs text-brown-400">
-          Made with love for diaspora communities &middot; &copy; {new Date().getFullYear()} {brandName}
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
