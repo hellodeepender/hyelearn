@@ -457,19 +457,19 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
         ) : (
           <div className={`bg-warm-white border border-brown-100 ${young ? "rounded-3xl p-8" : "rounded-2xl p-6"} shadow-sm`}>
             {step.entry.type === "multiple_choice" && (
-              <MultipleChoice key={currentStep} exercise={step.entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+              <MultipleChoice key={currentStep} exercise={step.entry.data as MultipleChoiceExercise} onAnswer={(c) => handleAnswer(c)} young={young} locale={locale} />
             )}
             {step.entry.type === "fill_blank" && (
-              <FillBlank key={currentStep} exercise={step.entry.data as FillBlankExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+              <FillBlank key={currentStep} exercise={step.entry.data as FillBlankExercise} onAnswer={(c) => handleAnswer(c)} young={young} locale={locale} />
             )}
             {step.entry.type === "true_false" && (
-              <TrueFalse key={currentStep} exercise={step.entry.data as TrueFalseExercise} onAnswer={(c) => handleAnswer(c)} young={young} />
+              <TrueFalse key={currentStep} exercise={step.entry.data as TrueFalseExercise} onAnswer={(c) => handleAnswer(c)} young={young} locale={locale} />
             )}
             {step.entry.type === "matching" && (
-              <Matching exercises={[step.entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} />
+              <Matching exercises={[step.entry.data as MatchingExercise]} onAnswer={(c) => handleAnswer(c)} young={young} locale={locale} />
             )}
             {step.entry.type === "matching_group" && (
-              <Matching exercises={step.entry.data as MatchingExercise[]} onAnswer={(c) => handleAnswer(c)} young={young} />
+              <Matching exercises={step.entry.data as MatchingExercise[]} onAnswer={(c) => handleAnswer(c)} young={young} locale={locale} />
             )}
           </div>
         )}

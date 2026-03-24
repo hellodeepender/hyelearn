@@ -16,7 +16,7 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
   if (!primaryText) return null;
 
   const latin = transliterate(primaryText, locale);
-  const hasNonLatin = /[\u0370-\u03FF\u0530-\u058F]/.test(primaryText);
+  const hasNonLatin = /[\u0370-\u03FF\u0530-\u058F\u0600-\u06FF]/.test(primaryText);
 
   return (
     <div className="text-center space-y-3 py-4">

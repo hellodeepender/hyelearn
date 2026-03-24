@@ -2,17 +2,15 @@
 
 import { useState, useMemo } from "react";
 import type { FillBlankExercise } from "@/lib/types";
+import { lf } from "@/lib/exercise-utils";
+import { transliterate } from "@/lib/transliterate";
+import AudioButton from "./AudioButton";
 
 interface Props {
   exercise: FillBlankExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
   locale?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function lf(obj: any, field: string, locale: string): any {
-  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -57,14 +55,12 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
 
   return (
     <div className="space-y-6">
-      {/* Emoji visual (young learners) */}
       {exercise.emoji && (
         <div className="text-center">
           <span className={young ? "text-7xl" : "text-5xl"}>{exercise.emoji}</span>
         </div>
       )}
 
-      {/* Sentence */}
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
           {parts[0]}
@@ -73,28 +69,38 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
               ? wordBank[selected!].isCorrect
                 ? "border-green-500 text-green-700"
                 : "border-red-500 text-red-700"
-              : "border-gold text-brown-300"
+              : young ? "border-gold text-brown-300 animate-pulse" : "border-gold text-brown-300"
           }`}>
             {answered ? wordBank[selected!].target : "\u00A0\u00A0\u00A0?\u00A0\u00A0\u00A0"}
           </span>
           {parts[1] ?? ""}
         </p>
-        {!answered && !hintShown && (
-          <button
-            onClick={() => setHintShown(true)}
-            className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
-          >
-            Need help? Show English
-          </button>
-        )}
-        {(hintShown || answered) && (
-          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
-            {exercise.sentence_en}
+        {young && sentenceTarget && (
+          <p className="text-sm text-brown-400 font-light tracking-wide mt-1">
+            {transliterate(sentenceTarget.replace("___", "..."), locale)}
           </p>
+        )}
+        {young ? (
+          <p className="text-sm text-brown-400 mt-1">{exercise.sentence_en}</p>
+        ) : (
+          <>
+            {!answered && !hintShown && (
+              <button
+                onClick={() => setHintShown(true)}
+                className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
+              >
+                Need help? Show English
+              </button>
+            )}
+            {(hintShown || answered) && (
+              <p className="text-sm text-brown-400 mt-1 animate-fade-in">
+                {exercise.sentence_en}
+              </p>
+            )}
+          </>
         )}
       </div>
 
-      {/* Word bank */}
       <div className="grid grid-cols-2 gap-3">
         {wordBank.map((word, i) => {
           let style = young
@@ -117,7 +123,13 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
               disabled={answered}
               className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
             >
+              {young && word.emoji && <span className="block text-2xl mb-1">{word.emoji}</span>}
               <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.target}</span>
+              {young && word.target && (
+                <span className="block text-xs text-brown-400 font-light tracking-wide">
+                  {transliterate(word.target, locale)}
+                </span>
+              )}
               {answered && showCorrect && (
                 <span className="block text-xs text-brown-400 mt-0.5 animate-fade-in">{word.en}</span>
               )}

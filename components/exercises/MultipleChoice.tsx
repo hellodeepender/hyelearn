@@ -2,17 +2,15 @@
 
 import { useState, useMemo } from "react";
 import type { MultipleChoiceExercise, MCOption } from "@/lib/types";
+import { lf } from "@/lib/exercise-utils";
+import { transliterate } from "@/lib/transliterate";
+import AudioButton from "./AudioButton";
 
 interface Props {
   exercise: MultipleChoiceExercise;
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
   locale?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function lf(obj: any, field: string, locale: string): string {
-  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -31,6 +29,7 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
   const showCorrect = (exercise as unknown as Record<string, unknown>).showCorrectAnswer !== false;
 
   const shuffledOptions = useMemo<MCOption[]>(() => shuffle(exercise.options), [exercise]);
+  const questionText = lf(exercise, "question", locale) as string;
 
   function handleSelect(optionId: string) {
     if (answered) return;
@@ -49,26 +48,39 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
 
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
-          {lf(exercise, "question", locale)}
+          {questionText}
         </p>
-        {!answered && !hintShown && (
-          <button
-            onClick={() => setHintShown(true)}
-            className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
-          >
-            Need help? Show English
-          </button>
-        )}
-        {(hintShown || answered) && (
-          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
-            {exercise.question_en}
+        {young && questionText && (
+          <p className="text-sm text-brown-400 font-light tracking-wide mt-1">
+            {transliterate(questionText, locale)}
           </p>
         )}
+        {young ? (
+          <p className="text-sm text-brown-400 mt-1">{exercise.question_en}</p>
+        ) : (
+          <>
+            {!answered && !hintShown && (
+              <button
+                onClick={() => setHintShown(true)}
+                className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
+              >
+                Need help? Show English
+              </button>
+            )}
+            {(hintShown || answered) && (
+              <p className="text-sm text-brown-400 mt-1 animate-fade-in">
+                {exercise.question_en}
+              </p>
+            )}
+          </>
+        )}
+        {young && questionText && <AudioButton word={questionText} autoPlay />}
       </div>
 
       <div className="space-y-3">
         {shuffledOptions.map((opt) => {
           let style: string;
+          const optText = lf(opt, "text", locale) as string;
 
           if (answered) {
             if (opt.correct && showCorrect) {
@@ -87,12 +99,20 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-left py-4 px-6 rounded-xl border-2 min-h-[56px] transition-all duration-150 ${style}`}
+              className={`w-full text-left py-4 px-6 rounded-xl border-2 ${young ? "min-h-[72px]" : "min-h-[56px]"} transition-all duration-150 ${style}`}
             >
               <div className="flex items-center gap-3">
                 {answered && opt.correct && showCorrect && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
                 {answered && opt.id === selected && !opt.correct && <span className="text-red-500 text-lg shrink-0">{"\u2717"}</span>}
-                <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{lf(opt, "text", locale)}</span>
+                {young && opt.emoji && <span className="text-3xl shrink-0">{opt.emoji}</span>}
+                <div>
+                  <span className={`font-medium text-brown-800 ${young ? "text-2xl" : "text-xl"}`}>{optText}</span>
+                  {young && optText && (
+                    <span className="block text-xs text-brown-400 font-light tracking-wide">
+                      {transliterate(optText, locale)}
+                    </span>
+                  )}
+                </div>
               </div>
               {answered && showCorrect && opt.text_en && (
                 <span className="text-sm text-brown-400 ml-8 animate-fade-in block mt-1">({opt.text_en})</span>

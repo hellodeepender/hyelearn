@@ -2,17 +2,14 @@
 
 import { useState, useMemo } from "react";
 import type { MatchingExercise } from "@/lib/types";
+import { lf } from "@/lib/exercise-utils";
+import { transliterate } from "@/lib/transliterate";
 
 interface Props {
   exercises: MatchingExercise[];
   onAnswer: (correct: boolean, usedHint: boolean) => void;
   young?: boolean;
   locale?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function lf(obj: any, field: string, locale: string): string {
-  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -29,7 +26,6 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
   const rightItems = useMemo(() => shuffle(exercises.map((e, i) => ({ ...e, index: i }))), [exercises]);
 
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
-  // Maps leftOriginalIndex → rightOriginalIndex
   const [matches, setMatches] = useState<Map<number, number>>(new Map());
   const [results, setResults] = useState<Map<number, boolean> | null>(null);
   const done = results !== null;
@@ -37,22 +33,10 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
   function handleLeftClick(index: number) {
     if (done) return;
     const originalIndex = leftItems[index].index;
-
-    if (selectedLeft === index) {
-      // Deselect
-      setSelectedLeft(null);
-      return;
-    }
-
-    // If this left item is already matched, unmatch it first
+    if (selectedLeft === index) { setSelectedLeft(null); return; }
     if (matches.has(originalIndex)) {
-      setMatches((prev) => {
-        const next = new Map(prev);
-        next.delete(originalIndex);
-        return next;
-      });
+      setMatches((prev) => { const next = new Map(prev); next.delete(originalIndex); return next; });
     }
-
     setSelectedLeft(index);
   }
 
@@ -60,17 +44,10 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
     if (done || selectedLeft === null) return;
     const leftOriginalIndex = leftItems[selectedLeft].index;
     const rightOriginalIndex = rightItems[rightIndex].index;
-
     const next = new Map(matches);
-
-    // If this right item is already matched to a different left, remove that old match
     for (const [leftIdx, rightIdx] of next) {
-      if (rightIdx === rightOriginalIndex && leftIdx !== leftOriginalIndex) {
-        next.delete(leftIdx);
-        break;
-      }
+      if (rightIdx === rightOriginalIndex && leftIdx !== leftOriginalIndex) { next.delete(leftIdx); break; }
     }
-
     next.set(leftOriginalIndex, rightOriginalIndex);
     setMatches(next);
     setSelectedLeft(null);
@@ -128,6 +105,7 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
         <div className="space-y-2">
           {leftItems.map((item, i) => {
             const status = selectedLeft === i ? "selected" : getLeftStatus(item.index);
+            const text = lf(item, "left", locale) as string;
             return (
               <button
                 key={`left-${item.index}`}
@@ -135,7 +113,11 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
                 disabled={done}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{lf(item, "left", locale)}</span>
+                {young && item.emoji_left && <span className="text-xl mr-2">{item.emoji_left}</span>}
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{text}</span>
+                {young && text && (
+                  <span className="block text-xs text-brown-400 font-light tracking-wide">{transliterate(text, locale)}</span>
+                )}
                 {done && item.left_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.left_en}</span>
                 )}
@@ -147,6 +129,7 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
         <div className="space-y-2">
           {rightItems.map((item, i) => {
             const status = getRightStatus(item.index);
+            const text = lf(item, "right", locale) as string;
             return (
               <button
                 key={`right-${item.index}`}
@@ -154,7 +137,11 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
                 disabled={done || selectedLeft === null}
                 className={`w-full p-3 ${radius} border-2 text-left transition-all ${statusStyles[status]}`}
               >
-                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{lf(item, "right", locale)}</span>
+                {young && item.emoji_right && <span className="text-xl mr-2">{item.emoji_right}</span>}
+                <span className={`font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{text}</span>
+                {young && text && (
+                  <span className="block text-xs text-brown-400 font-light tracking-wide">{transliterate(text, locale)}</span>
+                )}
                 {done && item.right_en && (
                   <span className="block text-xs text-brown-400 animate-fade-in">{item.right_en}</span>
                 )}

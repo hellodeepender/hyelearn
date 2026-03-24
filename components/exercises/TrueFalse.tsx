@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import type { TrueFalseExercise } from "@/lib/types";
+import { lf } from "@/lib/exercise-utils";
+import { transliterate } from "@/lib/transliterate";
+import AudioButton from "./AudioButton";
 
 interface Props {
   exercise: TrueFalseExercise;
@@ -10,15 +13,11 @@ interface Props {
   locale?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function lf(obj: any, field: string, locale: string): string {
-  return obj[`${field}_${locale}`] ?? obj[`${field}_hy`] ?? "";
-}
-
 export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: Props) {
   const [selected, setSelected] = useState<boolean | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const answered = selected !== null;
+  const statementText = lf(exercise, "statement", locale) as string;
 
   function handleSelect(value: boolean) {
     if (answered) return;
@@ -48,20 +47,34 @@ export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: 
 
       <div>
         <p className={`font-semibold text-brown-800 leading-relaxed ${young ? "text-3xl" : "text-2xl"}`}>
-          {lf(exercise, "statement", locale)}
+          {statementText}
         </p>
-        {!answered && !hintShown && (
-          <button
-            onClick={() => setHintShown(true)}
-            className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
-          >
-            Need help? Show English
-          </button>
-        )}
-        {(hintShown || answered) && (
-          <p className="text-sm text-brown-400 mt-1 animate-fade-in">
-            {exercise.statement_en}
+        {young && statementText && (
+          <p className="text-sm text-brown-400 font-light tracking-wide mt-1">
+            {transliterate(statementText, locale)}
           </p>
+        )}
+        {young ? (
+          <>
+            <p className="text-sm text-brown-400 mt-1">{exercise.statement_en}</p>
+            {statementText && <AudioButton word={statementText} autoPlay />}
+          </>
+        ) : (
+          <>
+            {!answered && !hintShown && (
+              <button
+                onClick={() => setHintShown(true)}
+                className="text-xs text-brown-300 hover:text-brown-400 mt-2 transition-colors"
+              >
+                Need help? Show English
+              </button>
+            )}
+            {(hintShown || answered) && (
+              <p className="text-sm text-brown-400 mt-1 animate-fade-in">
+                {exercise.statement_en}
+              </p>
+            )}
+          </>
         )}
       </div>
 
@@ -69,17 +82,17 @@ export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: 
         <button
           onClick={() => handleSelect(true)}
           disabled={answered}
-          className={`${young ? "p-6 min-h-[56px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(true)}`}
+          className={`${young ? "p-6 min-h-[72px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(true)}`}
         >
-          <span className={`block mb-1 ${young ? "text-3xl" : "text-2xl"}`}>✓</span>
+          <span className={`block mb-1 ${young ? "text-4xl" : "text-2xl"}`}>{young ? "\uD83D\uDC4D" : "\u2713"}</span>
           <span className={`font-semibold text-brown-800 ${young ? "text-lg" : ""}`}>True</span>
         </button>
         <button
           onClick={() => handleSelect(false)}
           disabled={answered}
-          className={`${young ? "p-6 min-h-[56px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(false)}`}
+          className={`${young ? "p-6 min-h-[72px]" : "p-5"} ${radius} border-2 text-center transition-all ${btnStyle(false)}`}
         >
-          <span className={`block mb-1 ${young ? "text-3xl" : "text-2xl"}`}>✗</span>
+          <span className={`block mb-1 ${young ? "text-4xl" : "text-2xl"}`}>{young ? "\uD83D\uDC4E" : "\u2717"}</span>
           <span className={`font-semibold text-brown-800 ${young ? "text-lg" : ""}`}>False</span>
         </button>
       </div>
