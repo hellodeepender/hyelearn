@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { MultipleChoiceExercise, MCOption } from "@/lib/types";
 import { lf } from "@/lib/exercise-utils";
 import { transliterate } from "@/lib/transliterate";
+import { playSound } from "@/lib/sounds";
 import AudioButton from "./AudioButton";
 
 interface Props {
@@ -35,7 +36,9 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
     if (answered) return;
     setSelected(optionId);
     const opt = shuffledOptions.find((o) => o.id === optionId);
-    onAnswer(opt?.correct ?? false, hintShown);
+    const isCorrect = opt?.correct ?? false;
+    playSound(isCorrect ? "correct" : "wrong");
+    onAnswer(isCorrect, hintShown);
   }
 
   return (
@@ -99,7 +102,7 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
               disabled={answered}
-              className={`w-full text-left py-4 px-6 rounded-xl border-2 ${young ? "min-h-[72px]" : "min-h-[56px]"} transition-all duration-150 ${style}`}
+              className={`w-full text-left py-4 px-6 rounded-xl border-2 ${young ? "min-h-[72px]" : "min-h-[56px]"} transition-all duration-150 ${style} ${answered && opt.correct && showCorrect ? "animate-bounce-once" : ""} ${answered && opt.id === selected && !opt.correct ? "animate-shake" : ""}`}
             >
               <div className="flex items-center gap-3">
                 {answered && opt.correct && showCorrect && <span className="text-green-600 text-lg shrink-0">{"\u2713"}</span>}
@@ -123,7 +126,7 @@ export default function MultipleChoice({ exercise, onAnswer, young, locale = "hy
       </div>
 
       {answered && showCorrect && (
-        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-fade-in">
+        <div className="bg-cream-dark/50 border border-brown-200 rounded-xl p-4 space-y-1 animate-pop-in">
           <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

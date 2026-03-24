@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { FillBlankExercise } from "@/lib/types";
 import { lf } from "@/lib/exercise-utils";
 import { transliterate } from "@/lib/transliterate";
+import { playSound } from "@/lib/sounds";
 import AudioButton from "./AudioButton";
 
 interface Props {
@@ -47,6 +48,7 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
   function handleSelect(index: number) {
     if (answered) return;
     setSelected(index);
+    playSound(wordBank[index].isCorrect ? "correct" : "wrong");
     onAnswer(wordBank[index].isCorrect, hintShown);
   }
 
@@ -121,7 +123,7 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
               key={i}
               onClick={() => handleSelect(i)}
               disabled={answered}
-              className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style}`}
+              className={`p-4 ${young ? "rounded-2xl min-h-[56px]" : "rounded-xl"} border-2 text-center transition-all ${style} ${answered && word.isCorrect && showCorrect ? "animate-bounce-once" : ""} ${answered && i === selected && !word.isCorrect ? "animate-shake" : ""}`}
             >
               {young && word.emoji && <span className="block text-2xl mb-1">{word.emoji}</span>}
               <span className={`block font-medium text-brown-800 ${young ? "text-xl" : "text-lg"}`}>{word.target}</span>
@@ -139,7 +141,7 @@ export default function FillBlank({ exercise, onAnswer, young, locale = "hy" }: 
       </div>
 
       {answered && showCorrect && (
-        <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-fade-in`}>
+        <div className={`bg-cream-dark/50 border border-brown-200 ${young ? "rounded-2xl" : "rounded-xl"} p-4 space-y-1 animate-pop-in`}>
           <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { TrueFalseExercise } from "@/lib/types";
 import { lf } from "@/lib/exercise-utils";
 import { transliterate } from "@/lib/transliterate";
+import { playSound } from "@/lib/sounds";
 import AudioButton from "./AudioButton";
 
 interface Props {
@@ -22,7 +23,9 @@ export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: 
   function handleSelect(value: boolean) {
     if (answered) return;
     setSelected(value);
-    onAnswer(value === exercise.correct_answer, hintShown);
+    const isCorrect = value === exercise.correct_answer;
+    playSound(isCorrect ? "correct" : "wrong");
+    onAnswer(isCorrect, hintShown);
   }
 
   function btnStyle(value: boolean) {
@@ -98,7 +101,7 @@ export default function TrueFalse({ exercise, onAnswer, young, locale = "hy" }: 
       </div>
 
       {answered && (
-        <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 space-y-1 animate-fade-in`}>
+        <div className={`bg-cream-dark/50 border border-brown-200 ${radius} p-4 space-y-1 animate-pop-in`}>
           <p className="text-brown-700 font-medium">{lf(exercise, "explanation", locale)}</p>
           <p className="text-sm text-brown-400">{exercise.explanation_en}</p>
         </div>

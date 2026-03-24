@@ -9,6 +9,7 @@ import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
 import NativeApp from "@/components/ui/NativeApp";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import GlobalErrorHandler from "@/components/ui/GlobalErrorHandler";
+import SoundPreloader from "@/components/ui/SoundPreloader";
 import "./globals.css";
 
 const notoSansArmenian = Noto_Sans_Armenian({
@@ -252,6 +253,7 @@ export default async function RootLayout({
           <ServiceWorkerRegister />
           <NativeApp />
           <GlobalErrorHandler />
+          <SoundPreloader />
           <ErrorBoundary locale={domainConfig.locale}>
             {children}
           </ErrorBoundary>

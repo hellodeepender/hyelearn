@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { MatchingExercise } from "@/lib/types";
 import { lf } from "@/lib/exercise-utils";
 import { transliterate } from "@/lib/transliterate";
+import { playSound } from "@/lib/sounds";
 
 interface Props {
   exercises: MatchingExercise[];
@@ -62,6 +63,7 @@ export default function Matching({ exercises, onAnswer, young, locale = "hy" }: 
       if (!isCorrect) allCorrect = false;
     });
     setResults(res);
+    playSound(allCorrect ? "complete" : "wrong");
     onAnswer(allCorrect, false);
   }
 

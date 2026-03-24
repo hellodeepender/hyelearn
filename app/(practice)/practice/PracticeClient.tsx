@@ -14,6 +14,8 @@ import FillBlank from "@/components/exercises/FillBlank";
 import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
+import Confetti from "@/components/ui/Confetti";
+import { playSound } from "@/lib/sounds";
 import { useLocale } from "@/lib/locale-context";
 
 // --- Config data ---
@@ -377,9 +379,14 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
     const score = answers.filter(Boolean).length;
     const total = answers.length;
     const hintsUsed = hints.filter(Boolean).length;
+    const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+    const passed = pct >= 70;
+
+    if (passed) playSound("complete");
 
     return (
       <main className="max-w-2xl mx-auto px-6 py-12">
+        <Confetti show={passed} />
         <ScoreSummary
           score={score}
           total={total}

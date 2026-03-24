@@ -16,6 +16,8 @@ import LearnCard from "@/components/exercises/LearnCard";
 import AlphabetLearnCard from "@/components/exercises/AlphabetLearnCard";
 import { getBadgeBySlug } from "@/lib/badges";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
+import Confetti from "@/components/ui/Confetti";
+import { playSound } from "@/lib/sounds";
 
 interface ExerciseEntry { type: string; data: unknown }
 interface Step { kind: "learn" | "exercise"; entry: ExerciseEntry }
@@ -159,6 +161,11 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     }
   }, [done, saveProgress]);
 
+  // Play fanfare when result comes in and passed
+  useEffect(() => {
+    if (result?.passed) playSound("complete");
+  }, [result]);
+
   function handleRetry() {
     setCurrentStep(0);
     setAnswers([]);
@@ -227,10 +234,13 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
       </div>
     ) : null;
 
+    const confetti = <Confetti show={passed} />;
+
     // --- Review score screen ---
     if (isReview) {
       return (
         <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
+          {confetti}
           <div className="flex justify-center gap-2 text-4xl">
             {[1, 2, 3].map((s) => (
               <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}>
@@ -296,6 +306,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     // --- Regular lesson / passed quiz score screen ---
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
+        {confetti}
         {passed ? (
           <>
             <div className="flex justify-center gap-2 text-4xl">
