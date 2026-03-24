@@ -224,6 +224,8 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content={domainConfig.brandName} />
         <link rel="apple-touch-icon" href={`/icons/icon-${domainConfig.locale}-192.png`} />
+        <link rel="icon" href={`/icons/icon-${domainConfig.locale}.svg`} type="image/svg+xml" />
+        <link rel="icon" href={`/icons/icon-${domainConfig.locale}-192.png`} type="image/png" sizes="192x192" />
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
             --theme-primary: ${t.primary};
