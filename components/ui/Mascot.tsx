@@ -24,7 +24,7 @@ export default function Mascot({ pose = "happy", size = 120, className = "", sho
         alt={`${name} the mascot`}
         width={size}
         height={size}
-        className="object-contain"
+        className="object-contain mix-blend-multiply"
       />
       {showName && (
         <p className="text-xs text-brown-400 mt-1 font-medium">{name}</p>

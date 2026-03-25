@@ -187,7 +187,7 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
         <StudentNav subscriptionTier={profile?.subscription_tier} />
 
         <div className="flex items-center gap-4 mb-8">
-          <img src={getMascot(locale, "happy")} alt={getMascotName(locale)} width={80} height={80} className="object-contain" />
+          <img src={getMascot(locale, "happy")} alt={getMascotName(locale)} width={80} height={80} className="object-contain mix-blend-multiply" />
           <div>
             <h1 className="text-3xl font-bold text-brown-800">Welcome, {firstName}!</h1>
             <p className="text-brown-500">Continue your {tc("language")} learning journey.</p>
