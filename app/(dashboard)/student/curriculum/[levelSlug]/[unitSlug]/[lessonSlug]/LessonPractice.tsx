@@ -18,6 +18,7 @@ import { getBadgeBySlug } from "@/lib/badges";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
 import Confetti from "@/components/ui/Confetti";
 import Mascot from "@/components/ui/Mascot";
+import MascotReaction from "@/components/ui/MascotReaction";
 import { playSound } from "@/lib/sounds";
 
 interface ExerciseEntry { type: string; data: unknown }
@@ -92,6 +93,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   const [showNext, setShowNext] = useState(false);
   const [done, setDone] = useState(totalSteps === 0);
   const [result, setResult] = useState<{ passed: boolean; pct: number } | null>(null);
+  const [lastAnswer, setLastAnswer] = useState<{ correct: boolean; key: number } | null>(null);
   const [rewards, setRewards] = useState<{ xpEarned: number; newBadges: string[]; leveledUp: boolean } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -112,6 +114,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
 
   function handleAnswer(correct: boolean) {
     setAnswers((prev) => [...prev, correct]);
+    setLastAnswer({ correct, key: Date.now() });
     setShowNext(true);
   }
 
@@ -181,6 +184,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   if (exercises.length === 0) {
     return (
       <main className="max-w-2xl mx-auto px-6 py-12 text-center">
+        <Mascot pose="reading" size={100} className="mb-4" />
         <h1 className="text-2xl font-bold text-brown-800 mb-2">{lessonTitle}</h1>
         <p className="text-brown-500 mb-6">No exercises available yet. Your teacher is preparing content.</p>
         <Link href={backUrl} className="text-gold hover:text-gold-dark font-medium">&larr; Back to unit</Link>
@@ -194,9 +198,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     if (saving || (!result && !saveError && answers.length > 0)) {
       return (
         <main className="max-w-2xl mx-auto px-6 py-12 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-8 h-8 border-3 border-brown-200 border-t-gold rounded-full animate-spin" />
-          </div>
+          <Mascot pose="thinking" size={80} className="mb-4 animate-pulse" />
           <p className="text-brown-600 font-medium">Saving your progress...</p>
         </main>
       );
@@ -242,6 +244,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
       return (
         <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
           {confetti}
+          <Mascot pose="happy" size={100} className="mb-2" />
           <div className="flex justify-center gap-2 text-4xl">
             {[1, 2, 3].map((s) => (
               <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}>
@@ -310,6 +313,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
         {confetti}
         {passed ? (
           <>
+            <Mascot pose="celebrating" size={120} className="mb-2" />
             <div className="flex justify-center gap-2 text-4xl">
               {[1, 2, 3].map((s) => (
                 <span key={s} className={`transition-all duration-500 ${s <= stars ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}>
@@ -499,6 +503,10 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
             </button>
           </div>
         </div>
+      )}
+
+      {lastAnswer && (
+        <MascotReaction key={lastAnswer.key} show={true} correct={lastAnswer.correct} />
       )}
     </main>
   );

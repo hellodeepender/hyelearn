@@ -16,8 +16,12 @@ import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
 import Confetti from "@/components/ui/Confetti";
 import Mascot from "@/components/ui/Mascot";
+import MascotReaction from "@/components/ui/MascotReaction";
 import { playSound } from "@/lib/sounds";
 import { useLocale } from "@/lib/locale-context";
+import MemoryFlip from "@/components/games/MemoryFlip";
+import BubblePop from "@/components/games/BubblePop";
+import WordScramble from "@/components/games/WordScramble";
 
 // --- Config data ---
 
@@ -71,6 +75,13 @@ const LOADING_LETTERS_EL = ["\u0391", "\u0392", "\u0393", "\u0394", "\u0395", "\
 const LOADING_LETTERS_AR = ["\u0623", "\u0628", "\u062A", "\u062B", "\u062C", "\u062D", "\u062E", "\u062F", "\u0630", "\u0631"];
 
 type Phase = "config" | "loading" | "practicing" | "complete";
+type GameMode = null | "memory_flip" | "bubble_pop" | "word_scramble";
+
+const MINI_GAMES: { id: NonNullable<GameMode>; label: string; icon: string; mappedType: ExerciseType }[] = [
+  { id: "memory_flip", label: "Memory", icon: "\uD83C\uDCCF", mappedType: "matching" },
+  { id: "bubble_pop", label: "Bubble Pop", icon: "\uD83E\uDEE7", mappedType: "multiple_choice" },
+  { id: "word_scramble", label: "Scramble", icon: "\uD83D\uDD24", mappedType: "fill_blank" },
+];
 
 interface Props {
   userId: string;
@@ -96,6 +107,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [exerciseType, setExerciseType] = useState<ExerciseType>("multiple_choice");
+  const [gameMode, setGameMode] = useState<GameMode>(null);
 
   const [phase, setPhase] = useState<Phase>("config");
   const [exercises, setExercises] = useState<unknown[]>([]);
@@ -104,6 +116,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [hints, setHints] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
+  const [lastAnswer, setLastAnswer] = useState<{ correct: boolean; key: number } | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
 
@@ -131,7 +144,10 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
           subject,
           topic,
           exerciseType,
-          count: exerciseType === "matching" ? (young ? 4 : 5) : (young ? 3 : 4),
+          count: gameMode === "memory_flip" ? 6
+            : gameMode === "bubble_pop" ? 5
+            : gameMode === "word_scramble" ? 4
+            : exerciseType === "matching" ? (young ? 4 : 5) : (young ? 3 : 4),
           locale,
         }),
       });
@@ -162,6 +178,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   function handleAnswer(correct: boolean, usedHint: boolean) {
     setAnswers((prev) => [...prev, correct]);
     setHints((prev) => [...prev, usedHint]);
+    setLastAnswer({ correct, key: Date.now() });
     setShowNext(true);
   }
 
@@ -191,8 +208,17 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
     });
   }, [answers, subject, topic, exerciseType, grade, exercises]);
 
+  function handleGameComplete(gameScore: number, gameTotal: number) {
+    if (gameTotal === 0) { setPhase("config"); setGameMode(null); return; }
+    const gameAnswers = Array.from({ length: gameTotal }, (_, i) => i < gameScore);
+    setAnswers(gameAnswers);
+    setHints(gameAnswers.map(() => false));
+    setPhase("complete");
+  }
+
   function handleNewSet() {
     setPhase("config");
+    setGameMode(null);
     setExercises([]);
     setCurrentIndex(0);
     setAnswers([]);
@@ -321,23 +347,50 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         )}
 
         {/* Exercise Type */}
-        <div className="mb-8">
+        <div className="mb-6">
           <label className="block text-sm font-medium text-brown-700 mb-2">Exercise Type</label>
           <div className="grid grid-cols-2 gap-3">
             {EXERCISE_TYPES.map((et) => (
               <button
                 key={et.id}
-                onClick={() => setExerciseType(et.id)}
+                onClick={() => { setExerciseType(et.id); setGameMode(null); }}
                 className={`p-3 rounded-xl border-2 text-center transition-all ${
-                  exerciseType === et.id
+                  exerciseType === et.id && !gameMode
                     ? "border-gold bg-gold/5 shadow-sm"
                     : "border-brown-200 hover:border-brown-300 bg-warm-white"
                 }`}
               >
                 <span className="text-xl mr-1">{et.icon}</span>
-                <span className={`font-medium text-sm ${exerciseType === et.id ? "text-gold-dark" : "text-brown-700"}`}>
+                <span className={`font-medium text-sm ${exerciseType === et.id && !gameMode ? "text-gold-dark" : "text-brown-700"}`}>
                   {et.label}
                 </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mini Games */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-brown-200" />
+          <span className="text-sm font-medium text-brown-400">or play a game</span>
+          <div className="flex-1 h-px bg-brown-200" />
+        </div>
+        <div className="mb-8">
+          <div className="grid grid-cols-3 gap-3">
+            {MINI_GAMES.map((mg) => (
+              <button
+                key={mg.id}
+                onClick={() => { setGameMode(mg.id); setExerciseType(mg.mappedType); }}
+                className={`p-4 rounded-xl border-2 text-center transition-all ${
+                  gameMode === mg.id
+                    ? "border-purple-500 bg-purple-50 shadow-sm"
+                    : "border-brown-200 hover:border-brown-300 bg-warm-white"
+                }`}
+              >
+                <div className="text-3xl mb-1">{mg.icon}</div>
+                <div className={`font-medium text-xs ${gameMode === mg.id ? "text-purple-700" : "text-brown-700"}`}>
+                  {mg.label}
+                </div>
               </button>
             ))}
           </div>
@@ -405,6 +458,17 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
         />
       </main>
     );
+  }
+
+  // --- Game modes ---
+  if (gameMode === "memory_flip") {
+    return <MemoryFlip exercises={exercises} onComplete={handleGameComplete} locale={locale} young={young} />;
+  }
+  if (gameMode === "bubble_pop") {
+    return <BubblePop exercises={exercises} onComplete={handleGameComplete} locale={locale} young={young} />;
+  }
+  if (gameMode === "word_scramble") {
+    return <WordScramble exercises={exercises} onComplete={handleGameComplete} locale={locale} young={young} />;
   }
 
   // --- Practicing phase ---
@@ -478,6 +542,10 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             {exerciseType === "matching" || currentIndex + 1 >= exerciseCount ? "See Results" : "Next"}
           </button>
         </div>
+      )}
+
+      {lastAnswer && (
+        <MascotReaction key={lastAnswer.key} show={true} correct={lastAnswer.correct} />
       )}
     </main>
   );

@@ -97,6 +97,35 @@ button, a, [role="button"], input, select, textarea {
 }
 .animate-bounce-once { animation: bounce-once 0.4s ease-in-out; }
 
+/* Card flip + game animations */
+.perspective-500 { perspective: 500px; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+@keyframes pop {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+.animate-pop { animation: pop 0.4s ease-out forwards; }
+@keyframes slide-up-fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up-fade-in 0.3s ease-out; }
+
+@keyframes fade-out-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}
+.animate-fade-out-down { animation: fade-out-down 0.3s ease-in forwards; }
+
 /* Arabic content RTL — apply to lesson content containers, not the whole page */
 .arabic-content {
   direction: rtl;
