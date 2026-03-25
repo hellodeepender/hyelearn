@@ -27,7 +27,7 @@ export default function AlphabetLearnCard({
       <p className="text-lg text-brown-600">{letterName}</p>
       <p className="text-sm text-gray-400 font-light tracking-wide">{translit}</p>
       <p className="text-base text-brown-500">Sounds like &ldquo;{sound}&rdquo;</p>
-      <AudioButton word={exampleWord || letter} autoPlay />
+      <AudioButton word={letter} autoPlay />
       {exampleWord && (
         <p className="text-sm text-brown-400">
           as in {exampleWord} ({transliterate(exampleWord, locale)}) {emoji}
