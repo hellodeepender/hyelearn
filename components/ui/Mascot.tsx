@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { getMascot, getMascotName, type MascotPose } from "@/lib/mascots";
 import { useCurrentLocale } from "@/lib/locale-context";
 
@@ -20,13 +19,12 @@ export default function Mascot({ pose = "happy", size = 120, className = "", sho
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <Image
+      <img
         src={src}
         alt={`${name} the mascot`}
         width={size}
         height={size}
         className="object-contain"
-        unoptimized
       />
       {showName && (
         <p className="text-xs text-brown-400 mt-1 font-medium">{name}</p>
