@@ -10,6 +10,8 @@ import { checkAndAwardBadges } from "@/lib/xp";
 import { getBadges, getBadgeBySlug } from "@/lib/badges";
 import { getEnglishTitle } from "@/lib/grade-labels";
 import { getTranslations } from "@/lib/translations";
+import { getMascot, getMascotName } from "@/lib/mascots";
+import Image from "next/image";
 import { getServerLocale, getLocale } from "@/lib/server-locale";
 import BadgeCelebration from "@/components/ui/BadgeCelebration";
 
@@ -185,8 +187,13 @@ export default async function StudentDashboard({ searchParams }: { searchParams:
       <main className="max-w-6xl mx-auto px-6 py-10">
         <StudentNav subscriptionTier={profile?.subscription_tier} />
 
-        <h1 className="text-3xl font-bold text-brown-800 mb-2">Welcome, {firstName}!</h1>
-        <p className="text-brown-500 mb-8">Continue your {tc("language")} learning journey.</p>
+        <div className="flex items-center gap-4 mb-8">
+          <Image src={getMascot(locale, "happy")} alt={getMascotName(locale)} width={80} height={80} className="object-contain" unoptimized />
+          <div>
+            <h1 className="text-3xl font-bold text-brown-800">Welcome, {firstName}!</h1>
+            <p className="text-brown-500">Continue your {tc("language")} learning journey.</p>
+          </div>
+        </div>
 
         {/* Continue Learning — primary CTA */}
         <section className="mb-8">

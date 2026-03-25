@@ -3,6 +3,7 @@
 import { transliterate } from "@/lib/transliterate";
 import { useCurrentLocale } from "@/lib/locale-context";
 import AudioButton from "./AudioButton";
+import Mascot from "@/components/ui/Mascot";
 
 interface Props {
   visual: string;
@@ -31,6 +32,11 @@ export default function LearnCard({ visual, primaryText, secondaryText, young }:
       <p className={`text-brown-500 ${young ? "text-xl" : "text-lg"}`}>
         {secondaryText}
       </p>
+      {young && (
+        <div className="flex justify-center mt-2 opacity-60">
+          <Mascot pose="reading" size={48} />
+        </div>
+      )}
     </div>
   );
 }

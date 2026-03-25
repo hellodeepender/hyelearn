@@ -15,6 +15,7 @@ import Matching from "@/components/exercises/Matching";
 import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
 import Confetti from "@/components/ui/Confetti";
+import Mascot from "@/components/ui/Mascot";
 import { playSound } from "@/lib/sounds";
 import { useLocale } from "@/lib/locale-context";
 
@@ -357,6 +358,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   if (phase === "loading") {
     return (
       <main className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <Mascot pose="thinking" size={150} className="mb-6" />
         <div className="flex justify-center gap-3 mb-6">
           {loadingLetters.map((letter, i) => (
             <span
@@ -387,6 +389,9 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
     return (
       <main className="max-w-2xl mx-auto px-6 py-12">
         <Confetti show={passed} />
+        <div className="text-center mb-6">
+          <Mascot pose={passed ? "celebrating" : "sad"} size={120} />
+        </div>
         <ScoreSummary
           score={score}
           total={total}

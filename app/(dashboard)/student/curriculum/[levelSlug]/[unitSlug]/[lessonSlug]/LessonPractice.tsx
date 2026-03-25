@@ -17,6 +17,7 @@ import AlphabetLearnCard from "@/components/exercises/AlphabetLearnCard";
 import { getBadgeBySlug } from "@/lib/badges";
 import { trackEvent } from "@/components/ui/GoogleAnalytics";
 import Confetti from "@/components/ui/Confetti";
+import Mascot from "@/components/ui/Mascot";
 import { playSound } from "@/lib/sounds";
 
 interface ExerciseEntry { type: string; data: unknown }
@@ -286,7 +287,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     if (isQuiz && !passed) {
       return (
         <main className="max-w-2xl mx-auto px-6 py-12 text-center space-y-6">
-          <div className={young ? "text-6xl" : "text-5xl"}>{"\u{1F4AA}"}</div>
+          <Mascot pose="sad" size={120} />
           <div>
             <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>Keep practicing!</p>
             <p className="text-brown-500 mt-1">You scored {pct}%. You need {passingScore}% to pass.</p>
@@ -349,7 +350,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
           </>
         ) : (
           <>
-            <div className={young ? "text-6xl" : "text-5xl"}>{"\u{1F4AA}"}</div>
+            <Mascot pose="sad" size={120} />
             <div>
               <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>You&apos;re getting there!</p>
               <p className="text-brown-500 mt-1">You scored {pct}%. Try one more time!</p>
