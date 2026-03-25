@@ -16,6 +16,7 @@ import TrueFalse from "@/components/exercises/TrueFalse";
 import ScoreSummary from "@/components/exercises/ScoreSummary";
 import Confetti from "@/components/ui/Confetti";
 import Mascot from "@/components/ui/Mascot";
+import MascotReaction from "@/components/ui/MascotReaction";
 import { playSound } from "@/lib/sounds";
 import { useLocale } from "@/lib/locale-context";
 
@@ -104,6 +105,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   const [hints, setHints] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [showNext, setShowNext] = useState(false);
+  const [lastAnswer, setLastAnswer] = useState<{ correct: boolean; key: number } | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
 
@@ -162,6 +164,7 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
   function handleAnswer(correct: boolean, usedHint: boolean) {
     setAnswers((prev) => [...prev, correct]);
     setHints((prev) => [...prev, usedHint]);
+    setLastAnswer({ correct, key: Date.now() });
     setShowNext(true);
   }
 
@@ -478,6 +481,10 @@ export default function PracticeClient({ userId, gradeLevel, userRole }: Props) 
             {exerciseType === "matching" || currentIndex + 1 >= exerciseCount ? "See Results" : "Next"}
           </button>
         </div>
+      )}
+
+      {lastAnswer && (
+        <MascotReaction key={lastAnswer.key} show={true} correct={lastAnswer.correct} />
       )}
     </main>
   );
