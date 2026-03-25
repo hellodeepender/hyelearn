@@ -4,6 +4,7 @@ const MASCOT_POSES: Record<string, Partial<Record<MascotPose, string>>> = {
   hy: {
     happy: "/mascots/hy-happy.jpg",
     thinking: "/mascots/hy-thinking.jpg",
+    celebrating: "/mascots/hy-celebrating.jpg",
     sad: "/mascots/hy-sad.jpg",
     reading: "/mascots/hy-reading.jpg",
     sleeping: "/mascots/hy-sleeping.jpg",
