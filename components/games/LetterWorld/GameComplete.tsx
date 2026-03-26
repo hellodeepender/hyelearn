@@ -10,10 +10,11 @@ interface Props {
   locale: string;
   score: { correct: number; wrong: number };
   onPlayAgain: () => void;
+  onPickScene: () => void;
   onBack: () => void;
 }
 
-export default function GameComplete({ locale, score, onPlayAgain, onBack }: Props) {
+export default function GameComplete({ locale, score, onPlayAgain, onPickScene, onBack }: Props) {
   const stars = score.wrong === 0 ? 3 : score.wrong <= 2 ? 2 : 1;
 
   useEffect(() => {
@@ -52,6 +53,12 @@ export default function GameComplete({ locale, score, onPlayAgain, onBack }: Pro
           className="bg-gold hover:bg-gold-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors"
         >
           Play Again
+        </button>
+        <button
+          onClick={onPickScene}
+          className="bg-brown-100 hover:bg-brown-200 text-brown-700 px-8 py-3 rounded-lg font-semibold transition-colors"
+        >
+          Try Another Scene
         </button>
         <button
           onClick={onBack}
