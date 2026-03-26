@@ -56,6 +56,7 @@ RULES:
 - When an "emoji" field is requested, follow these rules:
   - For fill_blank exercises: The emoji MUST represent the CORRECT ANSWER (the word that fills the blank), NOT any other word in the sentence. The emoji is a visual hint to help the student guess the missing word.
   - For multiple_choice exercises: The emoji on the question MUST represent the subject being asked about — the thing the student needs to identify. Do NOT use emoji for people or generic concepts.
+  - For true_false exercises: NEVER use ✅ or ❌ — those spoil the answer. Use an emoji related to the topic (🔤 for alphabet, or the word's emoji), or 🤔 as default.
   - Always use a single, concrete, recognizable emoji.`;
 }
 
@@ -198,9 +199,18 @@ function trueFalsePrompt(grade: string, subject: string, topic: string, count: n
     ? `\n\nIMPORTANT: Very young learners. Use very simple, concrete statements. Add an "emoji" field with a relevant emoji for each statement.`
     : "";
 
+  const emojiRule = young
+    ? `\nIMPORTANT emoji rules for true/false exercises:
+- NEVER use ✅ or ❌ as the emoji — those spoil the answer.
+- If the statement is about a letter or alphabet, use "🔤".
+- If the statement is about a specific word or object, use an emoji that represents that word/object.
+- Otherwise, use "🤔" as the default emoji.
+- The emoji must relate to the TOPIC of the statement, never to whether the answer is true or false.`
+    : "";
+
   return `Generate ${count} true/false questions for ${gradeLabel(grade)} students.
 Subject: ${subject}
-Topic: ${topic}${youngNote}
+Topic: ${topic}${youngNote}${emojiRule}
 
 Return this exact JSON structure:
 {
@@ -209,7 +219,7 @@ Return this exact JSON structure:
       "id": "1",
       "statement_${s}": "Statement in target language",
       "statement_en": "Same statement in English",
-      ${young ? `"emoji": "relevant emoji",` : ""}
+      ${young ? `"emoji": "relevant emoji (NEVER ✅ or ❌)",` : ""}
       "correct_answer": true,
       "explanation_${s}": "Why it is true/false, in target language",
       "explanation_en": "Why it is true/false, in English"

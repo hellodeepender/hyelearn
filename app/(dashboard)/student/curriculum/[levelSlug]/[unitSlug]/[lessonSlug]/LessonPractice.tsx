@@ -395,7 +395,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
   } : null;
 
   return (
-    <main className="max-w-2xl mx-auto px-6 py-10">
+    <main className="max-w-2xl mx-auto px-6 py-10 min-h-0 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-brown-700">{lessonTitle}</span>
