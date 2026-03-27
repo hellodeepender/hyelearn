@@ -6,7 +6,7 @@ import SiteFooter from "@/components/ui/SiteFooter";
 export default async function PrivacyPage() {
   const tc = await getTranslations("common");
   const { brandName, supportEmail, locale } = await getServerLocale();
-  const languageDesc = locale === "hy" ? "Western Armenian" : tc("language");
+  const languageDesc = locale === "hy" ? "Western Armenian" : "heritage language";
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -14,7 +14,7 @@ export default async function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
-            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand").slice(1)}</span>
           </Link>
           <Link href="/" className="text-sm text-brown-500 hover:text-brown-700">Home</Link>
         </div>

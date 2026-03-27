@@ -51,7 +51,6 @@ export default function SiteFooter({ showFeedback = false }: Props) {
               </a>
             </span>
           ))}
-          <span>&middot;</span>
           <a href="https://www.linkedin.com/company/diasporalearn/" target="_blank" rel="noopener noreferrer" className="hover:text-brown-600 transition-colors" aria-label="LinkedIn">
             {LINKEDIN_SVG}
           </a>
