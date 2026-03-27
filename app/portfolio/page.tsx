@@ -102,7 +102,7 @@ export default function PortfolioPage() {
               <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
                 {"\u271D"} Sunday School
               </h2>
-              <p className="text-center text-[#777] mb-8">Weekly lessons for Armenian and Greek church Sunday schools</p>
+              <p className="text-center text-[#777] mb-8">Weekly lessons for Armenian, Greek, and Arabic church Sunday schools</p>
 
               <p className="text-[#555] leading-relaxed mb-4">
                 Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
