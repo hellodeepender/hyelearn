@@ -30,7 +30,7 @@ export default async function SupportersPage() {
     { value: String(supporters.length || 0), label: "Supporters" },
     { value: "2", label: "Countries" },
     { value: "2", label: "Languages" },
-    { value: "269", label: "Lessons Available" },
+    { value: "365+", label: "Lessons Available" },
   ];
 
   return (
@@ -39,7 +39,7 @@ export default async function SupportersPage() {
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-gold">D</span>
-            <span className="text-xl font-semibold text-brown-800">DiasporaLearn</span>
+            <span className="text-xl font-semibold text-brown-800">iasporaLearn</span>
           </Link>
           <SupportersNav />
         </div>
