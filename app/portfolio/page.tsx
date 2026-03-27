@@ -102,7 +102,7 @@ export default function PortfolioPage() {
               <h2 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-2xl text-[#1a1a1a] text-center mb-2">
                 {"\u271D"} Sunday School
               </h2>
-              <p className="text-center text-[#777] mb-8">Weekly lessons for Armenian and Greek church Sunday schools</p>
+              <p className="text-center text-[#777] mb-8">Weekly lessons for Armenian, Greek, and Arabic church Sunday schools</p>
 
               <p className="text-[#555] leading-relaxed mb-4">
                 Teachers lead lessons from their phone. Kids get printable word search worksheets. No account needed — just open and teach.
@@ -128,10 +128,10 @@ export default function PortfolioPage() {
                   className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
                   Greek Sunday School &rarr;
                 </a>
-                <span
-                  className="px-6 py-3 bg-[#E0E0E0] text-[#999] rounded-lg font-medium text-center cursor-default">
-                  Arabic Sunday School — Coming Soon
-                </span>
+                <a href="https://ta3allam.org/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#2E7D32] text-white rounded-lg font-medium text-center hover:bg-[#1B5E20] transition-colors">
+                  Arabic Sunday School &rarr;
+                </a>
               </div>
             </div>
           </div>
