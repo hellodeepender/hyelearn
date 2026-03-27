@@ -19,7 +19,7 @@ export default function SupportPage() {
   const tc = useTranslations("common");
   const { brandName, supportEmail, locale } = useLocale();
   const isParentSite = locale === "en";
-  const languageDesc = isParentSite ? "Armenian and Greek" : locale === "hy" ? "Western Armenian" : tc("language");
+  const languageDesc = isParentSite ? "Armenian, Greek, and Arabic" : locale === "hy" ? "Western Armenian" : tc("language");
   const headerBrand = isParentSite ? "DiasporaLearn" : tc("brand");
   const headerLetter = isParentSite ? "D" : tc("brandLetter");
   const searchParams = useSearchParams();

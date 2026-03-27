@@ -55,7 +55,7 @@ const products = [
 const stats = [
   { value: "3", label: "Languages" },
   { value: "365+", label: "Lessons" },
-  { value: "72", label: "Sunday School Lessons" },
+  { value: "144", label: "Sunday School Lessons" },
   { value: "474", label: "Audio Files" },
   { value: "$0", label: "Cost" },
 ];

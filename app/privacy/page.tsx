@@ -7,6 +7,7 @@ export default async function PrivacyPage() {
   const tc = await getTranslations("common");
   const { brandName, supportEmail, locale } = await getServerLocale();
   const languageDesc = locale === "hy" ? "Western Armenian" : "heritage language";
+  const learningDesc = locale === "hy" ? "Western Armenian language learning" : "heritage language learning";
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -14,7 +15,7 @@ export default async function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
-            <span className="text-xl font-semibold text-brown-800">{tc("brand").slice(1)}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <Link href="/" className="text-sm text-brown-500 hover:text-brown-700">Home</Link>
         </div>
@@ -36,7 +37,7 @@ export default async function PrivacyPage() {
         <div className="prose-brown space-y-8 text-brown-600 text-sm leading-relaxed">
           <section id="section-1">
             <h2 className="text-lg font-semibold text-brown-800">1. Introduction</h2>
-            <p>{brandName} is a {languageDesc} language learning platform designed for children in Kindergarten through Grade 5. We are committed to protecting the privacy of all our users, especially children. This policy explains what information we collect, how we use it, and how we protect it.</p>
+            <p>{brandName} is a {learningDesc} platform designed for children in Kindergarten through Grade 5. We are committed to protecting the privacy of all our users, especially children. This policy explains what information we collect, how we use it, and how we protect it.</p>
           </section>
 
           <section id="section-2">
@@ -49,7 +50,7 @@ export default async function PrivacyPage() {
           <section id="section-3">
             <h2 className="text-lg font-semibold text-brown-800">3. How We Use Information</h2>
             <ul className="list-disc ml-5 space-y-1">
-              <li>To provide the {languageDesc} language learning service</li>
+              <li>To provide the {learningDesc} service</li>
               <li>To track learning progress for parents and teachers</li>
               <li>To process subscription payments (via Stripe)</li>
               <li>To send transactional emails (account confirmations, password resets)</li>
