@@ -7,6 +7,7 @@ export default async function TermsPage() {
   const tc = await getTranslations("common");
   const { brandName, supportEmail, locale } = await getServerLocale();
   const languageDesc = locale === "hy" ? "Western Armenian" : "heritage language";
+  const learningDesc = locale === "hy" ? "Western Armenian language learning" : "heritage language learning";
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -14,7 +15,7 @@ export default async function TermsPage() {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-gold">{tc("brandLetter")}</span>
-            <span className="text-xl font-semibold text-brown-800">{tc("brand").slice(1)}</span>
+            <span className="text-xl font-semibold text-brown-800">{tc("brand")}</span>
           </Link>
           <Link href="/" className="text-sm text-brown-500 hover:text-brown-700">Home</Link>
         </div>
@@ -32,7 +33,7 @@ export default async function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-brown-800">2. Description of Service</h2>
-            <p>{brandName} is a {languageDesc} language learning platform designed for children in Kindergarten through Grade 5. It provides structured lessons, interactive exercises, and progress tracking.</p>
+            <p>{brandName} is a {learningDesc} platform designed for children in Kindergarten through Grade 5. It provides structured lessons, interactive exercises, and progress tracking.</p>
           </section>
 
           <section>

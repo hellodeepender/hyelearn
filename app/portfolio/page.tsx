@@ -55,7 +55,7 @@ const products = [
 const stats = [
   { value: "3", label: "Languages" },
   { value: "365+", label: "Lessons" },
-  { value: "72", label: "Sunday School Lessons" },
+  { value: "144", label: "Sunday School Lessons" },
   { value: "474", label: "Audio Files" },
   { value: "$0", label: "Cost" },
 ];
@@ -128,10 +128,10 @@ export default function PortfolioPage() {
                   className="px-6 py-3 bg-[#2271B3] text-white rounded-lg font-medium text-center hover:bg-[#1A5A8F] transition-colors">
                   Greek Sunday School &rarr;
                 </a>
-                <span
-                  className="px-6 py-3 bg-[#E0E0E0] text-[#999] rounded-lg font-medium text-center cursor-default">
-                  Arabic Sunday School — Coming Soon
-                </span>
+                <a href="https://ta3allam.org/sunday-school" target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 bg-[#2E7D32] text-white rounded-lg font-medium text-center hover:bg-[#1B5E20] transition-colors">
+                  Arabic Sunday School &rarr;
+                </a>
               </div>
             </div>
           </div>

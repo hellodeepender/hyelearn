@@ -70,9 +70,9 @@ export default async function SundaySchoolPage() {
           <div className="text-5xl mb-4">{"\u26EA"}</div>
           <h1 className="text-3xl font-bold text-brown-800 mb-3">Sunday School</h1>
           <p className="text-brown-500 mb-10 max-w-xl mx-auto">
-            72 weekly lessons for Armenian and Greek church Sunday schools. Opening prayers, teacher-led stories, vocabulary with audio, activities, and printable worksheets.
+            144 weekly lessons across Armenian, Greek, and Arabic church Sunday schools. Opening prayers, teacher-led stories, vocabulary with audio, activities, and printable worksheets.
           </p>
-          <div className="grid sm:grid-cols-2 gap-6 max-w-lg mx-auto">
+          <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
             <a href="https://hyelearn.com/sunday-school" className="bg-warm-white border border-brown-100 rounded-2xl p-6 hover:shadow-lg transition-all text-center">
               <div className="text-3xl font-bold mb-2" style={{ color: "#C4384B" }}>{"\u0531"}</div>
               <h2 className="font-semibold text-brown-800 mb-1">Armenian</h2>
@@ -82,6 +82,11 @@ export default async function SundaySchoolPage() {
               <div className="text-3xl font-bold mb-2" style={{ color: "#2271B3" }}>{"\u039C"}</div>
               <h2 className="font-semibold text-brown-800 mb-1">Greek</h2>
               <p className="text-xs text-brown-400">36 lessons in Modern Greek</p>
+            </a>
+            <a href="https://ta3allam.org/sunday-school" className="bg-warm-white border border-brown-100 rounded-2xl p-6 hover:shadow-lg transition-all text-center">
+              <div className="text-3xl font-bold mb-2" style={{ color: "#2E7D32" }}>{"\u0639"}</div>
+              <h2 className="font-semibold text-brown-800 mb-1">Arabic</h2>
+              <p className="text-xs text-brown-400">72 lessons in Arabic</p>
             </a>
           </div>
         </main>
