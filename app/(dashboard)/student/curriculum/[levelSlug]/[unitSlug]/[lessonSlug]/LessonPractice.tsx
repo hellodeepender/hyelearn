@@ -35,6 +35,7 @@ interface Props {
   nextUnitUrl?: string;
   gradeValue: string;
   locale: string;
+  isAnonymous?: boolean;
 }
 
 /** Group matching exercises by sort_order into separate matching_group entries (max 3 pairs each). */
@@ -81,7 +82,7 @@ function buildSteps(exercises: ExerciseEntry[]): Step[] {
   return steps;
 }
 
-export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, nextUnitUrl, gradeValue, locale }: Props) {
+export default function LessonPractice({ lessonId, lessonTitle, lessonType, passingScore, exercises, backUrl, nextLessonUrl, nextUnitUrl, gradeValue, locale, isAnonymous }: Props) {
   const young = gradeValue === "K" || gradeValue === "1";
   const learnCount = exercises.filter((e) => e.type === "learn_card").length;
 
@@ -126,6 +127,12 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
     const total = answers.length > 0 ? answers.length : learnCount;
     const localPct = total > 0 ? Math.round((score / total) * 100) : 100;
     const localPassed = localPct >= passingScore;
+
+    if (isAnonymous) {
+      setResult({ passed: localPassed, pct: localPct });
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/curriculum/progress", {
@@ -327,8 +334,16 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
               {learnCount > 0 && (
                 <p className="text-sm text-brown-400 mt-2">You learned {learnCount} new item{learnCount !== 1 ? "s" : ""}!</p>
               )}
-              {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+              {!saveError && !isAnonymous && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
             </div>
+            {isAnonymous && (
+              <div className="p-4 bg-gold/10 border border-gold/30 rounded-xl text-center">
+                <p className="text-brown-700 font-medium mb-2">Want to save your progress?</p>
+                <a href="/signup" className="inline-block px-6 py-2 bg-gold text-white rounded-lg font-medium hover:bg-gold/90 transition-colors">
+                  Sign Up Free
+                </a>
+              </div>
+            )}
             <div className="flex flex-col gap-3 pt-4">
               {nextLessonUrl && (
                 <Link href={nextLessonUrl} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
@@ -341,7 +356,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 </Link>
               )}
               {!nextLessonUrl && !nextUnitUrl && (
-                <Link href="/student/curriculum" className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
+                <Link href={isAnonymous ? "/learn" : "/student/curriculum"} className={`bg-green-600 hover:bg-green-700 text-white font-medium text-center ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
                   Back to Curriculum
                 </Link>
               )}
@@ -349,7 +364,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 {stars < 3 ? "Try for 3 stars" : "Practice again"}
               </button>
               <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600 mt-1">Back to Unit</Link>
-              <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
+              {!isAnonymous && <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>}
             </div>
           </>
         ) : (
@@ -358,8 +373,16 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
             <div>
               <p className={`font-bold text-brown-800 ${young ? "text-3xl" : "text-2xl"}`}>You&apos;re getting there!</p>
               <p className="text-brown-500 mt-1">You scored {pct}%. Try one more time!</p>
-              {!saveError && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
+              {!saveError && !isAnonymous && <p className="text-xs text-green-600 mt-2">Progress saved</p>}
             </div>
+            {isAnonymous && (
+              <div className="p-4 bg-gold/10 border border-gold/30 rounded-xl text-center">
+                <p className="text-brown-700 font-medium mb-2">Want to save your progress?</p>
+                <a href="/signup" className="inline-block px-6 py-2 bg-gold text-white rounded-lg font-medium hover:bg-gold/90 transition-colors">
+                  Sign Up Free
+                </a>
+              </div>
+            )}
             <div className="flex flex-col gap-3 pt-4">
               <button onClick={handleRetry} className={`bg-gold hover:bg-gold-dark text-white font-semibold ${young ? "py-4 text-lg rounded-2xl" : "py-3 rounded-lg"}`}>
                 Practice Again
@@ -375,7 +398,7 @@ export default function LessonPractice({ lessonId, lessonTitle, lessonType, pass
                 </Link>
               )}
               <Link href={backUrl} className="text-sm text-brown-400 hover:text-brown-600">Back to Unit</Link>
-              <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>
+              {!isAnonymous && <Link href="/student" className="text-sm text-brown-400 hover:text-brown-600">Dashboard</Link>}
             </div>
           </>
         )}
