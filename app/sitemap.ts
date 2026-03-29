@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [...staticPages, ...blogPages];
   }
 
-  // Language sites (hyelearn.com, mathaino.net) — add auth + curriculum pages
+  // Language sites (hyelearn.com, mathaino.net, ta3allam.org) — add auth + curriculum pages
   const authPages: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/signup`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/login`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
@@ -44,27 +44,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  // Fetch curriculum structure from Supabase
+  // Fetch curriculum structure from Supabase — public /learn/ URLs
   const curriculumPages: MetadataRoute.Sitemap = [];
   try {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
+    // /learn overview
+    curriculumPages.push({
+      url: `${baseUrl}/learn`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    });
+
     const { data: levels } = await db
       .from("curriculum_levels")
-      .select("slug")
+      .select("id, slug")
       .eq("locale", locale)
       .eq("is_active", true);
 
     if (levels) {
       for (const level of levels) {
         curriculumPages.push({
-          url: `${baseUrl}/student/curriculum/${level.slug}`,
+          url: `${baseUrl}/learn/${level.slug}`,
           lastModified: now,
-          changeFrequency: "monthly",
+          changeFrequency: "monthly" as const,
           priority: 0.7,
         });
+
+        const { data: units } = await db
+          .from("curriculum_units")
+          .select("id, slug")
+          .eq("level_id", level.id)
+          .eq("is_active", true)
+          .eq("locale", locale);
+
+        if (units) {
+          for (const unit of units) {
+            curriculumPages.push({
+              url: `${baseUrl}/learn/${level.slug}/${unit.slug}`,
+              lastModified: now,
+              changeFrequency: "monthly" as const,
+              priority: 0.6,
+            });
+
+            const { data: lessons } = await db
+              .from("curriculum_lessons")
+              .select("slug")
+              .eq("unit_id", unit.id)
+              .eq("is_active", true)
+              .eq("locale", locale);
+
+            if (lessons) {
+              for (const lesson of lessons) {
+                curriculumPages.push({
+                  url: `${baseUrl}/learn/${level.slug}/${unit.slug}/${lesson.slug}`,
+                  lastModified: now,
+                  changeFrequency: "monthly" as const,
+                  priority: 0.8,
+                });
+              }
+            }
+          }
+        }
       }
     }
 
