@@ -395,7 +395,7 @@ export default async function LandingPage() {
               { name: "HyeLearn", label: "Armenian", url: "https://hyelearn.com", loc: "hy" },
               { name: "Mathaino", label: "Greek", url: "https://mathaino.net", loc: "el" },
               { name: "Ta3allam", label: "Arabic", url: "https://ta3allam.org", loc: "ar" },
-              { name: "Tagalog", label: "Tagalog", url: "https://diasporalearn.org/learn", loc: "tl" },
+              { name: "Tagalog", label: "Tagalog", url: "https://diasporalearn.org/learn?locale=tl", loc: "tl" },
             ].filter((s) => s.loc !== locale).map((s) => (
               <a key={s.loc} href={s.url} target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">{s.name} ({s.label})</a>
             ))}

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { getLocale } from "@/lib/server-locale";
 import PublicHeader from "@/components/ui/PublicHeader";
 import LessonPractice from "@/app/(dashboard)/student/curriculum/[levelSlug]/[unitSlug]/[lessonSlug]/LessonPractice";
 
@@ -37,12 +36,11 @@ export default async function PublicLessonPage({
   params: Promise<{ levelSlug: string; unitSlug: string; lessonSlug: string }>;
 }) {
   const { levelSlug, unitSlug, lessonSlug } = await params;
-  const locale = await getLocale();
   const db = getServiceDb();
 
   const { data: level } = await db
     .from("curriculum_levels")
-    .select("id, title, grade_value")
+    .select("id, title, grade_value, locale")
     .eq("slug", levelSlug)
     .single();
   if (!level) notFound();
@@ -94,7 +92,7 @@ export default async function PublicLessonPage({
       .select("slug")
       .eq("level_id", level.id)
       .eq("is_active", true)
-      .eq("locale", locale)
+      .eq("locale", level.locale)
       .gt("sort_order", unit.sort_order)
       .order("sort_order")
       .limit(1)
@@ -115,7 +113,7 @@ export default async function PublicLessonPage({
         nextLessonUrl={nextLessonUrl}
         nextUnitUrl={nextUnitUrl}
         gradeValue={level.grade_value}
-        locale={locale}
+        locale={level.locale as string}
         isAnonymous={true}
       />
     </div>

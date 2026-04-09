@@ -8,6 +8,18 @@ function getServiceDb() {
   );
 }
 
+/** Get all locales that have at least one active level */
+export async function getPublicLocales() {
+  const db = getServiceDb();
+  const { data } = await db
+    .from("curriculum_levels")
+    .select("locale")
+    .eq("is_active", true);
+  if (!data) return [];
+  const unique = [...new Set(data.map((d) => d.locale as string))];
+  return unique.filter((l) => l && l !== "en");
+}
+
 /** Get all active levels for a locale — no progress, no user needed */
 export async function getPublicLevels(locale: string) {
   const db = getServiceDb();

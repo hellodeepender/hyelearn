@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { getLocale } from "@/lib/server-locale";
 import { getPublicUnits } from "@/lib/curriculum-public";
 import { getEnglishTitle } from "@/lib/grade-labels";
 import PublicHeader from "@/components/ui/PublicHeader";
@@ -24,7 +23,6 @@ export async function generateMetadata({ params }: { params: Promise<{ levelSlug
 
 export default async function PublicLevelPage({ params }: { params: Promise<{ levelSlug: string }> }) {
   const { levelSlug } = await params;
-  const locale = await getLocale();
   const db = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -33,11 +31,12 @@ export default async function PublicLevelPage({ params }: { params: Promise<{ le
 
   const { data: level } = await db
     .from("curriculum_levels")
-    .select("id, slug, title, description")
+    .select("id, slug, title, description, locale")
     .eq("slug", levelSlug)
     .single();
   if (!level) notFound();
 
+  const locale = level.locale as string;
   const units = await getPublicUnits(level.id, locale);
 
   return (
