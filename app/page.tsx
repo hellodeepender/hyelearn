@@ -391,22 +391,14 @@ export default async function LandingPage() {
             <span>family</span>
             <span className="text-brown-700">&middot;</span>
             <span>Also available:</span>
-            {locale === "el" ? (
-              <>
-                <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">HyeLearn (Armenian)</a>
-                <a href="https://ta3allam.org" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">Ta3allam (Arabic)</a>
-              </>
-            ) : locale === "ar" ? (
-              <>
-                <a href="https://hyelearn.com" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">HyeLearn (Armenian)</a>
-                <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">Mathaino (Greek)</a>
-              </>
-            ) : (
-              <>
-                <a href="https://mathaino.net" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">Mathaino (Greek)</a>
-                <a href="https://ta3allam.org" target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">Ta3allam (Arabic)</a>
-              </>
-            )}
+            {[
+              { name: "HyeLearn", label: "Armenian", url: "https://hyelearn.com", loc: "hy" },
+              { name: "Mathaino", label: "Greek", url: "https://mathaino.net", loc: "el" },
+              { name: "Ta3allam", label: "Arabic", url: "https://ta3allam.org", loc: "ar" },
+              { name: "TalaLearn", label: "Tagalog", url: "https://talalearn.com", loc: "tl" },
+            ].filter((s) => s.loc !== locale).map((s) => (
+              <a key={s.loc} href={s.url} target="_blank" rel="noopener noreferrer" className="text-brown-400 hover:text-brown-300 underline">{s.name} ({s.label})</a>
+            ))}
           </div>
           <div className="border-t border-brown-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-brown-500 text-xs">{t("footerTagline")}</p>

@@ -14,6 +14,7 @@ export default function robots(): MetadataRoute.Robots {
       "https://mathaino.net/sitemap.xml",
       "https://ta3allam.org/sitemap.xml",
       "https://diasporalearn.org/sitemap.xml",
+      "https://talalearn.com/sitemap.xml",
     ],
   };
 }

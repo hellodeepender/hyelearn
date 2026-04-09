@@ -1,4 +1,4 @@
-export type Locale = "hy" | "el" | "en" | "ar";
+export type Locale = "hy" | "el" | "en" | "ar" | "tl";
 
 export const DEFAULT_LOCALE: Locale = "hy";
 
@@ -141,6 +141,33 @@ export const DOMAIN_MAP: Record<string, DomainConfig> = {
       heroOverlay: "#2E2E1C",
     },
   },
+  "talalearn.com": {
+    locale: "tl" as Locale,
+    brandName: "TalaLearn",
+    nativeName: "Tagalog",
+    englishName: "Tagalog",
+    fontFamily: "'Noto Sans', sans-serif",
+    dir: "ltr",
+    supportEmail: "support@talalearn.com",
+    noreplyEmail: "noreply@talalearn.com",
+    url: "https://talalearn.com",
+    theme: {
+      primary: "#0038A8",
+      primaryDark: "#002878",
+      primaryLight: "rgba(0,56,168,0.1)",
+      text900: "#0A0A1A",
+      text800: "#1A1A3D",
+      text600: "#3D3D6B",
+      text500: "#5A5A8B",
+      text400: "#7A7AA8",
+      text300: "#A0A0C4",
+      bg: "#F5F5FF",
+      bgAlt: "rgba(240,240,255,0.4)",
+      surface: "#F5F5FF",
+      border: "#D0D0F0",
+      heroOverlay: "#1A1A3D",
+    },
+  },
 };
 
 if (process.env.NODE_ENV === "development") {
@@ -148,6 +175,7 @@ if (process.env.NODE_ENV === "development") {
   DOMAIN_MAP["hyelearn.local"] = DOMAIN_MAP["hyelearn.com"];
   DOMAIN_MAP["mathaino.local"] = DOMAIN_MAP["mathaino.net"];
   DOMAIN_MAP["ta3allam.local"] = DOMAIN_MAP["ta3allam.org"];
+  DOMAIN_MAP["talalearn.local"] = DOMAIN_MAP["talalearn.com"];
 }
 
 export function getDomainConfig(hostname: string): DomainConfig {
