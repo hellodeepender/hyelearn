@@ -30,9 +30,12 @@ export default async function PublicCurriculumPage({ searchParams }: { searchPar
   // 1. ?locale= query param (explicit selection)
   // 2. Domain locale if it has curriculum (hy, el, ar, tl — NOT en)
   // 3. Default to showing the language picker with no levels
-  const availableLocales = await getPublicLocales();
-  const requestedLocale = sp.locale && availableLocales.includes(sp.locale) ? sp.locale : null;
-  const effectiveLocale = requestedLocale ?? (domainLocale !== "en" && availableLocales.includes(domainLocale) ? domainLocale : null);
+  const dbLocales = await getPublicLocales();
+  // Always show all known language tabs — even if content isn't seeded yet
+  const allKnownLocales = ["hy", "el", "ar", "tl"];
+  const availableLocales = allKnownLocales.filter((l) => LOCALE_META[l]);
+  const requestedLocale = sp.locale && allKnownLocales.includes(sp.locale) ? sp.locale : null;
+  const effectiveLocale = requestedLocale ?? (domainLocale !== "en" && dbLocales.includes(domainLocale) ? domainLocale : null);
 
   const levels = effectiveLocale ? await getPublicLevels(effectiveLocale) : [];
   const langName = effectiveLocale ? (LOCALE_META[effectiveLocale]?.name ?? effectiveLocale) : null;
