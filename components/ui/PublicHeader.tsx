@@ -5,8 +5,8 @@ import { useLocale } from "@/lib/locale-context";
 
 export default function PublicHeader() {
   const { locale } = useLocale();
-  const brandName = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : "HyeLearn";
-  const brandLetter = locale === "el" ? "\u039C" : locale === "ar" ? "\u062A" : "\u0531";
+  const brandName = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "Tagalog" : "HyeLearn";
+  const brandLetter = locale === "el" ? "\u039C" : locale === "ar" ? "\u062A" : locale === "tl" ? "T" : "\u0531";
 
   return (
     <header className="sticky top-0 z-40 bg-warm-white/90 backdrop-blur-md border-b border-brown-100">

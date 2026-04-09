@@ -53,7 +53,7 @@ const products = [
 ];
 
 const stats = [
-  { value: "3", label: "Languages" },
+  { value: "4", label: "Languages" },
   { value: "365+", label: "Lessons" },
   { value: "144", label: "Sunday School Lessons" },
   { value: "474", label: "Audio Files" },

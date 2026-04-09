@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   const text = request.nextUrl.searchParams.get("text")?.trim();
   const locale = request.nextUrl.searchParams.get("locale") || "hy";
-  const VOICE_MAP: Record<string, string> = { hy: "nune", el: "eleni", ar: "majida" };
+  const VOICE_MAP: Record<string, string> = { hy: "nune", el: "eleni", ar: "majida", tl: "bianca" };
   const voice = VOICE_MAP[locale] || "nune";
   console.log("[tts] TTS request for:", text, "locale:", locale, "voice:", voice);
 

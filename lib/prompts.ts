@@ -33,6 +33,13 @@ const LOCALE_CONFIGS: Record<string, LocaleConfig> = {
     scriptField: "ar",
     scriptNote: "Arabic script appears ONLY in _ar fields. English appears ONLY in _en fields. NEVER mix scripts. All Arabic text must be fully vowelized (with tashkeel/harakat).",
   },
+  tl: {
+    languageName: "Tagalog",
+    dialect: "Standard Filipino (Tagalog) as spoken in the Philippine diaspora",
+    studentDescription: "Filipino diaspora children learning heritage Tagalog",
+    scriptField: "tl",
+    scriptNote: "Tagalog text (Latin script) appears ONLY in _tl fields. English appears ONLY in _en fields. NEVER mix languages in a single field.",
+  },
 };
 
 function getLocaleConfig(locale: string): LocaleConfig {
