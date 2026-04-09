@@ -1,4 +1,4 @@
-export type Locale = "hy" | "el" | "en" | "ar";
+export type Locale = "hy" | "el" | "en" | "ar" | "tl";
 
 export const DEFAULT_LOCALE: Locale = "hy";
 
