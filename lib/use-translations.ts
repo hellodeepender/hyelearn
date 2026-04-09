@@ -11,11 +11,14 @@ import enCommon from "@/locales/en/common.json";
 import hyLanding from "@/locales/hy/landing.json";
 import elLanding from "@/locales/el/landing.json";
 import arLanding from "@/locales/ar/landing.json";
+import tlCommon from "@/locales/tl/common.json";
+import tlLanding from "@/locales/tl/landing.json";
 
 const allTranslations: Record<string, Record<string, Record<string, string>>> = {
   hy: { common: hyCommon, landing: hyLanding },
   el: { common: elCommon, landing: elLanding },
   ar: { common: arCommon, landing: arLanding },
+  tl: { common: tlCommon, landing: tlLanding },
   en: { common: enCommon },
 };
 
