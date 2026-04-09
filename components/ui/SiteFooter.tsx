@@ -7,7 +7,7 @@ const SISTER_SITES = [
   { locale: "hy", name: "HyeLearn", label: "Armenian", url: "https://hyelearn.com" },
   { locale: "el", name: "Mathaino", label: "Greek", url: "https://mathaino.net" },
   { locale: "ar", name: "Ta3allam", label: "Arabic", url: "https://ta3allam.org" },
-  { locale: "tl", name: "TalaLearn", label: "Tagalog", url: "https://talalearn.com" },
+  { locale: "tl", name: "Tagalog", label: "Tagalog", url: "https://diasporalearn.org/learn" },
 ];
 
 const LINKEDIN_SVG = (

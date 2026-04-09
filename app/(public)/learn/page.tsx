@@ -7,7 +7,7 @@ import SiteFooter from "@/components/ui/SiteFooter";
 
 export async function generateMetadata() {
   const locale = await getLocale();
-  const brand = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "TalaLearn" : "HyeLearn";
+  const brand = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "Tagalog" : "HyeLearn";
   const lang = locale === "el" ? "Greek" : locale === "ar" ? "Arabic" : locale === "tl" ? "Tagalog" : "Armenian";
   return {
     title: `${brand} — Free ${lang} Curriculum for Kids`,
@@ -18,7 +18,7 @@ export async function generateMetadata() {
 export default async function PublicCurriculumPage() {
   const locale = await getLocale();
   const levels = await getPublicLevels(locale);
-  const brand = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "TalaLearn" : "HyeLearn";
+  const brand = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "Tagalog" : "HyeLearn";
 
   return (
     <div className="min-h-screen bg-cream">

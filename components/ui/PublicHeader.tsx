@@ -5,7 +5,7 @@ import { useLocale } from "@/lib/locale-context";
 
 export default function PublicHeader() {
   const { locale } = useLocale();
-  const brandName = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "TalaLearn" : "HyeLearn";
+  const brandName = locale === "el" ? "Mathaino" : locale === "ar" ? "Ta3allam" : locale === "tl" ? "Tagalog" : "HyeLearn";
   const brandLetter = locale === "el" ? "\u039C" : locale === "ar" ? "\u062A" : locale === "tl" ? "T" : "\u0531";
 
   return (
