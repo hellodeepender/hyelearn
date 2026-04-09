@@ -8,6 +8,8 @@ import { headers } from "next/headers";
 const LOCALE_CONFIG = {
   hy: { languageName: "Western Armenian", dialect: "classical orthography", scriptNote: "Use real Armenian Unicode characters", alphabetSize: 36, expert: "Western Armenian language expert", pronunciationNote: "Use Western Armenian pronunciation (NOT Eastern Armenian)" },
   el: { languageName: "Modern Greek", dialect: "standard Modern Greek (Demotic)", scriptNote: "Use real Greek Unicode characters with proper accent marks (tonos)", alphabetSize: 24, expert: "Modern Greek language expert", pronunciationNote: "Use standard Modern Greek pronunciation" },
+  ar: { languageName: "Arabic", dialect: "Modern Standard Arabic", scriptNote: "Use Arabic Unicode characters with tashkeel", alphabetSize: 28, expert: "Arabic language expert", pronunciationNote: "Use Modern Standard Arabic pronunciation" },
+  tl: { languageName: "Tagalog", dialect: "standard Filipino (Manila dialect)", scriptNote: "Use standard Latin characters", alphabetSize: 28, expert: "Filipino language expert", pronunciationNote: "Use standard Filipino pronunciation" },
 } as const;
 
 // ── Grade-level difficulty guidance (language-agnostic) ──────

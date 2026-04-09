@@ -210,7 +210,7 @@ export default async function RootLayout({
   const domainConfig = await getServerLocale();
 
   const fontClass =
-    domainConfig.locale === "el" ? `${notoSans.variable} font-[family-name:var(--font-noto-sans)]` :
+    domainConfig.locale === "el" || domainConfig.locale === "tl" ? `${notoSans.variable} font-[family-name:var(--font-noto-sans)]` :
     domainConfig.locale === "ar" ? `${notoSansArabic.variable} font-[family-name:var(--font-noto-arabic)]` :
     `${notoSansArmenian.variable} font-[family-name:var(--font-noto-armenian)]`;
 

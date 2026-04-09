@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
     name: config.brandName,
     short_name: config.brandName,
     description:
-      config.locale === "el"
-        ? "Learn Greek — interactive K-5 lessons for diaspora kids"
-        : config.locale === "hy"
-          ? "Learn Armenian — interactive K-5 lessons for diaspora kids"
-          : "Heritage language learning platforms for diaspora communities",
+      config.locale === "el" ? "Learn Greek — interactive K-5 lessons for diaspora kids"
+        : config.locale === "ar" ? "Learn Arabic — interactive K-5 lessons for diaspora kids"
+        : config.locale === "tl" ? "Learn Tagalog — interactive K-5 lessons for diaspora kids"
+        : config.locale === "hy" ? "Learn Armenian — interactive K-5 lessons for diaspora kids"
+        : "Heritage language learning platforms for diaspora communities",
     start_url: "/",
     display: "standalone",
     background_color: config.theme.bg,

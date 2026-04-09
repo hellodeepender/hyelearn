@@ -80,6 +80,7 @@ const THEME: Record<string, { accent: string; pathColor: string; summitEmoji: st
   el: { accent: "#1A6AFF", pathColor: "#5B8DB8", summitEmoji: "\uD83C\uDFDB\uFE0F" },
   hy: { accent: "#D4A843", pathColor: "#C4384B", summitEmoji: "\uD83C\uDFD4\uFE0F" },
   ar: { accent: "#2E7D32", pathColor: "#4A7C59", summitEmoji: "\u26F0\uFE0F" },
+  tl: { accent: "#0038A8", pathColor: "#1A5A8F", summitEmoji: "\uD83C\uDFDD\uFE0F" },
 };
 
 export default function MapPath({ nodes, locale, summitLabel, subtitle }: Props) {

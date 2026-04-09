@@ -10,7 +10,7 @@
  *   NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... NARAKEET_API_KEY=... \
  *     npx tsx scripts/prewarm-tts-tagalog.ts
  *
- *   Optional: --base-url=https://talalearn.com (default: http://localhost:3000)
+ *   Optional: --dry-run (just list words, don't generate)
  *             --dry-run (just list words, don't generate)
  */
 
