@@ -32,7 +32,7 @@ jobs:
 
   auto-merge:
     needs: health-check
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'blog/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
