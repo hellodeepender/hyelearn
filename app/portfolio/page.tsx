@@ -72,9 +72,31 @@ export default function PortfolioPage() {
             <h1 style={{ fontFamily: "var(--font-dm-serif)" }} className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight mb-6">
               DiasporaLearn: Helping kids stay connected to their roots
             </h1>
-            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-10">
+            <p className="text-lg text-[#555] max-w-2xl mx-auto leading-relaxed mb-8">
               Interactive learning platforms for heritage languages. K-5 curriculum, Sunday school lessons, and native audio — built for diaspora families.
             </p>
+
+            {/* Google Play CTA */}
+            <div className="mb-10">
+              <p className="text-sm text-[#666] mb-4 max-w-lg mx-auto">
+                Learn Armenian, Greek, Arabic, and Assyrian alphabets through interactive games. Free, offline, designed for ages 4–8.
+              </p>
+              <a
+                href="https://play.google.com/store/apps/details?id=org.diasporalearn.kids"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get DiasporaLearn Kids on Google Play"
+              >
+                <Image
+                  src="/images/google-play-badge.png"
+                  alt="Get it on Google Play"
+                  width={220}
+                  height={85}
+                  className="mx-auto hover:opacity-90 transition-opacity"
+                />
+              </a>
+            </div>
+
             <div className="max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-lg">
               <Image src="/images/portfolio/hero-illustration.jpg" alt="DiasporaLearn — heritage language learning for kids" width={1200} height={500} className="w-full h-auto max-h-[350px] object-cover" priority />
             </div>
@@ -276,7 +298,23 @@ export default function PortfolioPage() {
               <a href="mailto:hello@diasporalearn.org" className="hover:text-[#555]">hello@diasporalearn.org</a>
             </div>
           </div>
-          <div className="border-t border-[#E5E5E5] pt-4 flex items-center justify-center gap-4 text-xs text-[#bbb]">
+          <div className="border-t border-[#E5E5E5] pt-4 mb-4 flex justify-center">
+            <a
+              href="https://play.google.com/store/apps/details?id=org.diasporalearn.kids"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Get DiasporaLearn Kids on Google Play"
+            >
+              <Image
+                src="/images/google-play-badge.png"
+                alt="Get it on Google Play"
+                width={160}
+                height={62}
+                className="hover:opacity-90 transition-opacity"
+              />
+            </a>
+          </div>
+          <div className="flex items-center justify-center gap-4 text-xs text-[#bbb]">
             <p>&copy; {new Date().getFullYear()} DiasporaLearn. Heritage language education for diaspora communities worldwide.</p>
             <a href="https://www.linkedin.com/company/diasporalearn/" target="_blank" rel="noopener noreferrer" className="text-[#bbb] hover:text-[#555] transition-colors" aria-label="LinkedIn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>

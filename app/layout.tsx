@@ -56,13 +56,13 @@ export async function generateMetadata(): Promise<Metadata> {
         siteName: "DiasporaLearn",
         title: "DiasporaLearn — Heritage Language Learning for Diaspora Children",
         description: "Armenian, Greek, and Arabic language learning for diaspora kids. Interactive K-5 curriculum and Sunday school lessons.",
-        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "DiasporaLearn - Heritage Language Learning" }],
+        images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "DiasporaLearn - Heritage Language Learning" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "DiasporaLearn — Heritage Language Learning",
         description: "Armenian, Greek, and Arabic language learning for diaspora kids.",
-        images: ["/og-image.svg"],
+        images: ["/og-image.png"],
       },
       robots: {
         index: true,
@@ -97,13 +97,13 @@ export async function generateMetadata(): Promise<Metadata> {
         siteName: "Mathaino",
         title: "Mathaino — \u039C\u03AC\u03B8\u03B5 \u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC Online",
         description: "Interactive Greek language learning for K-5 students. Built for Greek diaspora families.",
-        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Mathaino - Learn Greek Online" }],
+        images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Mathaino - Learn Greek Online" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "Mathaino — \u039C\u03AC\u03B8\u03B5 \u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC Online",
         description: "Interactive Greek language learning for K-5 students.",
-        images: ["/og-image.svg"],
+        images: ["/og-image.png"],
       },
       robots: {
         index: true,
@@ -139,13 +139,13 @@ export async function generateMetadata(): Promise<Metadata> {
         siteName: "Ta3allam",
         title: "Ta3allam \u2014 Learn Arabic | Heritage Language for Diaspora Kids",
         description: "Interactive Arabic language learning for K-5 students. Built for Arabic-speaking diaspora families.",
-        images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Ta3allam - Learn Arabic Online" }],
+        images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Ta3allam - Learn Arabic Online" }],
       },
       twitter: {
         card: "summary_large_image",
         title: "Ta3allam \u2014 Learn Arabic Online",
         description: "Interactive Arabic language learning for K-5 students.",
-        images: ["/og-image.svg"],
+        images: ["/og-image.png"],
       },
       robots: {
         index: true,
@@ -180,13 +180,13 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "HyeLearn",
       title: "HyeLearn — Learn Western Armenian Online",
       description: "Interactive Armenian language learning for K-5 students. Built for Armenian day schools and diaspora families.",
-      images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "HyeLearn - Learn Armenian Online" }],
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "HyeLearn - Learn Armenian Online" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "HyeLearn — Learn Western Armenian Online",
       description: "Interactive Armenian language learning for K-5 students.",
-      images: ["/og-image.svg"],
+      images: ["/og-image.png"],
     },
     robots: {
       index: true,
